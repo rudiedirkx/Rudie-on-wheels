@@ -33,13 +33,9 @@ class Options extends Object {
 	}
 
 	public function __get($k) {
-		if ( $this->exists($k) ) {
+		if ( $this->_exists($k) ) {
 			return $this->$k;
 		}
-	}
-
-	public function exists($k) {
-		return property_exists($this, $k);
 	}
 
 }

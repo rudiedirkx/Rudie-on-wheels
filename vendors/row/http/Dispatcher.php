@@ -10,7 +10,7 @@ class NotFoundException extends \RowException { }
 
 class Dispatcher extends Object {
 
-	public $request_path = false; // false means unset, only strings are valid, but so is an empty string
+	public $requestPath = false; // false means unset, only strings are valid, but so is an empty string
 
 	public $options; // typeof Options
 
@@ -43,17 +43,20 @@ class Dispatcher extends Object {
 		$this->_init();
 	}
 
+
 	public function _init() {
 		$this->getRequestPath();
 		// Anything else? Anything??
 	}
 
+
 	public function setRouter( \row\http\Router $router ) {
 		$this->router = $router;
 	}
 
+
 	public function getRequestPath() {
-		if ( false === $this->request_path ) {
+		if ( false === $this->requestPath ) {
 			$uri = explode('?', $_SERVER['REQUEST_URI'], 2);
 			if ( isset($uri[1]) ) {
 				parse_str($uri[1], $_GET);
@@ -68,44 +71,63 @@ class Dispatcher extends Object {
 			else if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
 			}
-			$this->request_path = $path;
+			$this->requestPath = $path;
 		}
-		return $this->request_path;
+		return $this->requestPath;
 	}
 
+
 	public function getApplication( $f_path ) {
-		$uri = explode('/', trim($f_path, '/'), 2);
-		$module = $uri[0] ?: 'index';
-		if ( isset($uri[1]) ) {
-			$args = explode('/', $uri[1]);
-			$action = array_shift($args);
-		}
-		else {
-			$action = 'index';
-			$args = array();
-		}
-
-		$this->_module = $module;
-		$this->_action = $action;
-		$this->_args = $args;
-
-		$class = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
-		$namespacedClass = 'app\\controllers\\' . $class;
-		$loader = \Vendors::$loaders['app'];
-		$file = $loader('app', 'controllers\\'.$class);
-		if ( !file_exists($file) ) {
+		$application = $this->getController($f_path);
+		if ( !is_a($application, 'row\Controller') ) {
 			$class = $this->options->not_found_exception;
-			throw new $class('Module "'.$module.'" not found.');
+			throw new $class($f_path);
 		}
-
-		$application = new $namespacedClass( $action, $args );
-		$application->_executable = is_callable(array($application, $action));
 
 		// Yuck!
 		$application->_dispatcher = $this;
 		$this->application = $application;
 
 		return $application;
+	}
+
+
+	public function getController( $f_path ) {
+		$uri = explode('/', trim($f_path, '/'), 2);
+		$module = $uri[0] ?: 'index';
+		foreach ( $this->options->dispatch_order AS $dispatchType ) {
+			switch ( $dispatchType ) {
+				case 'generic':
+					if ( isset($uri[1]) ) {
+						$args = explode('/', $uri[1]);
+						$action = array_shift($args);
+					}
+					else {
+						$action = 'index';
+						$args = array();
+					}
+
+					$this->_module = $module;
+					$this->_action = $action;
+					$this->_args = $args;
+
+					$class = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
+					$namespacedClass = 'app\\controllers\\' . $class;
+					$loader = \Vendors::$loaders['app'];
+					$file = $loader('app', 'controllers\\'.$class);
+					if ( !file_exists($file) ) {
+						$class = $this->options->not_found_exception;
+						throw new $class($f_path);
+					}
+
+					$application = new $namespacedClass( $action, $args );
+					$application->_executable = is_callable(array($application, $action));
+					return $application;
+				break;
+			}
+		}
+
+		return false;
 	}
 
 

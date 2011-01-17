@@ -77,7 +77,6 @@ class Model extends Object {
 		if ( \Vendors::class_exists($class.'Record') ) {
 			$class = $class.'Record';
 		}
-//var_dump($class); exit;
 		return static::$_db->fetch($query, $class);
 	}
 
@@ -100,10 +99,7 @@ class Model extends Object {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions ) {
-//print_r(func_get_args());
-		if ( !is_string($conditions) ) {
-			$conditions = static::$_db->stringifyConditions($conditions);
-		}
+		$conditions = static::$_db->stringifyConditions($conditions);
 		$conditions = static::$_db->addLimit($conditions, 2);
 		$r = static::_fetch($conditions);
 		if ( !isset($r[0]) || isset($r[1]) ) {
@@ -127,14 +123,18 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _get( $pkvalues, $more_conditions = '' ) {
-		$pkvalues = (array)$pkvalues;
-		$pkcolumns = (array)static::$_pk;
-		if ( count($pkvalues) !== count($pkcolumns) ) {
-			throw new ModelException('Invalid number of PK arguments ('.count($pkvalues).' instead of '.count(static::$_pk).').');
+	static public function _get( $pkValues, $moreConditions = array() ) {
+		$pkValues = (array)$pkValues;
+		$pkColumns = (array)static::$_pk;
+		if ( count($pkValues) !== count($pkColumns) ) {
+			throw new ModelException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
 		}
-		$pkvalues = array_combine($pkcolumns, $pkvalues);
-		return static::_one($pkvalues);
+		$pkValues = array_combine($pkColumns, $pkValues);
+		$conditions = static::$_db->stringifyConditions($pkValues, 'AND', static::$_table);
+		if ( $moreConditions ) {
+			$conditions .= ' AND '.static::$_db->stringifyConditions($moreConditions);
+		}
+		return static::_one($conditions);
 	}
 
 	/**
@@ -175,13 +175,13 @@ var_dump(static::$_db);
 		if ( null !== $data ) {
 			$this->_fill( $data );
 		}
-		$this->_init( null !== $data );
+		$this->_fire('init', array(null !== $data));
 	}
 
 	/**
 	 * Dummy init function to enable executing init without checking callability
 	 */
-	public function _init( $with_data = true ) {}
+	public function _init( $withData = true ) {}
 
 	/**
 	 * 
@@ -196,7 +196,7 @@ var_dump(static::$_db);
 	/**
 	 * Returns an associative array of PK keys + values
 	 */
-	public function _pkvalue( $strict = true ) {
+	public function _pkValue( $strict = true ) {
 		return $this->_values((array)static::$_pk, $strict);
 	}
 
@@ -214,13 +214,6 @@ var_dump(static::$_db);
 			}
 		}
 		return $values;
-	}
-
-	/**
-	 * Returns whether a property/field/column value exists in this object
-	 */
-	public function _exists( $key ) {
-		return property_exists($this, $key);
 	}
 
 
@@ -283,7 +276,7 @@ var_dump(static::$_db);
 		if ( isset($this::$_getters[$key]) ) {
 			return $this->__getter($key);
 		}
-		else if ( property_exists($this, $key) ) {
+		else if ( $this->_exists($key) ) {
 			return $this->$key;
 		}
 	}
@@ -293,14 +286,14 @@ var_dump(static::$_db);
 	 * 
 	 */
 	public function update( $updates ) {
-		return $this::_update($updates, $this->_pkvalue(true));
+		return $this::_update($updates, $this->_pkValue(true));
 	}
 
 	/**
 	 * 
 	 */
 	public function delete() {
-		return $this::_delete($this->_pkvalue(true));
+		return $this::_delete($this->_pkValue(true));
 	}
 
 

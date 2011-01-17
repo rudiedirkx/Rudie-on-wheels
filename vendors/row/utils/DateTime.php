@@ -6,7 +6,7 @@ use row\core\Object;
 
 class DateTime extends Object {
 
-	static public $default_format = '';
+	static public $defaultFormat = '';
 
 	public $utc = 0;
 
@@ -16,7 +16,7 @@ class DateTime extends Object {
 
 	public function format( $format = null ) {
 		if ( !is_string($format) ) {
-			$format = static::$default_format;
+			$format = static::$defaultFormat;
 		}
 		return date($format, $this->utc);
 	}

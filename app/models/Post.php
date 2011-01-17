@@ -21,7 +21,7 @@ class Post extends Model {
 	}
 
 	static public function _getPublishedPost( $id ) {
-		return static::_get($id, array('published' => true));
+		return static::_get($id, array('is_published' => true));
 	}
 
 	static public function _newest( $amount ) {

@@ -7,10 +7,8 @@ define( 'ROW_APP_PATH', ROW_PATH.'/app' ); // The application root
 
 require(ROW_VENDOR_ROW_PATH.'/core/Vendors.php');
 Vendors::init(ROW_VENDORS_PATH);
-Vendors::add('app', function($name, $class) {
-	$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-	return ROW_APP_PATH.DIRECTORY_SEPARATOR.$path.'.php';
-});
+
+require(__DIR__.'/vendors.php');
 
 require(__DIR__.'/database.php');
 

@@ -1,4 +1,8 @@
 
+How to:
+-------
+* LOOSELY couple everything together (dispatcher > controller > database + views)
+
 * Dispatcher: Make sure Controller Actions are checked from **outside** the Controller class, so only public methods can be called
 * Dispatcher: Lose most (?) options
 * Dispatcher: Just call controller classes BlogController etc (like all other frameworks do)
