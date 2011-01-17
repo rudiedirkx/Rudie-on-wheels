@@ -1,0 +1,114 @@
+<?php
+
+namespace row\http;
+
+use row\core\Object;
+use row\utils\Options;
+//use row\core\Vendors;
+
+class NotFoundException extends \RowException { }
+
+class Dispatcher extends Object {
+
+	public $request_path = false; // false means unset, only strings are valid, but so is an empty string
+
+	public $options; // typeof Options
+
+	public function __construct( $options = array() ) {
+		$defaults = Options::make(array(
+			'module_delim' => '-',
+			'dispatch_order' => array('specific', 'generic', 'fallback'),
+			'not_found_exception' => 'row\http\NotFoundException',
+			'module_class_prefix' => '',
+			'module_class_postfix' => 'Controller',
+			'action_path_wildcards' => Options::make(array(
+				'INT'		=> '(\d+)',
+				'STRING'	=> '([^/]+)',
+				'DATE'		=> '(\d\d\d\d\-\d\d?\-\d\d?)',
+				'ANYTHING'	=> '(.+)',
+				'VERSION'	=> '(\d+\.\d+\.\d+\)',
+			)),
+			'action_path_wildcard_aliases' => Options::make(array(
+				'#' => 'INT',
+				'*' => 'STRING',
+			)),
+			'ignore_leading_slash' => false,
+			'ignore_trailing_slash' => false,
+			'case_sensitive_paths' => false,
+			// Unimplemented:
+//			'path_source' => 'REQUEST_URI', // REQUEST_URI | INDEX_PHP | QUERY_STRING | GET
+//			'path_source_get_param' => 'url',
+		));
+		$this->options = new Options($options, $defaults);
+		$this->_init();
+	}
+
+	public function _init() {
+		$this->getRequestPath();
+		// Anything else? Anything??
+	}
+
+	public function setRouter( \row\http\Router $router ) {
+		$this->router = $router;
+	}
+
+	public function getRequestPath() {
+		if ( false === $this->request_path ) {
+			$uri = explode('?', $_SERVER['REQUEST_URI'], 2);
+			if ( isset($uri[1]) ) {
+				parse_str($uri[1], $_GET);
+			}
+			$path = $uri[0];
+			if ( $this->options->ignore_leading_slash && $this->options->ignore_trailing_slash ) {
+				$path = trim($path, '/');
+			}
+			else if ( $this->options->ignore_leading_slash ) {
+				$path = ltrim($path, '/');
+			}
+			else if ( $this->options->ignore_trailing_slash ) {
+				$path = rtrim($path, '/');
+			}
+			$this->request_path = $path;
+		}
+		return $this->request_path;
+	}
+
+	public function getApplication( $f_path ) {
+		$uri = explode('/', trim($f_path, '/'), 2);
+		$module = $uri[0] ?: 'index';
+		if ( isset($uri[1]) ) {
+			$args = explode('/', $uri[1]);
+			$action = array_shift($args);
+		}
+		else {
+			$action = 'index';
+			$args = array();
+		}
+
+		$this->_module = $module;
+		$this->_action = $action;
+		$this->_args = $args;
+
+		$class = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
+		$namespacedClass = 'app\\controllers\\' . $class;
+		$loader = \Vendors::$loaders['app'];
+		$file = $loader('app', 'controllers\\'.$class);
+		if ( !file_exists($file) ) {
+			$class = $this->options->not_found_exception;
+			throw new $class('Module "'.$module.'" not found.');
+		}
+
+		$application = new $namespacedClass( $action, $args );
+		$application->_executable = is_callable(array($application, $action));
+
+		// Yuck!
+		$application->_dispatcher = $this;
+		$this->application = $application;
+
+		return $application;
+	}
+
+
+} // END Class Dispatcher
+
+
