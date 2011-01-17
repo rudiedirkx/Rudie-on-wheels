@@ -11,15 +11,14 @@ class Controller extends Object {
 	public $_action = '';
 	public $_arguments = array();
 
-	static public $config = array();
+	static protected $config = array();
 
-	public function __construct( $action, $arguments ) {
-		$this->_action = $action;
-		$this->_arguments = $arguments;
+	public function __construct( $dispatcher ) {
+		$this->_dispatcher = $dispatcher;
+		$this->_action = $dispatcher->_action;
+		$this->_arguments = $dispatcher->_arguments;
 		$this->_fire('init');
 	}
-
-	public function _init() {} // dummy
 
 	public function run() { // Always return the Action's return value, so no argument needed
 		$this->_fire('pre_load');

@@ -10,8 +10,8 @@ class DateTime extends Object {
 
 	public $utc = 0;
 
-	function __construct( $utc ) {
-		$this->utc = $utc;
+	function __construct( $time ) {
+		$this->utc = \is_numeric($time) ? (int)$time : strtotime($time);
 	}
 
 	public function format( $format = null ) {

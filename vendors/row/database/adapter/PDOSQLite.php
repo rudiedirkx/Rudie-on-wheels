@@ -4,35 +4,15 @@ namespace row\database\adapter;
 
 use row\database\Adapter;
 use row\database\DatabaseException;
-use row\database\adapter\MySQLi;
+use row\database\adapter\SQLite;
 
-class MySQL extends Adapter {
-
-	public function _getTables() {
-		$tables = $this->fetch('SHOW TABLES');
-		$tables = array_map(function($r) {
-			return reset($r);
-		}, $tables);
-		return $tables;
-	}
-
-	public function _getTableColumns( $table ) {
-		$columns = $this->fetch('EXPLAIN '.$table);
-		return $columns;
-	}
+class PDOSQLite extends Adapter {
 
 	static public function initializable() {
-		return function_exists('mysql_connect');
+		return false;
 	}
 
-	static public function open( $info, $do = true ) {
-		if ( MySQLi::initializable() ) {
-			return new MySQLi($info, $do);
-		}
-		return new self($info, $do);
-	}
-
-	public function connect() {
+/*	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
 		mysql_select_db($connection->dbname, $this->db);
@@ -149,7 +129,7 @@ class MySQL extends Adapter {
 
 	public function escapeValue( $value ) {
 		return mysql_real_escape_string((string)$value, $this->db);
-	}
+	}*/
 
 }
 

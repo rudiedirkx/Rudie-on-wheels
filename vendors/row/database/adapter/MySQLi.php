@@ -2,67 +2,46 @@
 
 namespace row\database\adapter;
 
-use row\database\Adapter;
+use row\database\adapter\MySQL;
 use row\database\DatabaseException;
-use row\database\adapter\MySQLi;
 
-class MySQL extends Adapter {
-
-	public function _getTables() {
-		$tables = $this->fetch('SHOW TABLES');
-		$tables = array_map(function($r) {
-			return reset($r);
-		}, $tables);
-		return $tables;
-	}
-
-	public function _getTableColumns( $table ) {
-		$columns = $this->fetch('EXPLAIN '.$table);
-		return $columns;
-	}
+class MySQLi extends MySQL {
 
 	static public function initializable() {
-		return function_exists('mysql_connect');
-	}
-
-	static public function open( $info, $do = true ) {
-		if ( MySQLi::initializable() ) {
-			return new MySQLi($info, $do);
-		}
-		return new self($info, $do);
+		return class_exists('\mysqli');
 	}
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
-		mysql_select_db($connection->dbname, $this->db);
+//print_r($this); exit;
+		$this->db = new \mysqli($connection->host, $connection->user ?: 'root', $connection->pass ?: '', $connection->dbname);
 	}
 
 	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);
-		if ( !$r || 0 >= mysql_num_rows($r) ) {
+		if ( !is_object($r) || 0 >= $r->num_rows ) {
 			return false;
 		}
-		return mysql_result($r, 0);
+		return current($r->fetch_row());
 	}
 
 	public function countRows( $query ) {
 		$r = $this->query($query);
-		if ( $r ) {
-			return mysql_num_rows($r);
+		if ( is_object($r) ) {
+			return $r->num_rows;
 		}
 		return false;
 	}
 
 	public function fetchByField( $query, $field ) {
 		$r = $this->query($query);
-		if ( !$r ) {
+		if ( !is_object($r) ) {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_assoc($r) ) {
+		while ( $l = $r->fetch_assoc() ) {
 			$a[$l[$field]] = $l;
 		}
 		return $a;
@@ -70,11 +49,11 @@ class MySQL extends Adapter {
 
 	public function fetchFieldsAssoc( $query ) {
 		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
+		if ( is_object($r) ) {
+			return $r->num_rows;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetch_row() ) {
 			$a[$l[0]] = $l[1];
 		}
 		return $a;
@@ -82,19 +61,20 @@ class MySQL extends Adapter {
 
 	public function fetchFieldsNumeric( $query ) {
 		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
+		if ( is_object($r) ) {
+			return $r->num_rows;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetch_row() ) {
 			$a[] = $l[0];
 		}
 		return $a;
 	}
 
 	public function fetch( $query, $class = null, $justFirst = false ) {
+//var_dump($query);
 		$r = $this->query($query);
-		if ( !$r ) {
+		if ( !is_object($r) ) {
 			return false;
 		}
 		if ( !is_string($class) || !class_exists($class) ) {
@@ -102,18 +82,18 @@ class MySQL extends Adapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return mysql_fetch_object($r, $class);
+				return $r->fetch_object($class);
 			}
-			return mysql_fetch_assoc($r);
+			return $r->fetch_assoc();
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = mysql_fetch_object($r, $class) ) {
+			while ( $l = $r->fetch_object($class) ) {
 				$a[] = $l;
 			}
 		}
 		else {
-			while ( $l = mysql_fetch_assoc($r) ) {
+			while ( $l = $r->fetch_assoc() ) {
 				$a[] = $l;
 			}
 		}
@@ -121,8 +101,8 @@ class MySQL extends Adapter {
 	}
 
 	public function query( $query ) {
-		$q = mysql_query($query, $this->db);
-		if ( !$q ) {
+		$q = $this->db->query($query);
+		if ( !is_object($q) ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
 			}
@@ -132,23 +112,23 @@ class MySQL extends Adapter {
 	}
 
 	public function error() {
-		return mysql_error($this->db);
+		return $this->db->error;
 	}
 
 	public function errno() {
-		return mysql_errno($this->db);
+		return $this->db->errno;
 	}
 
 	public function affectedRows() {
-		return mysql_affected_rows($this->db);
+		return $this->db->affected_rows;
 	}
 
 	public function insertId() {
-		return mysql_insert_id($this->db);
+		return $this->db->insert_id;
 	}
 
 	public function escapeValue( $value ) {
-		return mysql_real_escape_string((string)$value, $this->db);
+		return $this->db->real_escape_string((string)$value);
 	}
 
 }

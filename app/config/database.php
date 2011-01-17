@@ -3,7 +3,7 @@
 use row\database\adapter\MySQL;
 use row\database\Model;
 
-$db = MySQL::open(array('localhost', 'blog', '', 'blog'));
+$db = MySQL::open(array('user' => 'blog', 'dbname' => 'blog'));
 
 Model::dbObject($db);
 

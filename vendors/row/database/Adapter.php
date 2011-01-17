@@ -1,10 +1,17 @@
 <?php
 
-namespace row\database\adapter;
+namespace row\database;
 
 use row\core\Object;
+use row\utils\Options;
 
-abstract class DatabaseAdapter extends Object {
+abstract class Adapter extends Object {
+
+	/* Reflection */ // Should this be put somewhere else?
+	abstract public function _getTables();
+	abstract public function _getTableColumns( $table );
+
+	abstract static public function initializable();
 
 	abstract public function connect();
 	abstract public function escapeValue( $value );
@@ -32,15 +39,21 @@ abstract class DatabaseAdapter extends Object {
 	}
 
 	protected function __construct( $connection, $connect = true ) {
-		$this->connectionArgs = $connection;
+		$this->connectionArgs = Options::make($connection, Options::make(array('host' => 'localhost')));
 		if ( $connect ) {
 			$this->connect();
 			$this->connectionArgs = null;
 		}
 	}
 
+	public function select( $table, $conditions ) {
+		$conditions = $this->stringifyConditions($conditions);
+		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
+		return $this->fetch($query);
+	}
+
 	public function selectByField( $table, $field, $conditions ) {
-		$conditions = $this->stringifyConditions($stringifyConditions);
+		$conditions = $this->stringifyConditions($conditions);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchByField($query, $field);
 	}

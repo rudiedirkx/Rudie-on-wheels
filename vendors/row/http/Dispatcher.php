@@ -21,6 +21,9 @@ class Dispatcher extends Object {
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
+			'action_name_translation' => function($action) {
+				return str_replace('-', '_', $action);
+			},
 			'action_path_wildcards' => Options::make(array(
 				'INT'		=> '(\d+)',
 				'STRING'	=> '([^/]+)',
@@ -101,6 +104,10 @@ class Dispatcher extends Object {
 					if ( isset($uri[1]) ) {
 						$args = explode('/', $uri[1]);
 						$action = array_shift($args);
+						$translate = $this->options->action_name_translation;
+						if ( is_callable($translate) ) {
+							$action = $translate($action);
+						}
 					}
 					else {
 						$action = 'index';
@@ -109,7 +116,7 @@ class Dispatcher extends Object {
 
 					$this->_module = $module;
 					$this->_action = $action;
-					$this->_args = $args;
+					$this->_arguments = $args;
 
 					$class = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
 					$namespacedClass = 'app\\controllers\\' . $class;
@@ -120,7 +127,7 @@ class Dispatcher extends Object {
 						throw new $class($f_path);
 					}
 
-					$application = new $namespacedClass( $action, $args );
+					$application = new $namespacedClass( $this );
 					$application->_executable = is_callable(array($application, $action));
 					return $application;
 				break;

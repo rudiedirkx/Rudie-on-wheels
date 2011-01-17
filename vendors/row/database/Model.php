@@ -3,8 +3,7 @@
 namespace row\database;
 
 use row\core\Object;
-use row\database\adapter\DatabaseAdapter; // interface
-use row\database\DatabaseException; // sql errors
+use row\database\Adapter; // interface
 use row\database\ModelException; // model errors
 
 class Model extends Object {
@@ -14,14 +13,14 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function dbObject( DatabaseAdapter $db = null ) {
+	static public function dbObject( Adapter $db = null ) {
 		if ( $db ) {
-//			if !is_a($db, 'DatabaseAdapter') ) {
-//				throw new ModelException('Database object IS NOT an instance of interface DatabaseAdapter.');
+//			if !is_a($db, 'Adapter') ) {
+//				throw new ModelException('Database object IS NOT an instance of interface Adapter.');
 //			}
 			self::$_db = $db;
 		}
-		return self::$_db = $db;
+		return self::$_db;
 	}
 
 
@@ -77,7 +76,7 @@ class Model extends Object {
 		if ( \Vendors::class_exists($class.'Record') ) {
 			$class = $class.'Record';
 		}
-		return static::$_db->fetch($query, $class);
+		return static::dbObject()->fetch($query, $class);
 	}
 
 	/**
@@ -99,8 +98,8 @@ class Model extends Object {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions ) {
-		$conditions = static::$_db->stringifyConditions($conditions);
-		$conditions = static::$_db->addLimit($conditions, 2);
+		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->addLimit($conditions, 2);
 		$r = static::_fetch($conditions);
 		if ( !isset($r[0]) || isset($r[1]) ) {
 			throw new ModelException('Not exactly one record returned.');
@@ -112,8 +111,8 @@ class Model extends Object {
 	 * Returns null or the first object with the matching conditions
 	 */
 	static public function _first( $conditions ) {
-		$conditions = static::$_db->stringifyConditions($conditions);
-		$conditions = static::$_db->addLimit($conditions, 1);
+		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->addLimit($conditions, 1);
 		$r = static::_fetch($conditions);
 		if ( isset($r[0]) ) {
 			return $r[0];
@@ -130,9 +129,9 @@ class Model extends Object {
 			throw new ModelException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
 		}
 		$pkValues = array_combine($pkColumns, $pkValues);
-		$conditions = static::$_db->stringifyConditions($pkValues, 'AND', static::$_table);
+		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
 		if ( $moreConditions ) {
-			$conditions .= ' AND '.static::$_db->stringifyConditions($moreConditions);
+			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions);
 		}
 		return static::_one($conditions);
 	}
@@ -141,7 +140,7 @@ class Model extends Object {
 	 * 
 	 */
 	static public function _delete( $conditions ) {
-		return static::$_db->delete(static::$_table, $conditions);
+		return static::dbObject()->delete(static::$_table, $conditions);
 	}
 
 	/**
@@ -149,22 +148,22 @@ class Model extends Object {
 	 */
 	static public function _update( $updates, $conditions ) {
 print_r(func_get_args());
-var_dump(static::$_db);
-		return static::$_db->update(static::$_table, $updates, $conditions);
+var_dump(static::dbObject());
+		return static::dbObject()->update(static::$_table, $updates, $conditions);
 	}
 
 	/**
 	 * 
 	 */
 	static public function _insert( $values ) {
-		return static::$_db->insert(static::$_table, $values);
+		return static::dbObject()->insert(static::$_table, $values);
 	}
 
 	/**
 	 * 
 	 */
 	static public function _replace( $values, $conditions ) {
-		return static::$_db->replace(static::$_table, $values, $conditions);
+		return static::dbObject()->replace(static::$_table, $values, $conditions);
 	}
 
 
@@ -241,7 +240,7 @@ var_dump(static::$_db);
 
 				$conditions = array_combine($foreignColumns, $localValues);
 //print_r($conditions);
-				$conditions = $this::$_db->stringifyConditions($conditions, 'AND', $foreignTable);
+				$conditions = static::dbObject()->stringifyConditions($conditions, 'AND', $foreignTable);
 //var_dump($conditions);
 				$retrievalMethods = array(
 					self::GETTER_ONE => '_one',
