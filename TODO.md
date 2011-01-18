@@ -1,6 +1,9 @@
 
 How to:
 -------
+* Database: 'replaceMarks' (of some kind) (in DBAL, not in Model!!)
+* Database: Implement the 3 (!?) SQLite database Adapters with `SQLite` as factory interface
+
 * LOOSELY couple everything together (dispatcher > controller > database + views)
 
 * Dispatcher: Make sure Controller Actions are checked from **outside** the Controller class, so only public methods can be called
