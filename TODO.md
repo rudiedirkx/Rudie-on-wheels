@@ -1,7 +1,7 @@
 
 How to:
 -------
-* Database: Add ->connected() for all adapters (test!!)
+* Database: Improve AND TEST row\database\Adapter's ->connected() function (!!) for all adapters
 
 * Database: 'replaceMarks' (of some kind) (in DBAL, not in Model!!)
 * Database: Implement the 3 (!?) SQLite database Adapters with `SQLite` as factory interface
