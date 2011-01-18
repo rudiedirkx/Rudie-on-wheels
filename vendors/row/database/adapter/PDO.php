@@ -4,34 +4,35 @@ namespace row\database\adapter;
 
 use row\database\Adapter;
 use row\database\DatabaseException;
-use row\database\adapter\SQLite;
 
 abstract class PDO extends Adapter {
+
+	public $affected = 0;
 
 	static public function initializable() {
 		return class_exists('\PDO');
 	}
 
-/*	public function connect() {
+	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
-		mysql_select_db($connection->dbname, $this->db);
+		$this->db = new \PDO($connection->dsn);
 	}
+
 
 	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);
-		if ( !$r || 0 >= mysql_num_rows($r) ) {
+		if ( !$r || 0 >= $r->rowCount() ) {
 			return false;
 		}
-		return mysql_result($r, 0);
+		return $r->fetchColumn(0);
 	}
 
 	public function countRows( $query ) {
 		$r = $this->query($query);
 		if ( $r ) {
-			return mysql_num_rows($r);
+			return $r->rowCount();
 		}
 		return false;
 	}
@@ -42,7 +43,7 @@ abstract class PDO extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_assoc($r) ) {
+		while ( $l = $r->fetch(\PDO::FETCH_ASSOC) ) {
 			$a[$l[$field]] = $l;
 		}
 		return $a;
@@ -54,7 +55,7 @@ abstract class PDO extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetch(\PDO::FETCH_NUM) ) {
 			$a[$l[0]] = $l[1];
 		}
 		return $a;
@@ -66,7 +67,7 @@ abstract class PDO extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetch(\PDO::FETCH_NUM) ) {
 			$a[] = $l[0];
 		}
 		return $a;
@@ -82,18 +83,18 @@ abstract class PDO extends Adapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return mysql_fetch_object($r, $class);
+				return $r->fetchObject($class);
 			}
-			return mysql_fetch_assoc($r);
+			return $r->fetch(\PDO::FETCH_ASSOC);
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = mysql_fetch_object($r, $class) ) {
+			while ( $l = $r->fetchObject($class) ) {
 				$a[] = $l;
 			}
 		}
 		else {
-			while ( $l = mysql_fetch_assoc($r) ) {
+			while ( $l = $r->fetch(\PDO::FETCH_ASSOC) ) {
 				$a[] = $l;
 			}
 		}
@@ -101,35 +102,53 @@ abstract class PDO extends Adapter {
 	}
 
 	public function query( $query ) {
-		$q = mysql_query($query, $this->db);
-		if ( !$q ) {
+		try {
+			$q = $this->db->query($query);
+		} catch ( \PDOException $ex ) {
 			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
+				throw new DatabaseException($query.' -> '.$ex->getMessage());
 			}
 			return false;
 		}
 		return $q;
 	}
 
+	public function execute( $query ) {
+		try {
+			$q = $this->db->exec($query);
+			if ( !$q ) {
+				throw new DatabaseException($query.' -> '.$this->error());
+			}
+		} catch ( \PDOException $ex ) {
+			if ( $this->throwExceptions ) {
+				throw new DatabaseException($query.' -> '.$ex->getMessage());
+			}
+			return false;
+		}
+		$this->affected = $q;
+		return $q;
+	}
+
 	public function error() {
-		return mysql_error($this->db);
+		$err = $this->db->errorInfo();
+		return $err[2] ?: $err[0];
 	}
 
 	public function errno() {
-		return mysql_errno($this->db);
+		return $this->db->errorCode();
 	}
 
 	public function affectedRows() {
-		return mysql_affected_rows($this->db);
+		return $this->affected;
 	}
 
 	public function insertId() {
-		return mysql_insert_id($this->db);
+		return $this->db->lastInsertId();
 	}
 
 	public function escapeValue( $value ) {
-		return mysql_real_escape_string((string)$value, $this->db);
-	}*/
+		return addslashes((string)$value);
+	}
 
 }
 

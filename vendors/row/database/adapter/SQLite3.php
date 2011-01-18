@@ -12,13 +12,12 @@ class SQLite3 extends Adapter {
 		return class_exists('\SQLite3');
 	}
 
-/*	public function connect() {
+	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
-		mysql_select_db($connection->dbname, $this->db);
+		$this->db = new \SQLite3($connection->path);
 	}
 
-	public function selectOne( $table, $field, $conditions ) {
+/*	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);

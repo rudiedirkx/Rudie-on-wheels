@@ -4,40 +4,74 @@ namespace row\database\adapter;
 
 use row\database\Adapter;
 use row\database\DatabaseException;
+use row\database\adapter\PDOSQLite;
+use row\database\adapter\SQLite3;
 
 class SQLite extends Adapter {
+
+	/* Reflection */
+	public function _getTables() {
+		$tables = $this->selectFieldsNumeric('sqlite_master', 'name', array('type' => 'table'));
+print_r($tables); exit;
+		$tables = array_map(function($r) {
+			return reset($r);
+		}, $tables);
+		return $tables;
+	}
+
+	public function _getTableColumns( $table ) {
+return array();
+		$columns = $this->fetch('EXPLAIN '.$table);
+		return $columns;
+	}
+
 
 	static public function initializable() {
 		return class_exists('\SQLiteDatabase');
 	}
 
-/*	static public function open( $info, $do = true ) {
-		if ( MySQLi::initializable() ) {
-			return new MySQLi($info, $do);
+	static public function open( $info, $do = true ) {
+		if ( self::initializable() ) {
+			$db = new self($info, true);
+			if ( $db->connected() ) {
+				return $db;
+			}
 		}
-		return new self($info, $do);
+		if ( PDOSQLite::initializable() ) {
+			$db = new PDOSQLite($info, true);
+			if ( $db->connected() ) {
+				return $db;
+			}
+		}
+		if ( SQLite3::initializable() ) {
+			$db = new SQLite3($info, true);
+			if ( $db->connected() ) {
+				return $db;
+			}
+		}
+		return new static($info, true);
 	}
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
-		mysql_select_db($connection->dbname, $this->db);
+		$this->db = new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
 	}
+
 
 	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);
-		if ( !$r || 0 >= mysql_num_rows($r) ) {
+		if ( !$r || 0 >= $r->numRows() ) {
 			return false;
 		}
-		return mysql_result($r, 0);
+		return $r->fetchSingle();
 	}
 
 	public function countRows( $query ) {
 		$r = $this->query($query);
 		if ( $r ) {
-			return mysql_num_rows($r);
+			return $r->numRows();
 		}
 		return false;
 	}
@@ -48,7 +82,7 @@ class SQLite extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_assoc($r) ) {
+		while ( $l = $r->fetchAssoc(SQLITE_ASSOC) ) {
 			$a[$l[$field]] = $l;
 		}
 		return $a;
@@ -60,7 +94,7 @@ class SQLite extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetchAssoc(SQLITE_NUM) ) {
 			$a[$l[0]] = $l[1];
 		}
 		return $a;
@@ -72,7 +106,7 @@ class SQLite extends Adapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = $r->fetchAssoc(SQLITE_NUM) ) {
 			$a[] = $l[0];
 		}
 		return $a;
@@ -88,18 +122,18 @@ class SQLite extends Adapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return mysql_fetch_object($r, $class);
+				return $r->fetchObject($class);
 			}
-			return mysql_fetch_assoc($r);
+			return $r->fetch(SQLITE_ASSOC);
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = mysql_fetch_object($r, $class) ) {
+			while ( $l = $r->fetchObject($class) ) {
 				$a[] = $l;
 			}
 		}
 		else {
-			while ( $l = mysql_fetch_assoc($r) ) {
+			while ( $l = $r->fetch(SQLITE_ASSOC) ) {
 				$a[] = $l;
 			}
 		}
@@ -107,7 +141,18 @@ class SQLite extends Adapter {
 	}
 
 	public function query( $query ) {
-		$q = mysql_query($query, $this->db);
+		$q = $this->db->query($query);
+		if ( !$q ) {
+			if ( $this->throwExceptions ) {
+				throw new DatabaseException($query.' -> '.$this->error());
+			}
+			return false;
+		}
+		return $q;
+	}
+
+	public function execute( $query ) {
+		$q = $this->db->queryExec($query);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
@@ -118,24 +163,24 @@ class SQLite extends Adapter {
 	}
 
 	public function error() {
-		return mysql_error($this->db);
+		return sqlite_error_string($this->errno());
 	}
 
 	public function errno() {
-		return mysql_errno($this->db);
+		return $this->db->lastError();
 	}
 
 	public function affectedRows() {
-		return mysql_affected_rows($this->db);
+		return $this->dbCon->changes();
 	}
 
 	public function insertId() {
-		return mysql_insert_id($this->db);
+		return $this->dbCon->lastInsertRowid();
 	}
 
 	public function escapeValue( $value ) {
-		return mysql_real_escape_string((string)$value, $this->db);
-	}*/
+		return sqlite_escape_string((string)$v);
+	}
 
 }
 

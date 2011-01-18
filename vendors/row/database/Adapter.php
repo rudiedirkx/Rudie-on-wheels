@@ -7,19 +7,23 @@ use row\utils\Options;
 
 abstract class Adapter extends Object {
 
-	static public $_adapters = array('MySQL', 'MySQLi', 'SQLite', 'SQLite3', 'PDOSQLite');
+	static public $_adapters = array('MySQL', 'MySQLi', 'PDO', 'SQLite', 'SQLite3', 'PDOSQLite');
 
 	/* Reflection */ // Should this be put somewhere else?
 	abstract public function _getTables();
 	abstract public function _getTableColumns( $table );
 
 	abstract static public function initializable();
-	abstract public function connected();
-
 	abstract public function connect();
+
+	public function connected() {
+		return is_object($this->query('SELECT 1'));
+	}
+
 	abstract public function escapeValue( $value );
 	abstract public function fetch( $query, $class = null, $justFirst = false );
 	abstract public function query( $query );
+	abstract public function execute( $query ); // Just like PDO =(
 	abstract public function error();
 	abstract public function errno();
 	abstract public function affectedRows();
@@ -41,7 +45,7 @@ abstract class Adapter extends Object {
 		return new static($connection, $connect);
 	}
 
-	protected function __construct( $connection, $connect = true ) {
+	public function __construct( $connection, $connect = true ) {
 		$this->connectionArgs = Options::make($connection, Options::make(array('host' => 'localhost')));
 		if ( $connect ) {
 			$this->connect();
@@ -86,26 +90,26 @@ abstract class Adapter extends Object {
 	public function replace($table, $values) {
 		$values = array_map(array($this, 'escapeAndQuoteValue'), $values);
 		$sql = 'REPLACE INTO '.$this->escapeAndQuoteTable($table).' ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
-		return $this->query($sql);
+		return $this->execute($sql);
 	}
 
 	public function insert($table, $values) {
 		$values = array_map(array($this, 'escapeAndQuoteValue'), $values);
 		$sql = 'INSERT INTO '.$this->escapeAndQuoteTable($table).' ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
-		return $this->query($sql);
+		return $this->execute($sql);
 	}
 
 	public function delete($table, $conditions) {
 		$conditions = $this->stringifyConditions($conditions);
 		$sql = 'DELETE FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions.';';
-		return $this->query($sql);
+		return $this->execute($sql);
 	}
 
 	public function update( $table, $updates, $conditions ) {
 		$updates = $this->stringifyUpdates($updates);
 		$conditions = $this->stringifyConditions($conditions);
 		$sql = 'UPDATE '.$this->escapeAndQuoteTable($table).' SET '.$updates.' WHERE '.$conditions.'';
-		return $this->query($sql);
+		return $this->execute($sql);
 	}
 
 	public function aliasPrefix( $alias, $column ) {

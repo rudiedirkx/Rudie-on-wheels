@@ -13,9 +13,13 @@ class MySQLi extends MySQL {
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-//print_r($this); exit;
 		$this->db = new \mysqli($connection->host, $connection->user ?: 'root', $connection->pass ?: '', $connection->dbname);
 	}
+
+	public function connected() {
+		return is_object($this->db);
+	}
+
 
 	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
@@ -109,6 +113,10 @@ class MySQLi extends MySQL {
 			return false;
 		}
 		return $q;
+	}
+
+	public function execute( $query ) {
+		return $this->query($query);
 	}
 
 	public function error() {

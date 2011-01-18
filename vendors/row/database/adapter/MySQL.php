@@ -8,6 +8,7 @@ use row\database\adapter\MySQLi;
 
 class MySQL extends Adapter {
 
+	/* Reflection */
 	public function _getTables() {
 		$tables = $this->fetch('SHOW TABLES');
 		$tables = array_map(function($r) {
@@ -20,6 +21,7 @@ class MySQL extends Adapter {
 		$columns = $this->fetch('EXPLAIN '.$table);
 		return $columns;
 	}
+
 
 	static public function initializable() {
 		return function_exists('mysql_connect');
@@ -37,6 +39,11 @@ class MySQL extends Adapter {
 		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
 		mysql_select_db($connection->dbname, $this->db);
 	}
+
+	public function connected() {
+		return is_resource($this->db);
+	}
+
 
 	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
@@ -129,6 +136,10 @@ class MySQL extends Adapter {
 			return false;
 		}
 		return $q;
+	}
+
+	public function execute( $query ) {
+		return $this->query($query);
 	}
 
 	public function error() {
