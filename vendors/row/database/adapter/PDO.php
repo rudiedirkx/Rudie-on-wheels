@@ -6,10 +6,10 @@ use row\database\Adapter;
 use row\database\DatabaseException;
 use row\database\adapter\SQLite;
 
-class SQLite3 extends Adapter {
+abstract class PDO extends Adapter {
 
 	static public function initializable() {
-		return class_exists('\SQLite3');
+		return class_exists('\PDO');
 	}
 
 /*	public function connect() {

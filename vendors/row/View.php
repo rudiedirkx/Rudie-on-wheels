@@ -74,9 +74,10 @@ class View extends Object {
 	}
 
 	public function markdown( $text ) {
-		require_once(ROW_VENDORS_PATH.'/phpMarkdownExtra/Markdown.php');
+		if ( !function_exists('Markdown') ) {
+			include(ROW_VENDORS_PATH.'/phpMarkdownExtra/Markdown.php');
+		}
 		return Markdown($text);
-//		return $this->nl2br($text);
 	}
 
 	public function nl2br( $text ) {

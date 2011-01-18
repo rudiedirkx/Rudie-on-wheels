@@ -8,7 +8,7 @@ use row\database\DatabaseException;
 class SQLite extends Adapter {
 
 	static public function initializable() {
-		return false;
+		return class_exists('\SQLiteDatabase');
 	}
 
 /*	static public function open( $info, $do = true ) {

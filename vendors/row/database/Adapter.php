@@ -7,11 +7,14 @@ use row\utils\Options;
 
 abstract class Adapter extends Object {
 
+	static public $_adapters = array('MySQL', 'MySQLi', 'SQLite', 'SQLite3', 'PDOSQLite');
+
 	/* Reflection */ // Should this be put somewhere else?
 	abstract public function _getTables();
 	abstract public function _getTableColumns( $table );
 
 	abstract static public function initializable();
+	abstract public function connected();
 
 	abstract public function connect();
 	abstract public function escapeValue( $value );
