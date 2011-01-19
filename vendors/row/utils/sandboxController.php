@@ -11,9 +11,15 @@ class sandboxController extends Controller {
 		echo '<style>table { border-spacing:0; border-collapse:collapse; } tr > * { border:solid 2px #888; padding:5px; }</style>'."\n\n";
 	}
 
-	public function table_data( $table = null ) {
+	public function table_data( $table = null, $pk = null ) {
 		if ( !$table ) {
 			return $this->index();
+		}
+		if ( $pk ) {
+			$pk = explode(',', $pk);
+			print_r($pk);
+//			$data = Model::dbObject()->select($table, '
+			exit;
 		}
 		$data = Model::dbObject()->select($table, '1');
 		if ( !$data ) {
@@ -41,12 +47,14 @@ class sandboxController extends Controller {
 
 	private function printData( $data ) {
 		echo '<table><thead><tr>';
+//		echo '<td></td>';
 		foreach ( $data[0] AS $k => $v ) {
 			echo '<th>'.$k.'</th>';
 		}
 		echo '</tr></thead><tbody>';
 		foreach ( $data AS $row ) {
 			echo '<tr>';
+//			echo '<td><a href="'.$this->url('table-data', 'table/0,0').'"></a></td>';
 			foreach ( $row AS $v ) {
 				echo '<td>'.$v.'</td>';
 			}

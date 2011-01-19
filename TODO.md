@@ -8,7 +8,8 @@ To do:
 Debatables:
 -----------
 
-* Is utils\Options efficient/fast/smart enough? Functionality is perfect, but ... ?
+* Give the `database\Adapter`s more Reflection feats (like `_getPKColumns()`)?
+* Is `utils\Options` efficient/fast/smart enough? Functionality is perfect, but ... ?
 * Are the database\Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
 * How much should be configurable in database\Model (and how much static and how much **easily** extendable)?
 
@@ -16,7 +17,10 @@ Debatables:
 How to:
 -------
 
-* Trigger _fill when new Model objects are created? The database\Adapters' fetchObject methods don't call Model::__construct with arguments, so _fill isn't executed...
+* Make `View::markdown()` available everywhere (statically please)?
+* Make `View->url()` or `Controller->url()` available everywhere?
+
+* Trigger `->_fill()` when new Model objects are created? The `database\Adapter`s' `fetchObject` methods don't call `Model::__construct` with arguments, so `_fill` isn't executed...
 
 * LOOSELY couple everything together (dispatcher > controller > database + views)
 * Vendors: include unnamespaced classes like phpMarkdownExtra (created namespaced extension that references to global markdown class - what to do with multiple classes like in Zend??)
