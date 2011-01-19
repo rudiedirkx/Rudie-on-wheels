@@ -10,7 +10,12 @@ class NotFoundException extends \RowException { }
 
 class Dispatcher extends Object {
 
-	public $requestPath = false; // false means unset, only strings are valid, but so is an empty string
+	public function __tostring() {
+		return 'Dispatcher';
+	}
+
+	public $requestPath = false; // false means unset - will become a (might-be-empty) string
+	public $requestBasePath = '';
 
 	public $options; // typeof Options
 
@@ -65,6 +70,13 @@ class Dispatcher extends Object {
 				parse_str($uri[1], $_GET);
 			}
 			$path = $uri[0];
+//print_r($_SERVER);
+			$base = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+			$this->requestBasePath = $base;
+//var_dump($base, $path);
+			$path = substr($path, strlen($base));
+//var_dump($path);
+//exit;
 			if ( $this->options->ignore_leading_slash && $this->options->ignore_trailing_slash ) {
 				$path = trim($path, '/');
 			}

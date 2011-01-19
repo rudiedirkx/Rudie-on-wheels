@@ -6,7 +6,11 @@ use row\core\Object;
 
 class DateTime extends Object {
 
-	static public $defaultFormat = '';
+	public function __tostring() {
+		return $this->format();
+	}
+
+	static public $defaultFormat = 'Y-m-d H:i:s';
 
 	public $utc = 0;
 

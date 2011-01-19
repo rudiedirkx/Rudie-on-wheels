@@ -6,6 +6,10 @@ use row\core\Object;
 
 class View extends Object {
 
+	public function __tostring() {
+		return 'View';
+	}
+
 	public $_application;
 
 	public function __construct( $app ) {

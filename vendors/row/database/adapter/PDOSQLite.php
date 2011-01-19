@@ -33,6 +33,7 @@ return array();
 		$this->db = new \PDO('sqlite:'.$connection->path);
 		$this->db->sqliteCreateFunction('IF', array('row\database\adapter\SQLite', 'fn_if'));
 		$this->db->sqliteCreateFunction('RAND', array('row\database\adapter\SQLite', 'fn_rand'));
+		$this->_fire('post_connect');
 	}
 
 	public function connected() {

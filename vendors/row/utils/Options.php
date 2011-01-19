@@ -6,6 +6,10 @@ use row\core\Object;
 
 class Options extends Object {
 
+	public function __tostring() {
+		return 'Options';
+	}
+
 	static public function make( $options, Options $defaults = null ) {
 		if ( !is_a($options, 'Options') ) {
 			$options = new Options((array)$options, $defaults);

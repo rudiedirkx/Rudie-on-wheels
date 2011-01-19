@@ -6,6 +6,10 @@ use row\core\Object;
 
 class Controller extends Object {
 
+	public function __tostring() {
+		return 'Controller';
+	}
+
 	public $_dispatcher;
 	public $_executable = false;
 	public $_action = '';
@@ -31,7 +35,10 @@ class Controller extends Object {
 	}
 
 	public function redirect( $location, $exit = true ) {
-		header('Location: '.$location);
+//var_dump($location, $this->_dispatcher->requestBasePath);
+		$goto = $this->_dispatcher->requestBasePath.'/'.ltrim($location, '/');
+//exit($goto);
+		header('Location: '.$goto);
 		if ( $exit ) {
 			exit;
 		}

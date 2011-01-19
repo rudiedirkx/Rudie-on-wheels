@@ -40,10 +40,11 @@ class MySQL extends Adapter {
 		if ( !$this->db || ( $connection->dbname && !@mysql_select_db($connection->dbname, $this->db) ) ) {
 			throw new DatabaseException('Could not connect...');
 		}
+		$this->_fire('post_connect');
 	}
 
 	public function connected() {
-		return false !== $this->query('SELECT 1');
+		return is_resource($this->db) && false !== $this->query('SELECT 1');
 	}
 
 

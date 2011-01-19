@@ -16,6 +16,7 @@ abstract class PDO extends Adapter {
 	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = new \PDO($connection->dsn);
+		$this->_fire('post_connect');
 	}
 
 

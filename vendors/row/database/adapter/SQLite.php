@@ -63,6 +63,7 @@ return array();
 	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
+		$this->_fire('post_connect');
 	}
 
 	public function connected() {

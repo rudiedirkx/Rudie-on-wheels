@@ -7,6 +7,10 @@ use row\utils\Options;
 
 abstract class Adapter extends Object {
 
+	public function __tostring() {
+		return get_class($this).' database adapter';
+	}
+
 	static public $paramPlaceholder = '?';
 	public function replaceholders( $conditions, $params ) {
 		$conditions = $this->stringifyConditions($conditions);
@@ -66,6 +70,16 @@ abstract class Adapter extends Object {
 		if ( $connect ) {
 			$this->connect();
 			$this->connectionArgs = null;
+		}
+		$this->_fire('init');
+	}
+
+	public function _post_connect() {
+		if ( $this->connectionArgs->names ) {
+			$this->execute('SET NAMES \''.$this->connectionArgs->names.'\'');
+		}
+		else if ( $this->connectionArgs->charachter_set ) {
+			$this->execute('SET CHARACTER SET \''.$this->connectionArgs->charachter_set.'\'');
 		}
 	}
 

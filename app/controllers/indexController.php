@@ -6,7 +6,7 @@ use row\Controller;
 
 class indexController extends Controller {
 
-	public function __construct() {
+	public function _init() {
 		$this->redirect('/blog');
 	}
 

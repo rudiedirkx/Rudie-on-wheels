@@ -8,6 +8,10 @@ use row\database\ModelException; // model errors
 
 class Model extends Object {
 
+	public function __tostring() {
+		return get_class($this).' model';
+	}
+
 	static public $_db;
 
 	/**
@@ -73,7 +77,7 @@ class Model extends Object {
 	 */
 	static public function _byQuery( $query ) {
 		$class = get_called_class();
-		if ( \Vendors::class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) { // Is the AND .. overkill? Or necessary?
+		if ( class_exists($class.'Record') /*&& is_a($class.'Record', get_called_class())*/ ) { // Is the AND .. overkill? Or necessary?
 			$class = $class.'Record';
 		}
 		return static::dbObject()->fetch($query, $class);
@@ -173,7 +177,7 @@ class Model extends Object {
 		if ( null !== $data ) {
 			$this->_fill( $data );
 		}
-		$this->_fire('init', array(null !== $data));
+		$this->_fire('init', array($data));
 	}
 
 	/**

@@ -14,9 +14,13 @@ class MySQLi extends MySQL {
 	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = new \mysqli($connection->host, $connection->user ?: 'root', $connection->pass ?: '', $connection->dbname ?: '');
+		$this->_fire('post_connect');
 	}
 
 	public function connected() {
+		if ( !is_object($this->db) ) {
+			return false;
+		}
 		try {
 			$r = $this->query('SELECT 1 FROM sqlite_master');
 			return false !== $r;
