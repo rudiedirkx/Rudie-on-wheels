@@ -78,10 +78,10 @@ class View extends Object {
 	}
 
 	public function markdown( $text ) {
-		if ( !function_exists('Markdown') ) {
-			include(ROW_VENDORS_PATH.'/phpMarkdownExtra/Markdown.php');
-		}
-		return Markdown($text);
+#		if ( !function_exists('Markdown') ) {
+#			include(ROW_VENDORS_PATH.'/phpMarkdownExtra/Markdown.php');
+#		}
+		return \markdown\MarkdownParser::parse($text);
 	}
 
 	public function nl2br( $text ) {

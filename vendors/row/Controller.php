@@ -31,7 +31,9 @@ class Controller extends Object {
 			throw new $class($this->_dispatcher->requestPath);
 		}
 		$this->_fire('pre_action');
-		return call_user_func_array(array($this, $this->_action), $this->_arguments);
+		$r = call_user_func_array(array($this, $this->_action), $this->_arguments);
+		$this->_fire('post_action');
+		return $r;
 	}
 
 	public function redirect( $location, $exit = true ) {

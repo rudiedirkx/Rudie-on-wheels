@@ -8,16 +8,18 @@ To do:
 Debatables:
 -----------
 
-* Are the Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
-* Should Model's _init be fired in the constructor (so ONCE) or after every _fill()? Maybe new trigger for _fill?
-* How much should be configurable in Model (and how much static and how much **easily** extendable)?
+* Is utils\Options efficient/fast/smart enough? Functionality is perfect, but ... ?
+* Are the database\Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
+* How much should be configurable in database\Model (and how much static and how much **easily** extendable)?
 
 
 How to:
 -------
 
-* LOOSELY couple everything together (dispatcher > controller > database + views)
+* Trigger _fill when new Model objects are created? The database\Adapters' fetchObject methods don't call Model::__construct with arguments, so _fill isn't executed...
 
+* LOOSELY couple everything together (dispatcher > controller > database + views)
+* Vendors: include unnamespaced classes like phpMarkdownExtra (created namespaced extension that references to global markdown class - what to do with multiple classes like in Zend??)
 * Dispatcher: Make sure Controller Actions are checked from **outside** the Controller class, so only public methods can be called
 * Dispatcher: Lose most (?) options
 * Dispatcher: Just call controller classes BlogController etc (like all other frameworks do)

@@ -22,6 +22,8 @@ class Dispatcher extends Object {
 	public function __construct( $options = array() ) {
 		$defaults = Options::make(array(
 			'module_delim' => '-',
+			'default_module' => 'index',
+			'default_action' => 'index',
 			'dispatch_order' => array('specific', 'generic', 'fallback'),
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
@@ -109,7 +111,7 @@ class Dispatcher extends Object {
 
 	public function getController( $f_path ) {
 		$uri = explode('/', trim($f_path, '/'), 2);
-		$module = $uri[0] ?: 'index';
+		$module = $uri[0] ?: $this->options->default_module;
 		foreach ( $this->options->dispatch_order AS $dispatchType ) {
 			switch ( $dispatchType ) {
 				case 'generic':
@@ -122,7 +124,7 @@ class Dispatcher extends Object {
 						}
 					}
 					else {
-						$action = 'index';
+						$action = $this->options->default_action;
 						$args = array();
 					}
 
