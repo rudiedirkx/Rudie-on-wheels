@@ -1,10 +1,9 @@
 
 How to:
 -------
-* Database: Improve AND TEST row\database\Adapter's ->connected() function (!!) for all adapters
 
-* Database: 'replaceMarks' (of some kind) (in DBAL, not in Model!!)
-* Database: Implement the 3 (!?) SQLite database Adapters with `SQLite` as factory interface
+* Database: Implement the $params for some db methods (in adapters as well as Model)
+* Database: Implement the SQLite3 adapter
 
 * LOOSELY couple everything together (dispatcher > controller > database + views)
 
