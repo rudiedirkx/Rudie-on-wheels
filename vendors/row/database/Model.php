@@ -147,9 +147,8 @@ class Model extends Object {
 	 * 
 	 */
 	static public function _update( $updates, $conditions, $params = array() ) {
-print_r(func_get_args());
-var_dump(static::dbObject());
-		return static::dbObject()->update(static::$_table, $updates, $conditions);
+//print_r(func_get_args());
+		return static::dbObject()->update(static::$_table, $updates, $conditions, $params);
 	}
 
 	/**
@@ -285,7 +284,12 @@ var_dump(static::dbObject());
 	 * 
 	 */
 	public function update( $updates ) {
-		return $this::_update($updates, $this->_pkValue(true));
+		if ( !is_scalar($updates) ) {
+			$this->_fill((array)$updates);
+		}
+		$conditions = $this->_pkValue(true);
+//print_r($conditions); exit;
+		return $this::_update($updates, $conditions);
 	}
 
 	/**

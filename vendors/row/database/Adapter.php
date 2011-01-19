@@ -7,6 +7,23 @@ use row\utils\Options;
 
 abstract class Adapter extends Object {
 
+	static public $paramPlaceholder = '?';
+	public function replaceholders( $conditions, $params ) {
+		$conditions = $this->stringifyConditions($conditions);
+		if ( !$params ) return $conditions;
+		$ph = static::$paramPlaceholder;
+//		$conditions = str_replace($ph, $this->quoteValue('%s'), $conditions);
+		$offset = 0;
+		foreach ( $params AS $param ) {
+			$pos = strpos($conditions, $ph, $offset);
+			if ( false === $pos ) break;
+			$param = $this->escapeAndQuote($param);
+			$conditions = substr_replace($conditions, $param, $pos, strlen($ph));
+			$offset = $pos + strlen($param);
+		}
+		return $conditions;
+	}
+
 	static public $_adapters = array('MySQL', 'MySQLi', 'SQLite', 'PDOSQLite', /*'SQLite3'*/);
 
 	/* Reflection */ // Should this be put somewhere else?
@@ -15,7 +32,6 @@ abstract class Adapter extends Object {
 
 	abstract static public function initializable();
 	abstract public function connect();
-
 	public function connected() {
 		return is_object($this->query('SELECT 1'));
 	}
@@ -54,13 +70,13 @@ abstract class Adapter extends Object {
 	}
 
 	public function select( $table, $conditions, $params = array() ) {
-		$conditions = $this->stringifyConditions($conditions);
+		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetch($query);
 	}
 
 	public function selectByField( $table, $field, $conditions, $params = array() ) {
-		$conditions = $this->stringifyConditions($conditions);
+		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchByField($query, $field);
 	}
@@ -82,7 +98,7 @@ abstract class Adapter extends Object {
 	}
 
 	public function selectFieldsNumeric( $table, $field, $conditions, $params = array() ) {
-		$conditions = $this->stringifyConditions($conditions);
+		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchFieldsNumeric($query);
 	}
@@ -100,15 +116,16 @@ abstract class Adapter extends Object {
 	}
 
 	public function delete( $table, $conditions, $params = array() ) {
-		$conditions = $this->stringifyConditions($conditions);
+		$conditions = $this->replaceholders($conditions, $params);
 		$sql = 'DELETE FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions.';';
 		return $this->execute($sql);
 	}
 
 	public function update( $table, $updates, $conditions, $params = array() ) {
 		$updates = $this->stringifyUpdates($updates);
-		$conditions = $this->stringifyConditions($conditions);
+		$conditions = $this->replaceholders($conditions, $params);
 		$sql = 'UPDATE '.$this->escapeAndQuoteTable($table).' SET '.$updates.' WHERE '.$conditions.'';
+//var_dump($sql); exit;
 		return $this->execute($sql);
 	}
 

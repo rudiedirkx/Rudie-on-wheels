@@ -2,11 +2,11 @@
 
 namespace app\models;
 
-use app\models\Post;
+use app\models\Comment;
 use row\utils\DateTime;
 use app\models\VisitableRecord;
 
-class CommentRecord extends Post implements VisitableRecord {
+class CommentRecord extends Comment implements VisitableRecord {
 
 	public function _init() {
 		$this->_created_on = new DateTime($this->created_on);

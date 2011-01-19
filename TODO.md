@@ -1,9 +1,20 @@
 
+To do:
+------
+
+* Database: Implement the SQLite3 adapter
+
+
+Debatables:
+-----------
+
+* Are the Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
+* Should Model's _init be fired in the constructor (so ONCE) or after every _fill()? Maybe new trigger for _fill?
+* How much should be configurable in Model (and how much static and how much **easily** extendable)?
+
+
 How to:
 -------
-
-* Database: Implement the $params for some db methods (in adapters as well as Model)
-* Database: Implement the SQLite3 adapter
 
 * LOOSELY couple everything together (dispatcher > controller > database + views)
 

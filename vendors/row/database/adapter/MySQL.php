@@ -47,8 +47,8 @@ class MySQL extends Adapter {
 	}
 
 
-	public function selectOne( $table, $field, $conditions ) {
-		$conditions = $this->stringifyConditions($stringifyConditions);
+	public function selectOne( $table, $field, $conditions, $params = array() ) {
+		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);
 		if ( !$r || 0 >= mysql_num_rows($r) ) {
