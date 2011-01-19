@@ -73,7 +73,7 @@ class Model extends Object {
 	 */
 	static public function _byQuery( $query ) {
 		$class = get_called_class();
-		if ( \Vendors::class_exists($class.'Record') ) {
+		if ( \Vendors::class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) { // Is the AND .. overkill? Or necessary?
 			$class = $class.'Record';
 		}
 		return static::dbObject()->fetch($query, $class);
