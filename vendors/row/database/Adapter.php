@@ -18,7 +18,7 @@ abstract class Adapter extends Object {
 		$ph = static::$paramPlaceholder;
 //		$conditions = str_replace($ph, $this->quoteValue('%s'), $conditions);
 		$offset = 0;
-		foreach ( $params AS $param ) {
+		foreach ( (array)$params AS $param ) {
 			$pos = strpos($conditions, $ph, $offset);
 			if ( false === $pos ) break;
 			$param = $this->escapeAndQuote($param);
