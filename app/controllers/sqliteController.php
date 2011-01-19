@@ -10,6 +10,12 @@ use row\database\adapter\PDOSQLite;
 class sqliteController extends ControllerParent {
 
 	protected function _pre_action() {
+		echo '<ul>';
+		foreach ( \row\database\Adapter::$_adapters AS $adapter ) {
+			$class = 'row\database\adapter\\'.$adapter;
+			echo '<li>'.$adapter.': '.(int)$class::initializable().'</li>';
+		}
+		echo '</ul>';
 		echo '<pre>';
 	}
 
@@ -20,13 +26,15 @@ class sqliteController extends ControllerParent {
 	}
 
 	protected function structure( $sqlite ) {
-		var_dump($sqlite);
-		var_dump($sqlite->connected());
-		var_dump($sqlite->execute('CREATE TABLE people ( id INT, name TEXT NOT NULL DEFAULT \'\', age INT NOT NULL DEFAULT 0, PRIMARY KEY(id) )'));
+		try {
+			var_dump($sqlite->execute('CREATE TABLE people ( id INT, name TEXT NOT NULL DEFAULT \'\', age INT NOT NULL DEFAULT 0, PRIMARY KEY(id) )'));
+		}
+		catch ( \row\database\DatabaseException $ex ) {}
+		print_r($sqlite->_getTables());
 	}
 
 	protected function data( $sqlite, $table = null ) {
-		$masterdata = $sqlite->select('sqlite_master', '1');
+		$masterdata = $sqlite->select('sqlite_master', '1 ORDER BY RAND()');
 		print_r($masterdata);
 	}
 

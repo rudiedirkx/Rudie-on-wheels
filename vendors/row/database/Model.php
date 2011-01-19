@@ -90,14 +90,14 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _all( $conditions ) {
+	static public function _all( $conditions, $params = array() ) {
 		return static::_fetch($conditions);
 	}
 
 	/**
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
-	static public function _one( $conditions ) {
+	static public function _one( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->stringifyConditions($conditions);
 		$conditions = static::dbObject()->addLimit($conditions, 2);
 		$r = static::_fetch($conditions);
@@ -110,7 +110,7 @@ class Model extends Object {
 	/**
 	 * Returns null or the first object with the matching conditions
 	 */
-	static public function _first( $conditions ) {
+	static public function _first( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->stringifyConditions($conditions);
 		$conditions = static::dbObject()->addLimit($conditions, 1);
 		$r = static::_fetch($conditions);
@@ -122,7 +122,7 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _get( $pkValues, $moreConditions = array() ) {
+	static public function _get( $pkValues, $moreConditions = array(), $params = array() ) {
 		$pkValues = (array)$pkValues;
 		$pkColumns = (array)static::$_pk;
 		if ( count($pkValues) !== count($pkColumns) ) {
@@ -139,14 +139,14 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _delete( $conditions ) {
+	static public function _delete( $conditions, $params = array() ) {
 		return static::dbObject()->delete(static::$_table, $conditions);
 	}
 
 	/**
 	 * 
 	 */
-	static public function _update( $updates, $conditions ) {
+	static public function _update( $updates, $conditions, $params = array() ) {
 print_r(func_get_args());
 var_dump(static::dbObject());
 		return static::dbObject()->update(static::$_table, $updates, $conditions);

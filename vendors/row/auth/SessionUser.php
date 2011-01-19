@@ -6,7 +6,7 @@ use row\core\Object;
 
 class SessionUser extends Object {
 
-	public function access() {
+	public function hasAccess() {
 		return (bool)rand(0, 1);
 	}
 

@@ -26,35 +26,47 @@ return array();
 	}
 
 
+	static public function fn_if( $f_bool, $f_yes, $f_no ) {
+		return $f_bool ? $f_yes : $f_no;
+	}
+
+	static public function fn_rand() {
+		return rand(0, 99999999);
+	}
+
+
 	static public function initializable() {
 		return class_exists('\SQLiteDatabase');
 	}
 
 	static public function open( $info, $do = true ) {
-		if ( self::initializable() ) {
-			$db = new self($info, true);
-			if ( $db->connected() ) {
-				return $db;
-			}
-		}
 		if ( PDOSQLite::initializable() ) {
 			$db = new PDOSQLite($info, true);
 			if ( $db->connected() ) {
 				return $db;
 			}
 		}
-		if ( SQLite3::initializable() ) {
+/*		if ( SQLite3::initializable() ) {
 			$db = new SQLite3($info, true);
 			if ( $db->connected() ) {
 				return $db;
 			}
+		}*/
+		if ( self::initializable() ) {
+			$db = new self($info, true);
+			if ( $db->connected() ) {
+				return $db;
+			}
 		}
-		return new static($info, true);
 	}
 
 	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
+	}
+
+	public function connected() {
+		return is_object($this->query('SELECT 1 FROM sqlite_master'));
 	}
 
 
@@ -82,7 +94,7 @@ return array();
 			return false;
 		}
 		$a = array();
-		while ( $l = $r->fetchAssoc(SQLITE_ASSOC) ) {
+		while ( $l = $r->fetch(SQLITE_ASSOC) ) {
 			$a[$l[$field]] = $l;
 		}
 		return $a;
@@ -94,7 +106,7 @@ return array();
 			return false;
 		}
 		$a = array();
-		while ( $l = $r->fetchAssoc(SQLITE_NUM) ) {
+		while ( $l = $r->fetch(SQLITE_NUM) ) {
 			$a[$l[0]] = $l[1];
 		}
 		return $a;
@@ -106,7 +118,7 @@ return array();
 			return false;
 		}
 		$a = array();
-		while ( $l = $r->fetchAssoc(SQLITE_NUM) ) {
+		while ( $l = $r->fetch(SQLITE_NUM) ) {
 			$a[] = $l[0];
 		}
 		return $a;
@@ -141,7 +153,7 @@ return array();
 	}
 
 	public function query( $query ) {
-		$q = $this->db->query($query);
+		$q = @$this->db->query($query);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
@@ -152,7 +164,7 @@ return array();
 	}
 
 	public function execute( $query ) {
-		$q = $this->db->queryExec($query);
+		$q = @$this->db->queryExec($query);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
@@ -179,7 +191,7 @@ return array();
 	}
 
 	public function escapeValue( $value ) {
-		return sqlite_escape_string((string)$v);
+		return sqlite_escape_string((string)$value);
 	}
 
 }

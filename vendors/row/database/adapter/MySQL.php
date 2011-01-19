@@ -36,12 +36,14 @@ class MySQL extends Adapter {
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
-		mysql_select_db($connection->dbname, $this->db);
+		$this->db = @mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
+		if ( !$this->db || ( $connection->dbname && !@mysql_select_db($connection->dbname, $this->db) ) ) {
+			throw new DatabaseException('Could not connect...');
+		}
 	}
 
 	public function connected() {
-		return is_resource($this->db);
+		return false !== $this->query('SELECT 1');
 	}
 
 

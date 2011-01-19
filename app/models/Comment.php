@@ -15,6 +15,10 @@ class Comment extends Model {
 		'post' => array( self::GETTER_ONE, true, 'app\models\Post', 'post_id', 'post_id' ),
 	);
 
+	static public function getCommentsBetween( $a, $b ) {
+		return self::all('id BETWEEN ? AND ?', array($a, $b));
+	}
+
 }
 
 

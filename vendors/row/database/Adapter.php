@@ -7,7 +7,7 @@ use row\utils\Options;
 
 abstract class Adapter extends Object {
 
-	static public $_adapters = array('MySQL', 'MySQLi', 'PDO', 'SQLite', 'SQLite3', 'PDOSQLite');
+	static public $_adapters = array('MySQL', 'MySQLi', 'SQLite', 'PDOSQLite', /*'SQLite3'*/);
 
 	/* Reflection */ // Should this be put somewhere else?
 	abstract public function _getTables();
@@ -53,13 +53,13 @@ abstract class Adapter extends Object {
 		}
 	}
 
-	public function select( $table, $conditions ) {
+	public function select( $table, $conditions, $params = array() ) {
 		$conditions = $this->stringifyConditions($conditions);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetch($query);
 	}
 
-	public function selectByField( $table, $field, $conditions ) {
+	public function selectByField( $table, $field, $conditions, $params = array() ) {
 		$conditions = $this->stringifyConditions($conditions);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchByField($query, $field);
@@ -69,11 +69,11 @@ abstract class Adapter extends Object {
 		return $this->fetchFieldsAssoc($query);
 	}
 
-	public function selectFields( $table, $fields, $conditions ) {
+	public function selectFields( $table, $fields, $conditions, $params = array() ) {
 		return $this->selectFieldsAssoc($table, $fields, $conditions);
 	}
 
-	public function selectFieldsAssoc( $table, $fields, $conditions ) {
+	public function selectFieldsAssoc( $table, $fields, $conditions, $params = array() ) {
 		if ( !is_string($fields) ) {
 			$fields = implode(', ', array_map(array($this, 'escapeAndQuoteColumn'), (array)$fields));
 		}
@@ -81,31 +81,31 @@ abstract class Adapter extends Object {
 		return $this->fetchFieldsAssoc($query);
 	}
 
-	public function selectFieldsNumeric( $table, $field, $conditions ) {
-		$conditions = $this->stringifyConditions($stringifyConditions);
+	public function selectFieldsNumeric( $table, $field, $conditions, $params = array() ) {
+		$conditions = $this->stringifyConditions($conditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchFieldsNumeric($query);
 	}
 
-	public function replace($table, $values) {
+	public function replace( $table, $values ) {
 		$values = array_map(array($this, 'escapeAndQuoteValue'), $values);
 		$sql = 'REPLACE INTO '.$this->escapeAndQuoteTable($table).' ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
 		return $this->execute($sql);
 	}
 
-	public function insert($table, $values) {
+	public function insert( $table, $values ) {
 		$values = array_map(array($this, 'escapeAndQuoteValue'), $values);
 		$sql = 'INSERT INTO '.$this->escapeAndQuoteTable($table).' ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';
 		return $this->execute($sql);
 	}
 
-	public function delete($table, $conditions) {
+	public function delete( $table, $conditions, $params = array() ) {
 		$conditions = $this->stringifyConditions($conditions);
 		$sql = 'DELETE FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions.';';
 		return $this->execute($sql);
 	}
 
-	public function update( $table, $updates, $conditions ) {
+	public function update( $table, $updates, $conditions, $params = array() ) {
 		$updates = $this->stringifyUpdates($updates);
 		$conditions = $this->stringifyConditions($conditions);
 		$sql = 'UPDATE '.$this->escapeAndQuoteTable($table).' SET '.$updates.' WHERE '.$conditions.'';

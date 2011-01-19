@@ -17,6 +17,10 @@ class SQLite3 extends Adapter {
 		$this->db = new \SQLite3($connection->path);
 	}
 
+	public function connected() {
+		return is_object($this->query('SELECT 1 FROM sqlite_master'));
+	}
+
 /*	public function selectOne( $table, $field, $conditions ) {
 		$conditions = $this->stringifyConditions($stringifyConditions);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
