@@ -84,13 +84,13 @@ abstract class PDO extends Adapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return $r->fetchObject($class);
+				return $r->fetchObject($class, array(true));
 			}
 			return $r->fetch(\PDO::FETCH_ASSOC);
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = $r->fetchObject($class) ) {
+			while ( $l = $r->fetchObject($class, array(true)) ) {
 				$a[] = $l;
 			}
 		}

@@ -2,25 +2,25 @@
 To do:
 ------
 
-* Redo `Dispatcher` (and `Controller`) from `__construct` tot _post_action
-* Database: Implement the SQLite3 adapter
-* Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
-* Database: Give the `database\Adapter`s more Reflection feats (like `_getPKColumns()`)?
-* Make 'internal apps' (applets?) extendable/usable through normal Controller-proxy (like `app\controllers\dbsecretsController` now extends `row\utils\sandbox\controllers\sandboxController`)
+1. Redo `Dispatcher` (and `Controller`) from `Dispatcher->run` to `Controller->_post_action`
+2. Database: Give the `database\Adapter`s more Reflection feats (like `_getPKColumns()`)?
+3. Make 'internal apps' (applets?) extendable/usable through normal Controller-proxy (like `app\controllers\dbsecretsController` now extends `row\utils\sandbox\controllers\sandboxController`)
+4. Database: Implement the SQLite3 adapter
+5. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
 
 
 Debatables:
 -----------
 
-* Define environments and their corresponding 'bootstraps':
+1. Define environments and their corresponding 'bootstraps':
     - HTTP: Config + Model + Controller/Dispatcher + Views + Third-parties? + ?
     - CRON: Config + DB (Model?) + Third-parties? + ?
-* Overall: Decide how loosely coupled all _extensions_ must be:
+2. Overall: Decide how loosely coupled all _extensions_ must be:
     - Can the `Views` or `DBAL` or `Model` only be used within the framework?
     - Can the `Controller` only be used in combination with the `Dispatcher`? (So not in a cronjob?)
-* Is `utils\Options` efficient/fast/smart enough? Functionality is perfect, but ... ?
-* Are the database\Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
-* How much should be configurable in database\Model (and how much static and how much **easily** extendable)?
+3. Is `utils\Options` efficient/fast/smart enough? Functionality is perfect, but ... ?
+4. Are the database\Adapter method names sensible? E.g. `selectFieldsNumeric` and `selectFieldsAssoc`.
+5. How much should be configurable in `database\Model` (and how much static and how much **easily** extendable)?
 
 
 How to:

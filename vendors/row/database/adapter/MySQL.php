@@ -125,13 +125,13 @@ class MySQL extends Adapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return mysql_fetch_object($r, $class);
+				return mysql_fetch_object($r, $class, array(true));
 			}
 			return mysql_fetch_assoc($r);
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = mysql_fetch_object($r, $class) ) {
+			while ( $l = mysql_fetch_object($r, $class, array(true)) ) {
 				$a[] = $l;
 			}
 		}

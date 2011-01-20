@@ -171,16 +171,16 @@ class Model extends Object {
 
 
 	/**
-	 * This constructor is exclusively for objects created with this Model.
-	 * I WILL NOT allow:
-	 *	$person = new Person;
-	 *	$person->name = 'Beatrice';
-	 *	$person->age = 17;
-	 *	$person->is_enabled = true;
-	 *	$person->save();
+	 * 
 	 */
-	protected function __construct() {
-		$this->_fire('post_fill', array((array)$this));
+	public function __construct( $init = false ) {
+		if ( true === $init ) { // Inited by database\Adapter
+			$this->_fire('post_fill', array((array)$this));
+		}
+		else if ( is_array($init) ) { // Inited manually with data
+			$this->_fill($data);
+			$this->_fire('post_fill', array($data));
+		}
 		$this->_fire('init');
 	}
 

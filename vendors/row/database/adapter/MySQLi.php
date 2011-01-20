@@ -95,13 +95,13 @@ class MySQLi extends MySQL {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return $r->fetch_object($class);
+				return $r->fetch_object($class, array(true));
 			}
 			return $r->fetch_assoc();
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = $r->fetch_object($class) ) {
+			while ( $l = $r->fetch_object($class, array(true)) ) {
 				$a[] = $l;
 			}
 		}
