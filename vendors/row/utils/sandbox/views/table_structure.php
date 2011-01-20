@@ -1,0 +1,1 @@
+<?phpecho '<table><thead><tr>';$k0 = key($columns);foreach ( $columns[$k0] AS $k => $v ) {	echo '<th>'.$k.'</th>';}echo '<td></td>';echo '</tr></thead><tbody>';foreach ( $columns AS $row ) {	echo '<tr>';	foreach ( $row AS $k => $v ) {		echo '<td>'.$v.'</td>';	}	echo '</tr>';}echo '</tbody></table>';

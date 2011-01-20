@@ -1,0 +1,1 @@
+<?php//print_r($data);echo '<table>';foreach ( $data AS $k => $v ) {	echo '<tr>';	echo '<th>'.$k.'</th>';	echo '<td><textarea>'.htmlspecialchars($v).'</textarea></td>';	echo '</tr>';}echo '</table>';

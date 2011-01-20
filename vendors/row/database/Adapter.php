@@ -84,10 +84,10 @@ abstract class Adapter extends Object {
 		}
 	}
 
-	public function select( $table, $conditions, $params = array() ) {
+	public function select( $table, $conditions, $params = array(), $justFirst = false ) {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
-		return $this->fetch($query);
+		return $this->fetch($query, null, $justFirst);
 	}
 
 	public function selectByField( $table, $field, $conditions, $params = array() ) {

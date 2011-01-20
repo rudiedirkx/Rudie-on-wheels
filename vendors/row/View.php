@@ -17,17 +17,19 @@ class View extends Object {
 	}
 
 	public $extension = '.php';
-	public $viewsfolder = '';
+	public $viewsFolder = '';
+	public $viewLayout = '';
 
 	public $vars = array(
 		'title' => '',
 	);
-	public $viewfile;
+	public $viewFile = '';
 
 	public function assign( $key, $val = null ) {
 		if ( 1 == func_num_args() ) {
 			foreach ( (array)$key as $k => $v ) {
 				$this->vars[$k] =& $v;
+				unset($v);
 			}
 			return $this;
 		}
@@ -35,8 +37,17 @@ class View extends Object {
 		return $this;
 	}
 
-	public function display( $tpl = true ) {
-//		var_dump($tpl);
+	public function display( $tpl = true, $vars = null, $layout = null ) {
+		if ( is_array($vars) ) {
+			$this->assign($vars);
+		}
+
+		$viewLayout = is_string($layout) || false === $layout ? $layout : $this->viewLayout;
+//		if ( is_string($layout) && $layout !== $this->viewLayout ) {
+//			$oldViewLayout = $this->viewLayout;
+//			$this->viewLayout = $layout;
+//		}
+
 		if ( true === $tpl ) {
 			$folder = $this->_application->_dispatcher->_module;
 			$file = $this->_application->_dispatcher->_action;
@@ -60,14 +71,28 @@ class View extends Object {
 //			print_r($this->_application);
 			$tpl = $folder.'/'.$file;
 		}
-		$this->viewfile = $tpl;
-		$this->render();
+		$this->viewFile = $this->viewsFolder.'/'.$tpl.$this->extension;
+		$this->render($viewLayout);
+
+//		if ( isset($oldViewLayout) ) {
+//			$this->viewLayout = $oldViewLayout;
+//		}
 	}
 
-	public function render() {
+	public function render( $viewLayout ) {
+//var_dump($this->viewFile);
 		extract($this->vars);
-		include($this->viewsfolder.'/'.$this->viewfile.$this->extension);
-		
+		if ( false !== $viewLayout ) {
+			ob_start();
+			include($this->viewFile);
+			$content = ob_get_contents();
+			ob_end_clean();
+//exit($content);
+			$this->assign('content', $content);
+			$this->viewFile = $viewLayout;
+			return $this->render(false);
+		}
+		include($this->viewFile);
 	}
 
 	public function title( $title = null ) {
