@@ -2,9 +2,11 @@
 To do:
 ------
 
+* Redo `Dispatcher` (and `Controller`) from `__construct` tot _post_action
 * Database: Implement the SQLite3 adapter
+* Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
 * Database: Give the `database\Adapter`s more Reflection feats (like `_getPKColumns()`)?
-* Make 'internal apps' (applets?) extendable/usable through normal Controller-proxy (like `app\controllers\dbsecretsController` now extends `row\utils\sandboxController`)
+* Make 'internal apps' (applets?) extendable/usable through normal Controller-proxy (like `app\controllers\dbsecretsController` now extends `row\utils\sandbox\controllers\sandboxController`)
 
 
 Debatables:
