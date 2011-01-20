@@ -1,6 +1,6 @@
 <?php
 
-namespace row\utils;
+namespace row\utils\sandbox\controllers;
 
 use row\Controller;
 use row\database\Model;
@@ -48,7 +48,8 @@ class sandboxController extends Controller {
 	private function printData( $data ) {
 		echo '<table><thead><tr>';
 //		echo '<td></td>';
-		foreach ( $data[0] AS $k => $v ) {
+		$k0 = key($data);
+		foreach ( $data[$k0] AS $k => $v ) {
 			echo '<th>'.$k.'</th>';
 		}
 		echo '</tr></thead><tbody>';

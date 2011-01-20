@@ -33,6 +33,7 @@ abstract class Adapter extends Object {
 	/* Reflection */ // Should this be put somewhere else?
 	abstract public function _getTables();
 	abstract public function _getTableColumns( $table );
+	abstract public function _getPKColumns( $table );
 
 	abstract static public function initializable();
 	abstract public function connect();

@@ -18,7 +18,20 @@ class MySQL extends Adapter {
 	}
 
 	public function _getTableColumns( $table ) {
-		$columns = $this->fetch('EXPLAIN '.$table);
+		$_columns = $this->fetch('EXPLAIN '.$table);
+		$columns = array();
+		foreach ( $_columns AS $c ) {
+			$columns[$c['Field']] = $c;
+		}
+		return $columns;
+	}
+
+	public function _getPKColumns( $table ) {
+		$columns = $this->_getTableColumns($table);
+		$columns = array_filter($columns, function($c) {
+			return 'PRI' == $c['Key'];
+		});
+		$columns = array_keys($columns);
 		return $columns;
 	}
 

@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use row\utils;
 
-class dbsecretsController extends utils\sandboxController {
+class dbsecretsController extends utils\sandbox\controllers\sandboxController {
 
 	static protected $config = array(
 		'allowed_ip_addresses' => array('127.0.0.1'),

@@ -25,12 +25,21 @@ class sqliteController extends ControllerParent {
 		}
 	}
 
-	protected function structure( $sqlite ) {
+	protected function structure( $sqlite, $table = 'friends' ) {
 		try {
 			var_dump($sqlite->execute('CREATE TABLE people ( id INT, name TEXT NOT NULL DEFAULT \'\', age INT NOT NULL DEFAULT 0, PRIMARY KEY(id) )'));
 		}
 		catch ( \row\database\DatabaseException $ex ) {}
-		print_r($sqlite->_getTables());
+		try {
+			var_dump($sqlite->execute('CREATE TABLE friends ( person_id INT, friend_id INT, PRIMARY KEY(person_id, friend_id) )'));
+		}
+		catch ( \row\database\DatabaseException $ex ) {}
+		print_r($tables = $sqlite->_getTables());
+		if ( !$table ) {
+			$table = $tables[array_rand($tables)];
+		}
+		print_r($sqlite->_getPKColumns($table));
+		print_r($sqlite->_getTableColumns($table));
 	}
 
 	protected function data( $sqlite, $table = null ) {
@@ -51,22 +60,22 @@ class sqliteController extends ControllerParent {
 		return $this->data($sqlite);
 	}
 
-	public function v2( $return = false ) {
+	public function v2( $return = null ) {
 		$sqlite = new SQLite(array('path' => ROW_APP_PATH.'/runtime/database.sqlite2'));
-		if ( $return ) return $sqlite;
-		return $this->structure($sqlite);
+		if ( true === $return ) return $sqlite;
+		return $this->structure($sqlite, $return);
 	}
 
-	public function v3( $return = false ) {
+	public function v3( $return = null ) {
 		$sqlite = new SQLite3(array('path' => ROW_APP_PATH.'/runtime/database.sqlite3'));
-		if ( $return ) return $sqlite;
-		return $this->structure($sqlite);
+		if ( true === $return ) return $sqlite;
+		return $this->structure($sqlite, $return);
 	}
 
-	public function pdo( $return = false ) {
+	public function pdo( $return = null ) {
 		$sqlite = new PDOSQLite(array('path' => ROW_APP_PATH.'/runtime/database.pdosqlite'));
-		if ( $return ) return $sqlite;
-		return $this->structure($sqlite);
+		if ( true === $return ) return $sqlite;
+		return $this->structure($sqlite, $return);
 	}
 
 	public function v2_data( $table = null ) {
