@@ -2,6 +2,9 @@
 To do:
 ------
 
+* Overall: Decide how loosely coupled all _extensions_ must be:
+    - Can the `Views`/`DBAL`/`Model` only be used within the framework
+    - Can the `Controller` only be used in combination with the `Dispatcher`? (So not in a cronjob)
 * Database: Implement the SQLite3 adapter
 
 
