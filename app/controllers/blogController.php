@@ -6,8 +6,44 @@ use app\controllers\ControllerParent;
 use row\http\NotFoundException;
 use row\database\ModelException;
 use app\models;
+use row\utils\Inflector;
 
 class blogController extends ControllerParent {
+
+	public function inflector() {
+		echo "<pre><u>  camelcase:</u>\n\n";
+		echo $txt = 'Oele boele la la';
+		echo "\n";
+		var_dump(Inflector::camelcase($txt));
+		echo "\n";
+		echo $txt = 'verified_user_address';
+		echo "\n";
+		var_dump(Inflector::camelcase($txt));
+		echo "\n";
+		echo "<u>  slugify:</u>\n\n";
+		echo $txt = 'The (new) future of the old/young/restless AND... pretty!';
+		echo "\n";
+		var_dump(Inflector::slugify($txt));
+		echo "\n";
+		echo $txt = 'verified_user_address';
+		echo "\n";
+		var_dump(Inflector::slugify($txt));
+		echo "\n";
+		echo "<u>  spacify:</u>\n\n";
+		echo $txt = 'the-new-future-of-the-old-young-restless-and-pretty';
+		echo "\n";
+		var_dump(Inflector::spacify($txt));
+		echo "\n";
+		echo $txt = 'verified_user_address';
+		echo "\n";
+		var_dump(Inflector::spacify($txt));
+		echo "\n";
+		echo "<u>  uncamelcase:</u>\n\n";
+		echo $txt = 'verifiedUserAddress';
+		echo "\n";
+		var_dump(Inflector::uncamelcase($txt));
+		echo '</pre>';
+	}
 
 	static public $config = array(
 		'posts_on_index' => 5,

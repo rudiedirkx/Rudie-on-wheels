@@ -1,1 +1,1 @@
-<h1><?=$this->title('Tables')?></h1><ul><?foreach( $tables AS $table ):?>	<li><a href="<?=$app->url('table-structure', $table)?>"><?=$table?></a> (<a href="<?=$app->url('table-data', $table)?>">data</a>)</li><?endforeach?></ul>
+<? $this->title('Tables') ?><ul><?foreach( $tables AS $table ):?>	<li><a href="<?=$app->url('table-structure', $table)?>"><?=row\utils\Inflector::spacify($table)?></a> (<a href="<?=$app->url('table-data', $table)?>">data</a>)</li><?endforeach?></ul>
