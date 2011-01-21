@@ -12,4 +12,8 @@ require(__DIR__.'/vendors.php');
 
 require(__DIR__.'/database.php');
 
+if ( isset($_SERVER['HTTP_HOST']) ) { // http
+	require(__DIR__.'/routes.php');
+}
+
 

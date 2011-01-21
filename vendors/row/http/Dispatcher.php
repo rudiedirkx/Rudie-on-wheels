@@ -17,6 +17,8 @@ class Dispatcher extends Object {
 	public $requestPath = false; // false means unset - will become a (might-be-empty) string
 	public $requestBasePath = '';
 
+	public $router;
+
 	public $options; // typeof Options
 
 	public function __construct( $options = array() ) {
@@ -109,8 +111,15 @@ class Dispatcher extends Object {
 	}
 
 
-	public function getController( $f_path ) {
-		$uri = explode('/', trim($f_path, '/'), 2);
+	public function getController( $f_path, $routes = true ) {
+		$path = trim($f_path, '/');
+		if ( $routes && $this->router ) {
+			if ( $to = $this->router->resolve($path) ) {
+				$path = ltrim($to, '/');
+//var_dump($path); exit;
+			}
+		}
+		$uri = explode('/', $path, 2);
 		$module = $uri[0] ?: $this->options->default_module;
 		foreach ( $this->options->dispatch_order AS $dispatchType ) {
 			switch ( $dispatchType ) {

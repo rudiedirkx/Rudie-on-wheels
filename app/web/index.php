@@ -19,7 +19,7 @@ $options = Options::make(array(
 ));
 $dispatcher = new Dispatcher($options);
 
-$dispatcher->setRouter(new Router); // shortcut =)
+$dispatcher->setRouter($router); // Created in config/routes.php
 
 try {
 	$application = $dispatcher->getApplication( $dispatcher->getRequestPath() ); // typeof Controller
