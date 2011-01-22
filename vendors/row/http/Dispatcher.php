@@ -36,6 +36,9 @@ class Dispatcher extends Object {
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
+			'module_to_class_translation' => function($module) {
+				return $module;
+			},
 			'action_name_translation' => function($action) {
 				return str_replace('-', '_', $action);
 			},
@@ -181,8 +184,17 @@ class Dispatcher extends Object {
 		return $application;
 	}
 
-	protected function getControllerObject( $module ) {
+	protected function getControllerClassName( $module ) {
+		if ( is_callable($this->options->module_to_class_translation) ) {
+			$fn = $this->options->module_to_class_translation;
+			$module = $fn($module);
+		}
 		$moduleClass = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
+		return $moduleClass;
+	}
+
+	protected function getControllerObject( $module ) {
+		$moduleClass = $this->getControllerClassName($module);
 		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
 		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it and its dependancies/parents
 			return $this->throwNotFound();
