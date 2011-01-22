@@ -13,6 +13,8 @@ To do:
 Debatables:
 -----------
 
+1. Am I beging inconsistent with my underscores and/or static function naming?
+2. Should all `Object`-extended classes have the `__callStatic` that `database\Model` has?<br><br>
 1. Define environments and their corresponding 'bootstraps':
     - HTTP: Config + Model + Controller/Dispatcher + Views + Third-parties? + ?
     - CRON: Config + DB (Model?) + Third-parties? + ?
