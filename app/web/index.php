@@ -9,12 +9,18 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 
 // Config Dispatcher
 $options = Options::make(array(
+
+	'module_class_prefix' => '',
+	'module_class_postfix' => 'Controller',
+
 //	'default_module' => 'Ooeele',
 	'ignore_trailing_slash' => true,
-	'module_to_class_translation' => function($module) {
+
+/*	'module_to_class_translation' => function($module) {
 //		$module = ucfirst(row\utils\Inflector::camelcase($module));
 		return $module;
-	}
+	}*/
+
 ));
 $dispatcher = new Dispatcher($options);
 

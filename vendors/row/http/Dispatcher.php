@@ -36,9 +36,7 @@ class Dispatcher extends Object {
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
-			'module_to_class_translation' => function($module) {
-				return $module;
-			},
+			'module_to_class_translation' => false,
 			'action_name_translation' => function($action) {
 				return str_replace('-', '_', $action);
 			},
@@ -185,17 +183,45 @@ class Dispatcher extends Object {
 	}
 
 	protected function getControllerClassName( $module ) {
-		if ( is_callable($this->options->module_to_class_translation) ) {
+		/*if ( is_callable($this->options->module_to_class_translation) ) {
 			$fn = $this->options->module_to_class_translation;
-			$module = $fn($module);
+			$moduleClass = $fn($module);
 		}
-		$moduleClass = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
-		return $moduleClass;
+		else {*/
+			$delim = $this->options->module_delim;
+			$moduleParts = explode($delim, $module);
+			if ( 1 < count($moduleParts) ) {
+				$args = array();
+				$mi = count($moduleParts);
+				$li = 0;
+				for ( $i=1; $i<$mi; $i++ ) {
+					$submodule = $moduleParts[$i];
+					if ( (string)(int)$submodule === $submodule ) {
+						unset($moduleParts[$i]);
+						$moduleParts[$li] .= '_N';
+						$args[] = $submodule;
+					}
+					else {
+						$li = $i;
+					}
+				}
+				$moduleParts = array_values($moduleParts);
+				$this->_moduleArguments = $args;
+			}
+//print_r($args);
+//print_r($moduleParts);
+			$n = count($moduleParts)-1;
+			$moduleParts[$n] = $this->options->module_class_prefix . $moduleParts[$n] . $this->options->module_class_postfix;
+			$moduleClass = implode('\\', $moduleParts);
+//var_dump($moduleClass);
+//echo "\n\n";
+		/*}*/
+		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
+		return $namespacedModuleClass;
 	}
 
 	protected function getControllerObject( $module ) {
-		$moduleClass = $this->getControllerClassName($module);
-		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
+		$namespacedModuleClass = $this->getControllerClassName($module);
 		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it and its dependancies/parents
 			return $this->throwNotFound();
 		}

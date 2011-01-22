@@ -2,9 +2,6 @@
 To do:
 ------
 
-0. Dispatcher: Use `Dispatcher` object in `Route(r)` to get exact same config (and action wildcards)
-1. Dispatcher: Implement the multi-module path (e.g. `/partA-partB/actionName/arg1` for `app\controllers\partA\partBController`)
-2. Dispatcher: Implement 'inArguments' for the above multi-module setup (store them in `Dispatcher->_moduleArguments` and copy them to `Controller->_moduleArguments`)
 3. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
 4. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the msising ErrorController (which is good).)
 5. Database: Implement the SQLite3 adapter
