@@ -6,7 +6,7 @@ use row\core\Object;
 use row\utils\Options;
 //use row\core\Vendors;
 
-class NotFoundException extends \RowException { }
+class NotFoundException extends \RowException { } // Where to put this?
 
 class Dispatcher extends Object {
 
@@ -15,18 +15,24 @@ class Dispatcher extends Object {
 	}
 
 	public $requestPath = false; // false means unset - will become a (might-be-empty) string
-	public $requestBasePath = '';
+	public $requestBasePath = ''; // The path up to the application (e.g.: /admin/ or /row/)
 
-	public $router;
+	public $_module = '';
+	public $_moduleArguments = array(); // 'Not yet implemented'
+	public $_actionPath = '';
+	public $_actionFunction = '';
+	public $_actionArguments = array();
 
-	public $options; // typeof Options
+	public $router; // typeof row\http\Router
 
-	public function __construct( $options = array() ) {
-		$defaults = Options::make(array(
+	public $options; // typeof row\core\Options
+
+	static public function getDefaultOptions() { // Easily extendable without altering anything else
+		return Options::make(array(
 			'module_delim' => '-',
 			'default_module' => 'index',
 			'default_action' => 'index',
-			'dispatch_order' => array('specific', 'generic', 'fallback'),
+//			'dispatch_order' => array('specific', 'generic', 'fallback'), // This doesn't exist anymore?
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
@@ -44,13 +50,16 @@ class Dispatcher extends Object {
 				'#' => 'INT',
 				'*' => 'STRING',
 			)),
-			'ignore_leading_slash' => false,
 			'ignore_trailing_slash' => false,
 			'case_sensitive_paths' => false,
 			// Unimplemented:
 //			'path_source' => 'REQUEST_URI', // REQUEST_URI | INDEX_PHP | QUERY_STRING | GET
 //			'path_source_get_param' => 'url',
 		));
+	}
+
+	public function __construct( $options = array() ) {
+		$defaults = static::getDefaultOptions();
 		$this->options = new Options($options, $defaults);
 		$this->_init();
 	}
@@ -63,6 +72,7 @@ class Dispatcher extends Object {
 
 
 	public function setRouter( \row\http\Router $router ) {
+		$router->setDispatcher($this); // Now the Router knows Dispatcher config like action_path_wildcards
 		$this->router = $router;
 	}
 
@@ -74,20 +84,10 @@ class Dispatcher extends Object {
 				parse_str($uri[1], $_GET);
 			}
 			$path = $uri[0];
-//print_r($_SERVER);
 			$base = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 			$this->requestBasePath = $base;
-//var_dump($base, $path);
 			$path = substr($path, strlen($base));
-//var_dump($path);
-//exit;
-			if ( $this->options->ignore_leading_slash && $this->options->ignore_trailing_slash ) {
-				$path = trim($path, '/');
-			}
-			else if ( $this->options->ignore_leading_slash ) {
-				$path = ltrim($path, '/');
-			}
-			else if ( $this->options->ignore_trailing_slash ) {
+			if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
 			}
 			$this->requestPath = $path;
@@ -111,53 +111,78 @@ class Dispatcher extends Object {
 	}
 
 
-	public function getController( $f_path, $routes = true ) {
-		$path = trim($f_path, '/');
+	public function getController( $path, $routes = true ) {
+		$originalPath = $path;
+//echo '<pre>';
+//var_dump($path);
 		if ( $routes && $this->router ) {
 			if ( $to = $this->router->resolve($path) ) {
 				$path = ltrim($to, '/');
-//var_dump($path); exit;
 			}
 		}
-		$uri = explode('/', $path, 2);
+//var_dump($path);
+		$uri = explode('/', ltrim($path, '/'), 2);
 		$module = $uri[0] ?: $this->options->default_module;
-		foreach ( $this->options->dispatch_order AS $dispatchType ) {
-			switch ( $dispatchType ) {
-				case 'generic':
-					if ( isset($uri[1]) ) {
-						$args = explode('/', $uri[1]);
-						$action = array_shift($args);
-						$translate = $this->options->action_name_translation;
-						if ( is_callable($translate) ) {
-							$action = $translate($action);
-						}
+		$this->_module = $module;
+		$actionPath = empty($uri[1]) ? '' : $uri[1];
+//var_dump($module, $actionPath);
+		$moduleClass = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
+//var_dump($moduleClass);
+		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
+//var_dump($namespacedModuleClass);
+		if ( !class_exists($namespacedModuleClass) ) { // Also includes it and its dependancies/parents
+			return $this->throwNotFound();
+		}
+		$application = new $namespacedModuleClass($this);
+		$application->_fire('init');
+		$_actions = $application->_getActionPaths(); // This and only this decides which Dispatch Type to use
+		if ( is_array($_actions) ) {
+			// Dispatch type "specific"
+			// All _actions must start with a slash
+			// The possibly present trailing slash has already been taken care of
+			$actionPath = '/'.$actionPath;
+			foreach ( $_actions AS $hookPath => $actionFunction ) {
+				if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
+					$hookPath = rtrim($hookPath, '/');
+				}
+				$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
+				$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
+				if ( 0 < preg_match('#^'.$hookPath.'$#', $actionPath, $matches) ) {
+					if ( !$this->isCallableActionFunction($application, $actionFunction) ) {
+						return $this->throwNotFound();
 					}
-					else {
-						$action = $this->options->default_action;
-						$args = array();
-					}
-
-					$this->_module = $module;
-					$this->_action = $action;
-					$this->_arguments = $args;
-
-					$class = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
-					$namespacedClass = 'app\\controllers\\' . $class;
-					$loader = \Vendors::$loaders['app'];
-					$file = $loader('app', 'controllers\\'.$class);
-					if ( !file_exists($file) ) {
-						$class = $this->options->not_found_exception;
-						throw new $class($f_path);
-					}
-
-					$application = new $namespacedClass( $this );
-					$application->_executable = is_callable(array($application, $action));
+					$this->_actionPath = $actionPath;
+					$this->_actionFunction = $actionFunction;
+					array_shift($matches);
+					$this->_actionArguments = $matches;
 					return $application;
-				break;
+				}
 			}
+			return $this->throwNotFound();
 		}
 
-		return false;
+		// Dispatch type "generic"
+		$actionPath = rtrim($actionPath, '/');
+		$actionDetails = explode('/', $actionPath);
+//print_r($actionDetails);
+		$actionFunction = array_shift($actionDetails) ?: $this->options->default_action;
+//var_dump($actionFunction);
+		if ( !$this->isCallableActionFunction($application, $actionFunction) ) {
+			return $this->throwNotFound();
+		}
+		$this->_actionPath = $actionPath;
+		$this->_actionFunction = $actionFunction;
+		$this->_actionArguments = $actionDetails;
+		return $application;
+	}
+
+	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
+		return substr($actionFunction, 0, 1) != '_' && is_callable(array($application, $actionFunction));
+	}
+
+	protected function throwNotFound() {
+		$exceptionClass = $this->options->not_found_exception;
+		throw new $exceptionClass($this->requestPath);
 	}
 
 

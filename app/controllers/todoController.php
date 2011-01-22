@@ -7,7 +7,7 @@ use app\controllers\ControllerParent;
 class todoController extends ControllerParent {
 
 	protected function _pre_action() {
-		echo '<!doctype html><head><style>body{font-family:Arial,sans-serif;}code{padding:3px;background-color:#e4e4e4;}</style></head><body>'."\n\n";
+		echo '<!doctype html><head><style>body{font-family:Arial,sans-serif;}code{white-space:nowrap;padding:3px;background-color:#e4e4e4;}</style></head><body>'."\n\n";
 	}
 
 	protected function _post_action() {
@@ -18,8 +18,12 @@ class todoController extends ControllerParent {
 		echo 'Show TODO issue # '.$n.' here...';
 	}
 
-	public function index() {
-		$todo = file_get_contents(ROW_PATH.'/TODO.md');
+	public function readme() {
+		return $this->index('README.md');
+	}
+
+	public function index( $file = 'TODO.md' ) {
+		$todo = file_get_contents(ROW_PATH.'/'.$file);
 		$todo = \markdown\MarkdownParser::parse($todo);
 		echo $todo;
 	}

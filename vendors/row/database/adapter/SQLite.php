@@ -19,6 +19,9 @@ class SQLite extends Adapter {
 		$_columns = $this->fetch('pragma table_info('.$this->escapeAndQuoteTable($table).')');
 		$columns = array();
 		foreach ( $_columns AS $c ) {
+			$c['type'] = strtoupper($c['type']);
+			$c['null'] = !$c['notnull'];
+			$c['default'] = $c['dflt_value'];
 			$columns[$c['name']] = $c;
 		}
 		return $columns;

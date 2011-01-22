@@ -13,6 +13,10 @@ class Router extends Object {
 
 	public $routes = array();
 
+	public function setDispatcher( $dispatcher ) {
+		$this->dispatcher = $dispatcher;
+	}
+
 	public function add( $from, $to ) {
 		$this->routes[] = new Route($from, $to);
 	}

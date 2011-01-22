@@ -18,7 +18,7 @@ class View extends Object {
 
 	public $extension = '.php';
 	public $viewsFolder = '';
-	public $viewLayout = '';
+	public $viewLayout = false;
 
 	public $vars = array(
 		'title' => '',
@@ -102,11 +102,14 @@ class View extends Object {
 		return $this->vars['title'];
 	}
 
+
+
+	/**
+		Maybe put stuff like this and htmlspecialchar() and such in a FrontEnd class?
+	 */
+
 	public function markdown( $text ) {
-#		if ( !function_exists('Markdown') ) {
-#			include(ROW_VENDORS_PATH.'/phpMarkdownExtra/Markdown.php');
-#		}
-		return \markdown\MarkdownParser::parse($text);
+		return \markdown\MarkdownParser::parse($text); // 'markdown' is a Vendor. Is that necessary?
 	}
 
 	public function nl2br( $text ) {

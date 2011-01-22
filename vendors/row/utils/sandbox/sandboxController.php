@@ -8,71 +8,100 @@ use row\View;
 
 class sandboxController extends Controller {
 
+	static protected $_actions = array(
+		'/'							=> 'tables',
+		'/table-structure/*'		=> 'table_structure',
+		'/table-data/*'				=> 'table_data',
+		'/table-data/*/add'			=> 'add_data',
+		'/table-data/*/add/save'	=> 'insert_data',
+		'/table-data/*/pk/CSV'		=> 'table_record', // See _init for the newly created action wildcard CSV
+		'/table-data/*/pk/*/save'	=> 'save_table_record',
+	);
+
 	protected function _init() {
+		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
+
 		$this->view = new View($this);
 		$this->view->viewsFolder = __DIR__.'/views';
 		$this->view->viewLayout = __DIR__.'/views/_layout.php';
+		$this->view->assign('app', $this);
 	}
 
-	public function table_data( $table = null, $pkValues = null ) {
-		if ( !$table ) {
-			return $this->index();
-		}
-		$app = $this;
+	public function save_table_record( $table, $pkValues ) {
 		$pkColumns = Model::dbObject()->_getPKColumns($table);
-		if ( $pkValues ) {
-			$pkValues = explode(',', $pkValues);
-			if ( count($pkColumns) !== count($pkValues) ) {
-				exit('Invalid PK');
-			}
-			$pkValues = array_combine($pkColumns, $pkValues);
-			$data = Model::dbObject()->select($table, $pkValues, array(), true);
-			return $this->view->display('table_record', get_defined_vars());
-			exit;
+		$pkValues = explode(',', $pkValues);
+		if ( count($pkColumns) !== count($pkValues) ) {
+			exit('Invalid PK');
 		}
+		$pkValues = array_combine($pkColumns, $pkValues);
+
+		foreach ( $_POST['data'] AS $k => $v ) {
+			if ( isset($_POST['null'][$k]) ) {
+				$_POST['data'][$k] = null;
+			}
+		}
+
+		$db = Model::dbObject();
+		if ( !$db->update($table, $_POST['data'], $pkValues) ) {
+			exit($db->error());
+		}
+
+		$this->redirect($this->_url('table-data', $table));
+	}
+
+	public function insert_data( $table ) {
+		foreach ( $_POST['data'] AS $k => $v ) {
+			if ( isset($_POST['null'][$k]) ) {
+				$_POST['data'][$k] = null;
+			}
+		}
+
+		$db = Model::dbObject();
+		if ( !$db->insert($table, $_POST['data']) ) {
+			exit($db->error());
+		}
+
+		$this->redirect($this->_url('table-data', $table));
+	}
+
+	public function add_data( $table ) {
+		$columns = Model::dbObject()->_getTableColumns($table);
+		return $this->view->display('add_data', get_defined_vars());
+	}
+
+	public function table_record( $table, $pkValues ) {
+		$pkColumns = Model::dbObject()->_getPKColumns($table);
+		$pkValues = explode(',', $pkValues);
+		if ( count($pkColumns) !== count($pkValues) ) {
+			exit('Invalid PK');
+		}
+		$pkValues = array_combine($pkColumns, $pkValues);
+		$data = Model::dbObject()->select($table, $pkValues, array(), true);
+		$columns = Model::dbObject()->_getTableColumns($table);
+		return $this->view->display('table_record', get_defined_vars());
+	}
+
+	public function table_data( $table ) {
+		$pkColumns = Model::dbObject()->_getPKColumns($table);
 		$data = Model::dbObject()->select($table, '1');
 		if ( !$data ) {
-			exit('no data');
+//			exit('no data');
 		}
 		return $this->view->display('table_data', get_defined_vars());
 	}
 
-	public function table_structure( $table = null ) {
-		if ( !$table ) {
-			return $this->index();
-		}
+	public function table_structure( $table ) {
 		$columns = Model::dbObject()->_getTableColumns($table);
-		$app = $this;
 		return $this->view->display('table_structure', get_defined_vars());
 	}
 
-	public function index() {
-		$app = $this;
+	public function tables() {
 		$tables = Model::dbObject()->_getTables();
 		return $this->view->display('tables', get_defined_vars());
 	}
 
-	private function printData( $data ) {
-		echo '<table><thead><tr>';
-//		echo '<td></td>';
-		$k0 = key($data);
-		foreach ( $data[$k0] AS $k => $v ) {
-			echo '<th>'.$k.'</th>';
-		}
-		echo '</tr></thead><tbody>';
-		foreach ( $data AS $row ) {
-			echo '<tr>';
-//			echo '<td><a href="'.$this->url('table-data', 'table/0,0').'"></a></td>';
-			foreach ( $row AS $v ) {
-				echo '<td>'.$v.'</td>';
-			}
-			echo '</tr>';
-		}
-		echo '</tbody></table>';
-	}
-
-	public function url( $action, $more = '' ) {
-		return '/'.$this->_dispatcher->_module.'/'.$action.( $more ? '/'.$more : '' );
+	public function _url( $action = '', $more = '' ) {
+		return '/'.$this->_dispatcher->_module.( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
 	}
 
 }

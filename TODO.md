@@ -2,11 +2,12 @@
 To do:
 ------
 
-1. Redo `Dispatcher` (and `Controller`) from `Dispatcher->run` to `Controller->_post_action`
-2. Database: Give the `database\Adapter`s more Reflection feats (like `_getPKColumns()`)?
-3. Make 'internal apps' (applets?) extendable/usable through normal Controller-proxy (like `app\controllers\dbsecretsController` now extends `row\utils\sandbox\controllers\sandboxController`)
-4. Database: Implement the SQLite3 adapter
-5. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
+1. Dispatcher: Implement the multi-module path (e.g. `/partA-partB/actionName/arg1` for `app\controllers\partA\partBController`)
+2. Dispatcher: Implement 'inArguments' for the above multi-module setup (store them in `Dispatcher->_moduleArguments` and copy them to `Controller->_moduleArguments`)
+3. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
+4. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the msising ErrorController (which is good).)
+5. Database: Implement the SQLite3 adapter
+6. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
 
 
 Debatables:
@@ -27,12 +28,10 @@ How to:
 -------
 
 * Make `View::markdown()` available everywhere (statically please, yet configured (in bootstrap?))?
-* Make `View->url()` or `Controller->url()` available everywhere?
+* Make `View->url()` (or `Controller->url()` or `Dispatcher->url()`?) available everywhere?
 * LOOSELY couple everything together (dispatcher > controller > database + views)
 * Vendors: include unnamespaced classes like phpMarkdownExtra (created namespaced extension that references to global markdown class - what to do with multiple classes like in Zend??)
 * Dispatcher: Lose most (?) options
-* Dispatcher: Implement 'inArguments' for dispatch methods 'generic' and 'specific'
-* Dispatcher: Implement ErrorController (assign exception to template?)
 * Models: Test and finish Model class
 * Auth: Implement classes:
     - SessionUser (always exists, lives within LoginSession, will most likely have a UserRecord as data object)
