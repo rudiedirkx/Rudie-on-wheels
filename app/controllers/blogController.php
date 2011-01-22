@@ -59,6 +59,10 @@ class blogController extends ControllerParent {
 		}
 	}
 
+	public function best( $num = 900 ) {
+		exit('Showing the '.$num.' best posts...');
+	}
+
 	public function view( $id ) {
 		$post = $this->getPost($id); // might throw a NotFound, which is caught outside the application
 		if ( $post->author->isUnaware() ) {

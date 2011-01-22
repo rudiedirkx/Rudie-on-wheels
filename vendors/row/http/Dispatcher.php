@@ -117,6 +117,18 @@ class Dispatcher extends Object {
 //var_dump($path);
 		if ( $routes && $this->router ) {
 			if ( $to = $this->router->resolve($path) ) {
+				if ( is_array($to) ) {
+					$application = $this->getControllerObject($to['controller']);
+					$this->_module = $to['controller'];
+					$application->_fire('init');
+					if ( !$this->isCallableActionFunction($application, $to['action']) ) {
+						return $this->throwNotFound();
+					}
+					$this->_actionPath = $path;
+					$this->_actionFunction = $to['action'];
+					$this->_actionArguments = $to['arguments'];
+					return $application;
+				}
 				$path = ltrim($to, '/');
 			}
 		}
@@ -126,14 +138,7 @@ class Dispatcher extends Object {
 		$this->_module = $module;
 		$actionPath = empty($uri[1]) ? '' : $uri[1];
 //var_dump($module, $actionPath);
-		$moduleClass = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
-//var_dump($moduleClass);
-		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
-//var_dump($namespacedModuleClass);
-		if ( !class_exists($namespacedModuleClass) ) { // Also includes it and its dependancies/parents
-			return $this->throwNotFound();
-		}
-		$application = new $namespacedModuleClass($this);
+		$application = $this->getControllerObject($module);
 		$application->_fire('init');
 		$_actions = $application->_getActionPaths(); // This and only this decides which Dispatch Type to use
 		if ( is_array($_actions) ) {
@@ -173,6 +178,16 @@ class Dispatcher extends Object {
 		$this->_actionPath = $actionPath;
 		$this->_actionFunction = $actionFunction;
 		$this->_actionArguments = $actionDetails;
+		return $application;
+	}
+
+	protected function getControllerObject( $module ) {
+		$moduleClass = $this->options->module_class_prefix . $module . $this->options->module_class_postfix;
+		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
+		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it and its dependancies/parents
+			return $this->throwNotFound();
+		}
+		$application = new $namespacedModuleClass($this);
 		return $application;
 	}
 

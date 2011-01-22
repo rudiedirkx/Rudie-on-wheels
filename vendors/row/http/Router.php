@@ -13,17 +13,19 @@ class Router extends Object {
 
 	public $routes = array();
 
+	public $dispatcher;
+
 	public function setDispatcher( $dispatcher ) {
 		$this->dispatcher = $dispatcher;
 	}
 
-	public function add( $from, $to ) {
-		$this->routes[] = new Route($from, $to);
+	public function add( $from, $to, $redirect = false ) {
+		$this->routes[] = new Route($this, $from, $to, $redirect);
 	}
 
 	public function resolve( $path ) {
 		foreach ( $this->routes AS $route ) {
-			if ( is_string($to = $route->resolve($path)) ) {
+			if ( $to = $route->resolve($path) ) {
 				return $to;
 			}
 		}
