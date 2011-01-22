@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Genereertijd: 17 Jan 2011 om 18:01
+-- Genereertijd: 22 Jan 2011 om 19:05
 -- Serverversie: 5.1.36
 -- PHP-Versie: 5.3.0
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
 --
 
 INSERT INTO `comments` (`comment_id`, `author_id`, `post_id`, `comment`, `created_on`) VALUES
-(1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 0);
+(1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 1295453052);
 
 -- --------------------------------------------------------
 
@@ -67,15 +67,21 @@ CREATE TABLE IF NOT EXISTS `following_posts` (
 
 CREATE TABLE IF NOT EXISTS `following_users` (
   `user_id` int(10) unsigned NOT NULL,
-  `followee_user_id` int(10) unsigned NOT NULL,
+  `follows_user_id` int(10) unsigned NOT NULL,
   `started_on` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`user_id`,`followee_user_id`)
+  PRIMARY KEY (`user_id`,`follows_user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `following_users`
 --
 
+INSERT INTO `following_users` (`user_id`, `follows_user_id`, `started_on`) VALUES
+(1, 2, 123455655),
+(7, 1, 0),
+(8, 1, 0),
+(6, 1, 0),
+(1, 7, 0);
 
 -- --------------------------------------------------------
 
@@ -100,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
 INSERT INTO `posts` (`post_id`, `author_id`, `title`, `body`, `created_on`, `is_published`) VALUES
 (1, 1, 'testbericht', 'dit is een testbericht wihii', 0, 1),
 (2, 1, 'nog ene', 'nog een testbericht', 500, 0),
-(3, 1, 'numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1000, 1);
+(3, 1, 'numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1295404557, 1);
 
 -- --------------------------------------------------------
 
@@ -115,14 +121,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `bio` text NOT NULL,
   `access` text NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `users`
 --
 
 INSERT INTO `users` (`user_id`, `username`, `full_name`, `bio`, `access`) VALUES
-(1, 'root', 'root user', '', ''),
+(1, 'root', 'root user', '', 'everything'),
 (2, 'jaap', 'Jaap de Koning', '', 'blog publish, blog read unpublished'),
 (3, 'bert', 'Bert v.d. Zaagweg', 'Ik ben Bert! =)', 'blog delete hidden comments, blog unpublish'),
-(4, 'janneke', 'Janneke Meerzeit', '', 'blog flag as spam, blog flag as inappropriate, blog hide comment');
+(4, 'janneke', 'Janneke Meerzeit', '', 'blog flag as spam, blog flag as inappropriate, blog hide comment'),
+(5, 'o.boele', 'Oele Boele', 'Oele Boele is gek. Ik bedoel ik ben gek =)', 'everything'),
+(6, 'sanne', 'Sanne Fleskens', 'Sanne zat op een school en toen een andere en daarna waarschijnlijk op nog een andere en misschien wel meer dan 1.', 'browse everything'),
+(7, 'loesje', 'Loesje', 'Loesje, die van die drummer van de band... Met dat cheile bloesje', 'browse everything, edit but not update everything, add but not insert everything');
