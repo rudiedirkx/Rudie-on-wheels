@@ -3,6 +3,7 @@
 namespace row;
 
 use row\core\Object;
+use row\utils\Options;
 
 class Controller extends Object {
 
@@ -24,6 +25,8 @@ class Controller extends Object {
 //		$this->_action = $dispatcher->_action;
 //		$this->_arguments = $dispatcher->_arguments;
 //		$this->_fire('init'); // This seems premature then as well...
+		$this->post = Options::make($_POST);
+		$this->get = Options::make($_GET);
 	}
 
 	public function _getActionPaths() {

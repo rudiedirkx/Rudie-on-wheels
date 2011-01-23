@@ -106,7 +106,7 @@ class Model extends Object {
 		$conditions = static::dbObject()->addLimit($conditions, 2);
 		$r = static::_fetch($conditions);
 		if ( !isset($r[0]) || isset($r[1]) ) {
-			throw new ModelException('Not exactly one record returned.');
+			throw new ModelException('Not exactly one record returned. Found '.count($r).' of '.get_called_class().'.');
 		}
 		return $r[0];
 	}
@@ -144,22 +144,30 @@ class Model extends Object {
 	 * 
 	 */
 	static public function _delete( $conditions, $params = array() ) {
-		return static::dbObject()->delete(static::$_table, $conditions);
+		if ( static::dbObject()->delete(static::$_table, $conditions) ) {
+			return static::dbObject()->affectedRows();
+		}
+		return false;
 	}
 
 	/**
 	 * 
 	 */
 	static public function _update( $updates, $conditions, $params = array() ) {
-//print_r(func_get_args());
-		return static::dbObject()->update(static::$_table, $updates, $conditions, $params);
+		if ( static::dbObject()->update(static::$_table, $updates, $conditions, $params) ) {
+			return static::dbObject()->affectedRows();
+		}
+		return false;
 	}
 
 	/**
 	 * 
 	 */
 	static public function _insert( $values ) {
-		return static::dbObject()->insert(static::$_table, $values);
+		if ( static::dbObject()->insert(static::$_table, $values) ) {
+			return (int)static::dbObject()->insertId();
+		}
+		return false;
 	}
 
 	/**

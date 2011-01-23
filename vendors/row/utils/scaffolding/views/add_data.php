@@ -6,7 +6,7 @@ use row\utils\Inflector;
 
 <? $this->title('New record to populate `'.$table.'`') ?>
 
-<form method="post" action="<?=$app->_uri?>/save">
+<form method="post" action="<?=$app->_url('table-data', $table.'/add/save')?>">
 <table>
 	<tr>
 		<th></th>

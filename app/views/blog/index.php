@@ -3,7 +3,7 @@
 
 <?foreach( $posts as $post ):?>
 
-	<article>
+	<article class="blogpostpreview">
 		<footer>Posted by <em><?=$post->author->full_name?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em>.</footer>
 		<header><h2><a href="<?=$post->url()?>"><?=$post->title?></a></h2></header>
 		<?=$this->markdown($post->body)."\n"?>

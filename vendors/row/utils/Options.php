@@ -42,6 +42,10 @@ class Options extends Object {
 		}
 	}
 
+	public function isEmpty() {
+		return 0 == count((array)$this);
+	}
+
 }
 
 

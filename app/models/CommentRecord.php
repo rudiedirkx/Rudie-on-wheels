@@ -14,6 +14,10 @@ class CommentRecord extends Comment implements VisitableRecord {
 		}
 	}
 
+	public function canEdit() {
+		return $_SERVER['REMOTE_ADDR'] === $this->created_by_ip && 300 > time() - $this->created_on;
+	}
+
 	public function url( $more = '' ) {
 		return '/blog/view/' . $this->post_id . '#comment-' . $this->comment_id;
 	}

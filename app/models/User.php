@@ -13,6 +13,15 @@ class User extends Model {
 		'access_zones' => array( self::GETTER_FUNCTION, true, 'getAccessZones' ),
 	);
 
+	static public function getUserFromUsername( $username ) {
+		try {
+			$user = self::one(array('username' => $username));
+			return $user;
+		}
+		catch ( \Exception $ex ) {}
+		return false;
+	}
+
 	public function getGroupId() {
 		return 1;
 	}

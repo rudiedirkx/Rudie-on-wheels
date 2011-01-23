@@ -172,6 +172,13 @@ class Dispatcher extends Object {
 		$actionDetails = explode('/', $actionPath);
 //print_r($actionDetails);
 		$actionFunction = array_shift($actionDetails) ?: $this->options->default_action;
+		$afTranslation = $this->options->action_name_translation;
+		if ( $afTranslation && is_callable($afTranslation) ) {
+			$actionFunction = $afTranslation($actionFunction);
+		}
+		else {
+			$actionFunction = str_replace('-', '_', $actionFunction);
+		}
 //var_dump($actionFunction);
 		if ( !$this->isCallableActionFunction($application, $actionFunction) ) {
 			return $this->throwNotFound();

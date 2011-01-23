@@ -1,7 +1,7 @@
 
 <? $this->title('`'.$table.'` record # '.implode(',', $pkValues)) ?>
 
-<form method="post" action="<?=$app->_uri?>/save">
+<form method="post" action="<?=$app->_url('table-data', $table.'/pk/'.implode(',', $pkValues).'/save')?>">
 <table>
 	<tr>
 		<th></th>
