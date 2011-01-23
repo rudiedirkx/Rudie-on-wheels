@@ -22,7 +22,7 @@ class MySQLi extends MySQL {
 			return false;
 		}
 		try {
-			$r = $this->query('SELECT 1 FROM sqlite_master');
+			$r = $this->query('SHOW TABLES');
 			return false !== $r;
 		}
 		catch ( DatabaseException $ex ) {}
@@ -115,7 +115,7 @@ class MySQLi extends MySQL {
 
 	public function query( $query ) {
 		$q = $this->db->query($query);
-		if ( !is_object($q) ) {
+		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
 			}

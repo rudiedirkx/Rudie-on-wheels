@@ -62,7 +62,7 @@ class MySQL extends Adapter {
 	}
 
 	public function connected() {
-		return is_resource($this->db) && false !== $this->query('SELECT 1');
+		return is_resource($this->db) && false !== $this->query('SHOW TABLES');
 	}
 
 
