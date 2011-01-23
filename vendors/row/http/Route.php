@@ -3,6 +3,7 @@
 namespace row\http;
 
 use row\core\Object;
+use row\utils\Options;
 
 class Route extends Object {
 
@@ -12,22 +13,23 @@ class Route extends Object {
 
 	public $from = '';
 	public $to = '';
-	public $redirect = false;
+	public $options; // typeof Options
 
-	public function __construct( $router, $from, $to, $redirect = false ) {
+	public function __construct( $router, $from, $to, $options = array() ) {
 		$this->router = $router;
 		$this->from = $from;
 		$this->to = $to;
-		$this->redirect = $redirect;
+		$this->options = Options::make($options);
 	}
 
 	public function resolve( $path ) {
 		$from = trim($this->from, '$^ ');
+//var_dump($path, $this->from, $this->to, '--------------------------------------');
 		if ( 0 < preg_match('#^'.$from.'$#', $path, $match) ) {
 			if ( is_string($this->to) ) {
 				$match[0] = $this->to;
 				$goto = call_user_func_array('sprintf', $match);
-				if ( $this->redirect ) {
+				if ( $this->options->redirect ) {
 					header('Location: '.$goto);
 					exit;
 				}

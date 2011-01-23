@@ -114,11 +114,11 @@ class Dispatcher extends Object {
 
 	public function getController( $path, $routes = true ) {
 		$originalPath = $path;
-//echo '<pre>';
-//var_dump($path);
+//echo '<pre>'; var_dump($path);
 		if ( $routes && $this->router ) {
+			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
-				if ( is_array($to) ) {
+				if ( is_array($to) ) { // Don't evaluate URI like 'normal'
 					$application = $this->getControllerObject($to['controller']);
 					$this->_module = $to['controller'];
 					$application->_fire('init');
@@ -130,7 +130,9 @@ class Dispatcher extends Object {
 					$this->_actionArguments = $to['arguments'];
 					return $application;
 				}
+				// Just another URI, so evaluate normally
 				$path = ltrim($to, '/');
+//var_dump($path); exit;
 			}
 		}
 //var_dump($path);
