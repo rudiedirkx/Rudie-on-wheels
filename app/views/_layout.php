@@ -1,0 +1,1 @@
+﻿<!doctype html><html class="html no-js ani"><head><title><?=$this->title()?></title><style>article { padding:30px; margin:30px; border:solid 1px #bbb; }article h2 { margin:0; }</style></head><body><?=$content?></body></html>

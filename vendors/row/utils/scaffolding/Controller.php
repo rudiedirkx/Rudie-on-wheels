@@ -1,12 +1,11 @@
 <?php
 
-namespace row\utils\sandbox;
+namespace row\utils\scaffolding;
 
-use row\Controller;
 use row\database\Model;
 use row\View;
 
-class sandboxController extends Controller {
+class Controller extends \row\Controller {
 
 	static protected $_actions = array(
 		'/'							=> 'tables',

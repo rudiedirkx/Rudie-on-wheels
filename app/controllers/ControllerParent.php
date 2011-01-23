@@ -12,6 +12,7 @@ class ControllerParent extends Controller {
 		$this->user = new SessionUser;
 		$this->tpl = new View($this);
 		$this->tpl->viewsFolder = ROW_APP_PATH.'/views';
+		$this->tpl->viewLayout = ROW_APP_PATH.'/views/_layout.php';
 		$this->db = $GLOBALS['db'];
 	}
 
