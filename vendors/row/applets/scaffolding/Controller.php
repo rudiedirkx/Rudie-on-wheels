@@ -117,7 +117,7 @@ class Controller extends \row\Controller {
 	}
 
 	public function _url( $action = '', $more = '' ) {
-		return '/'.$this->_dispatcher->_module.( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
+		return '/'.reset(explode('/', ltrim($this->_dispatcher->requestPath, '/'))).( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
 	}
 
 }

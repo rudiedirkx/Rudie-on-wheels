@@ -114,12 +114,14 @@ class Dispatcher extends Object {
 
 	public function getController( $path, $routes = true ) {
 		$originalPath = $path;
+		$this->_module = reset(explode('/', ltrim($path, '/')));
+//var_dump($this->_module);
 //echo '<pre>';
 		if ( $routes && $this->router ) {
 			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
 				if ( is_array($to) && isset($to['controller'], $to['action']) ) { // Don't evaluate URI like 'normal'
-					$this->_module = $to['controller'];
+//					$this->_module = $to['controller'];
 					$application = $this->getControllerObject($to['controller']);
 					$application->_fire('init');
 					if ( !$this->isCallableActionFunction($application, $to['action']) ) {
@@ -140,7 +142,7 @@ class Dispatcher extends Object {
 		}
 		$uri = explode('/', ltrim($path, '/'), 2);
 		$module = $uri[0] ?: $this->options->default_module;
-		$this->_module = $module;
+//		$this->_module = $module;
 		$actionPath = empty($uri[1]) ? '' : $uri[1];
 		$application = $this->getControllerObject($module);
 //var_dump($path, $actionPath); exit;
