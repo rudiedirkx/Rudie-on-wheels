@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Genereertijd: 22 Jan 2011 om 19:05
+-- Genereertijd: 24 Jan 2011 om 07:54
 -- Serverversie: 5.1.36
 -- PHP-Versie: 5.3.0
 
@@ -31,15 +31,21 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `post_id` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
   `created_on` int(10) unsigned NOT NULL,
+  `created_by_ip` varchar(40) NOT NULL DEFAULT '',
   PRIMARY KEY (`comment_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `comments`
 --
 
-INSERT INTO `comments` (`comment_id`, `author_id`, `post_id`, `comment`, `created_on`) VALUES
-(1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 1295453052);
+INSERT INTO `comments` (`comment_id`, `author_id`, `post_id`, `comment`, `created_on`, `created_by_ip`) VALUES
+(1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 1295801104, ''),
+(4, 2, 3, '2\r\n\r\noelze\r\n\r\n2\r\n\r\nboelze\r\n\r\n2', 1295802841, ''),
+(5, 7, 3, 'poesje', 1295802992, ''),
+(6, 6, 3, 'halloooo iedereeeeen', 1295803007, ''),
+(7, 6, 5, 'Schizofreen anyone?', 1295803518, ''),
+(8, 5, 5, 'editable si?', 1295803928, '127.0.0.1');
 
 -- --------------------------------------------------------
 
@@ -81,7 +87,8 @@ INSERT INTO `following_users` (`user_id`, `follows_user_id`, `started_on`) VALUE
 (7, 1, 0),
 (8, 1, 0),
 (6, 1, 0),
-(1, 7, 0);
+(1, 7, 0),
+(99, 99, 99);
 
 -- --------------------------------------------------------
 
@@ -97,16 +104,18 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `created_on` int(10) unsigned NOT NULL DEFAULT '0',
   `is_published` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`post_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `posts`
 --
 
 INSERT INTO `posts` (`post_id`, `author_id`, `title`, `body`, `created_on`, `is_published`) VALUES
-(1, 1, 'testbericht', 'dit is een testbericht wihii', 0, 1),
-(2, 1, 'nog ene', 'nog een testbericht', 500, 0),
-(3, 1, 'numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1295404557, 1);
+(1, 1, 'testbericht', 'dit is een testbericht wihii', 1295467772, 1),
+(2, 1, 'nog ene', 'nog een testbericht', 1295454158, 0),
+(3, 1, 'Numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1295404557, 1),
+(4, 1, 'Via sandbox', 'Al is sandbox misschien niet de goede naam... Scaffolding heet het volgens mij =)\r\n\r\nZou het ook CRUD kunnen noemen. Dat is het namelijk.\r\n\r\nMaakt niet uit. Is twee mapjes en een reference veranderen.', 1427482639, 0),
+(5, 1, 'Nog een via de nieuwe scaffolding toolz', 'De scaffolding toolz is errug handig, want zo kan je makkelijk een paar posts invoeren en veranderen en het is 1000 miljard keer zo snel als - gaat ie het zeggen? jaaa hij gaat het zeggen - phpMyAdmin. - aaaaaah', 3784836182, 1);
 
 -- --------------------------------------------------------
 
