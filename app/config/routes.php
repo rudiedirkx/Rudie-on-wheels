@@ -9,8 +9,10 @@ $router = new Router;
 
 // For now: only string -> string routes:
 
+// This is how simple it **can** be
 $router->add('/', '/todo', array('redirect' => true));
 
+// Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
 $router->add('/record-id/(\d+)/of-table/([^/]+)', '/dbsecrets/table-data/%2/pk/%1');
 
 return;
