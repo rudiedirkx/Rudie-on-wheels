@@ -19,7 +19,7 @@ class Route extends Object {
 		$this->router = $router;
 		$this->from = $from;
 		$this->to = $to;
-		$this->options = Options::make($options);
+		$this->options = $options;
 	}
 
 	public function resolve( $path ) {
@@ -34,9 +34,10 @@ class Route extends Object {
 				$to = $to($match);
 			}
 			if ( is_string($to) ) {
+				$options = Options::make($this->options);
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
-				if ( $this->options->redirect ) {
+				if ( $options->redirect ) {
 					header('Location: '.$goto);
 					exit;
 				}

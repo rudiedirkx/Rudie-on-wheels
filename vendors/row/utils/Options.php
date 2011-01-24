@@ -36,6 +36,16 @@ class Options extends Object {
 		}
 	}
 
+	public function get( $key, $fallback = null ) {
+		return $this->_exists($key) ? $this->$key : $fallback;
+	}
+
+	public function setUnset( $key, $value ) {
+		if ( !$this->_isset($key) ) {
+			$this->$key = $value;
+		}
+	}
+
 	public function __get($k) {
 		if ( $this->_exists($k) ) {
 			return $this->$k;

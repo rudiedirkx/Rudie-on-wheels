@@ -2,11 +2,11 @@
 
 namespace row\database\adapter;
 
-use row\database\Adapter;
+use row\database\SQLAdapter;
 use row\database\DatabaseException;
 use row\database\adapter\SQLite;
 
-class SQLite3 extends Adapter {
+class SQLite3 extends SQLAdapter {
 
 	static public function initializable() {
 		return class_exists('\SQLite3');
