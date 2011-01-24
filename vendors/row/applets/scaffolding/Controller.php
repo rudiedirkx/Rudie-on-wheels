@@ -1,6 +1,6 @@
 <?php
 
-namespace row\utils\scaffolding;
+namespace row\applets\scaffolding;
 
 use row\database\Model;
 use row\View;
@@ -8,13 +8,14 @@ use row\View;
 class Controller extends \row\Controller {
 
 	static protected $_actions = array(
-		'/'							=> 'tables',
-		'/table-structure/*'		=> 'table_structure',
-		'/table-data/*'				=> 'table_data',
-		'/table-data/*/add'			=> 'add_data',
-		'/table-data/*/add/save'	=> 'insert_data',
-		'/table-data/*/pk/CSV'		=> 'table_record', // See _init for the newly created action wildcard CSV
-		'/table-data/*/pk/*/save'	=> 'save_table_record',
+		'/'								=> 'tables',
+		'/table-structure/*'			=> 'table_structure',
+		'/table-data/*'					=> 'table_data',
+		'/table-data/*/add'				=> 'add_data',
+		'/table-data/*/add/save'		=> 'insert_data',
+		'/table-data/*/pk/delete/CSV'	=> 'delete_record',
+		'/table-data/*/pk/CSV'			=> 'table_record', // See _init for the newly created action wildcard CSV
+		'/table-data/*/pk/*/save'		=> 'save_table_record',
 	);
 
 	protected function _init() {
@@ -24,6 +25,22 @@ class Controller extends \row\Controller {
 		$this->view->viewsFolder = __DIR__.'/views';
 		$this->view->viewLayout = __DIR__.'/views/_layout.php';
 		$this->view->assign('app', $this);
+	}
+
+	public function delete_record( $table, $pkValues ) {
+		$pkColumns = Model::dbObject()->_getPKColumns($table);
+		$pkValues = explode(',', $pkValues);
+		if ( count($pkColumns) !== count($pkValues) ) {
+			exit('Invalid PK');
+		}
+		$pkValues = array_combine($pkColumns, $pkValues);
+
+		$db = Model::dbObject();
+		if ( !$db->delete($table, $pkValues) ) {
+			exit($db->error());
+		}
+
+		$this->redirect($this->_url('table-data', $table));
 	}
 
 	public function save_table_record( $table, $pkValues ) {

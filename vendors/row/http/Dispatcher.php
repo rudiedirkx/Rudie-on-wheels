@@ -119,29 +119,50 @@ class Dispatcher extends Object {
 			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
 				if ( is_array($to) ) { // Don't evaluate URI like 'normal'
-					$application = $this->getControllerObject($to['controller']);
-					$this->_module = $to['controller'];
-					$application->_fire('init');
-					if ( !$this->isCallableActionFunction($application, $to['action']) ) {
-						return $this->throwNotFound();
+//print_r($to);
+					if ( isset($to['controller'], $to['action']) ) {
+//var_dump($this->getControllerClassName($to['controller']));
+						$application = $this->getControllerObject($to['controller']);
+//exit;
+						$this->_module = $to['controller'];
+						$application->_fire('init');
+						if ( !$this->isCallableActionFunction($application, $to['action']) ) {
+							return $this->throwNotFound();
+						}
+						$this->_actionPath = $path;
+						$this->_actionFunction = $to['action'];
+						if ( isset($to['arguments']) ) {
+							$this->_actionArguments = (array)$to['arguments'];
+						}
+						return $application;
 					}
-					$this->_actionPath = $path;
-					$this->_actionFunction = $to['action'];
-					$this->_actionArguments = $to['arguments'];
-					return $application;
+					else if ( isset($to['controller'], $to['module'], $to['match'][1]) ) {
+						$application = $this->getControllerObject($to['controller']);
+//print_r($application);
+//exit;
+						// eeeeh
+						$this->_module = $to['module'];
+						$actionPath = ltrim($to['match'][1], '/'); // ?: '/';
+//var_dump($actionPath); exit;
+					}
+//					else {
+//						$to = $path;
+//					}
 				}
-				// Just another URI, so evaluate normally
-				$path = ltrim($to, '/');
+				else {
+					// Just another URI, so evaluate normally
+					$path = ltrim($to, '/');
+				}
 //var_dump($path); exit;
 			}
 		}
-//var_dump($path);
-		$uri = explode('/', ltrim($path, '/'), 2);
-		$module = $uri[0] ?: $this->options->default_module;
-		$this->_module = $module;
-		$actionPath = empty($uri[1]) ? '' : $uri[1];
-//var_dump($module, $actionPath);
-		$application = $this->getControllerObject($module);
+		if ( !isset($application) ) {
+			$uri = explode('/', ltrim($path, '/'), 2);
+			$module = $uri[0] ?: $this->options->default_module;
+			$this->_module = $module;
+			$actionPath = empty($uri[1]) ? '' : $uri[1];
+			$application = $this->getControllerObject($module);
+		}
 		$application->_fire('init');
 		$_actions = $application->_getActionPaths(); // This and only this decides which Dispatch Type to use
 		if ( is_array($_actions) ) {
@@ -149,6 +170,7 @@ class Dispatcher extends Object {
 			// All _actions must start with a slash
 			// The possibly present trailing slash has already been taken care of
 			$actionPath = '/'.$actionPath;
+//var_dump($actionPath);
 			foreach ( $_actions AS $hookPath => $actionFunction ) {
 				if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
 					$hookPath = rtrim($hookPath, '/');
@@ -192,6 +214,9 @@ class Dispatcher extends Object {
 	}
 
 	protected function getControllerClassName( $module ) {
+		if ( is_int(strpos($module, '\\')) ) {
+			return $module;
+		}
 		/*if ( is_callable($this->options->module_to_class_translation) ) {
 			$fn = $this->options->module_to_class_translation;
 			$moduleClass = $fn($module);

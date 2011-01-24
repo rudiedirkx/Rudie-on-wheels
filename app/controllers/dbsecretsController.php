@@ -2,9 +2,7 @@
 
 namespace app\controllers;
 
-use row\utils;
-
-class dbsecretsController extends utils\scaffolding\Controller {
+class dbsecretsController extends \row\applets\scaffolding\Controller {
 
 	static protected $config = array(
 		'allowed_ip_addresses' => array('127.0.0.1'),

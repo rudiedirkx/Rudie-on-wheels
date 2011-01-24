@@ -24,7 +24,7 @@ class Route extends Object {
 
 	public function resolve( $path ) {
 		$from = trim($this->from, '$^ ');
-//var_dump($path, $this->from, $this->to, '--------------------------------------');
+//var_dump($path, $this->from, '--------------------------------------');
 		if ( 0 < preg_match('#^'.$from.'$#', $path, $match) ) {
 			if ( is_string($this->to) ) {
 				$match[0] = $this->to;
@@ -36,10 +36,11 @@ class Route extends Object {
 				return $goto;
 			}
 			else if ( is_array($this->to) ) {
+//print_r($match);
 				// Array with location elements? .controller, .action, .arguments
-				isset($this->to['controller']) or $this->to['controller'] = $this->router->dispatcher->options->default_module;
-				isset($this->to['action']) or $this->to['action'] = $this->router->dispatcher->options->default_action;
-				isset($this->to['arguments']) or $this->to['arguments'] = array();
+				$this->to['match'] = $match;
+				array_shift($match);
+				$this->to['arguments'] = isset($this->to['arguments']) ?: $match;
 				return $this->to;
 			}
 		}
