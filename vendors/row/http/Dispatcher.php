@@ -118,51 +118,31 @@ class Dispatcher extends Object {
 		if ( $routes && $this->router ) {
 			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
-				/* if ( is_array($to) ) { // Don't evaluate URI like 'normal'
-//print_r($to);
-					if ( isset($to['controller'], $to['action']) ) {
-//var_dump($this->getControllerClassName($to['controller']));
-						$application = $this->getControllerObject($to['controller']);
-//exit;
-						$this->_module = $to['controller'];
-						$application->_fire('init');
-						if ( !$this->isCallableActionFunction($application, $to['action']) ) {
-							return $this->throwNotFound();
-						}
-						$this->_actionPath = $path;
-						$this->_actionFunction = $to['action'];
-//print_r($to);
-						if ( isset($to['arguments']) ) {
-							$this->_actionArguments = (array)$to['arguments'];
-						}
-						return $application;
+				if ( is_array($to) && isset($to['controller'], $to['action']) ) { // Don't evaluate URI like 'normal'
+					$this->_module = $to['controller'];
+					$application = $this->getControllerObject($to['controller']);
+					$application->_fire('init');
+					if ( !$this->isCallableActionFunction($application, $to['action']) ) {
+						return $this->throwNotFound();
 					}
-					else if ( isset($to['controller'], $to['module'], $to['match'][1]) ) {
-						$application = $this->getControllerObject($to['controller']);
-//print_r($application);
-//exit;
-						// eeeeh
-						$this->_module = $to['module'];
-						$actionPath = ltrim($to['match'][1], '/'); // ?: '/';
-//var_dump($actionPath); exit;
+					$this->_actionPath = $path; // Who cares?
+					$this->_actionFunction = $to['action'];
+					if ( isset($to['arguments']) ) {
+						$this->_actionArguments = (array)$to['arguments'];
 					}
-//					else {
-//						$to = $path;
-//					}
+					return $application;
 				}
-				else { */
+				else {
 					// Just another URI, so evaluate normally
 					$path = ltrim($to, '/');
-				/* } */
+				}
 			}
 		}
-		if ( !isset($application) ) {
-			$uri = explode('/', ltrim($path, '/'), 2);
-			$module = $uri[0] ?: $this->options->default_module;
-			$this->_module = $module;
-			$actionPath = empty($uri[1]) ? '' : $uri[1];
-			$application = $this->getControllerObject($module);
-		}
+		$uri = explode('/', ltrim($path, '/'), 2);
+		$module = $uri[0] ?: $this->options->default_module;
+		$this->_module = $module;
+		$actionPath = empty($uri[1]) ? '' : $uri[1];
+		$application = $this->getControllerObject($module);
 //var_dump($path, $actionPath); exit;
 		$application->_fire('init');
 		$_actions = $application->_getActionPaths(); // This and only this decides which Dispatch Type to use

@@ -42,16 +42,10 @@ class Route extends Object {
 				}
 				return $goto;
 			}
-			/* else if ( is_array($to) ) {
-//print_r($match);
-				// Array with location elements? .controller, .action, .arguments
-				$to['match'] = $match;
-				if ( !isset($to['arguments']) ) {
-					array_shift($match);
-					$to['arguments'] = $match;
-				}
+			else if ( is_array($to) ) {
+				$to['arguments'] = !isset($to['arguments']) ? array_slice($match, 1) : (array)$to['arguments'];
 				return $to;
-			} */
+			}
 		}
 	}
 
