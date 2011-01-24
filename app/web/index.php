@@ -1,5 +1,7 @@
 <?php
 
+$_start = microtime(1);
+
 use row\http\Dispatcher;
 use row\utils\Options;
 use row\http\Router;
@@ -33,6 +35,7 @@ try {
 	// All there's left to do is push the red button:
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action
 	$response = $application->_run();
+//	echo "\ndone in: ".number_format(microtime(1)-$_start, 4);
 }
 catch ( \row\http\NotFoundException $ex ) {
 	$trace = $ex->getTrace();
