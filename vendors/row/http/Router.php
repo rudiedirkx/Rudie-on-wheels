@@ -19,8 +19,8 @@ class Router extends Object {
 		$this->dispatcher = $dispatcher;
 	}
 
-	public function add( $from, $to, $redirect = false ) {
-		$this->routes[] = new Route($this, $from, $to, $redirect);
+	public function add( $from, $to = null, $options = array() ) {
+		$this->routes[] = new Route($this, $from, $to, $options);
 	}
 
 	public function resolve( $path ) {

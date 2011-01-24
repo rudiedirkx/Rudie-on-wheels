@@ -15,7 +15,7 @@ class Controller extends \row\Controller {
 		'/table-data/*/add/save'		=> 'insert_data',
 		'/table-data/*/pk/delete/CSV'	=> 'delete_record',
 		'/table-data/*/pk/CSV'			=> 'table_record', // See _init for the newly created action wildcard CSV
-		'/table-data/*/pk/*/save'		=> 'save_table_record',
+		'/table-data/*/pk/CSV/save'		=> 'save_table_record',
 	);
 
 	protected function _init() {

@@ -15,7 +15,7 @@ class Route extends Object {
 	public $to = '';
 	public $options; // typeof Options
 
-	public function __construct( $router, $from, $to, $options = array() ) {
+	public function __construct( $router, $from, $to = null, $options = array() ) {
 		$this->router = $router;
 		$this->from = $from;
 		$this->to = $to;
@@ -23,11 +23,18 @@ class Route extends Object {
 	}
 
 	public function resolve( $path ) {
-		$from = trim($this->from, '$^ ');
+		$from = '/'.trim($this->from, '$^ /');
 //var_dump($path, $this->from, '--------------------------------------');
 		if ( 0 < preg_match('#^'.$from.'$#', $path, $match) ) {
-			if ( is_string($this->to) ) {
-				$match[0] = $this->to;
+			$to = $this->to;
+			if ( null === $to ) {
+				$to = $match;
+			}
+			else if ( is_callable($to) ) {
+				$to = $to($match);
+			}
+			if ( is_string($to) ) {
+				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
 				if ( $this->options->redirect ) {
 					header('Location: '.$goto);
@@ -35,14 +42,16 @@ class Route extends Object {
 				}
 				return $goto;
 			}
-			else if ( is_array($this->to) ) {
+			/* else if ( is_array($to) ) {
 //print_r($match);
 				// Array with location elements? .controller, .action, .arguments
-				$this->to['match'] = $match;
-				array_shift($match);
-				$this->to['arguments'] = isset($this->to['arguments']) ?: $match;
-				return $this->to;
-			}
+				$to['match'] = $match;
+				if ( !isset($to['arguments']) ) {
+					array_shift($match);
+					$to['arguments'] = $match;
+				}
+				return $to;
+			} */
 		}
 	}
 

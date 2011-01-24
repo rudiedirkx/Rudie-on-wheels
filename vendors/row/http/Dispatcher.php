@@ -91,7 +91,7 @@ class Dispatcher extends Object {
 			if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
 			}
-			$this->requestPath = $path;
+			$this->requestPath = $path ?: '/';
 		}
 		return $this->requestPath;
 	}
@@ -114,11 +114,11 @@ class Dispatcher extends Object {
 
 	public function getController( $path, $routes = true ) {
 		$originalPath = $path;
-//echo '<pre>'; var_dump($path);
+//echo '<pre>';
 		if ( $routes && $this->router ) {
 			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
-				if ( is_array($to) ) { // Don't evaluate URI like 'normal'
+				/* if ( is_array($to) ) { // Don't evaluate URI like 'normal'
 //print_r($to);
 					if ( isset($to['controller'], $to['action']) ) {
 //var_dump($this->getControllerClassName($to['controller']));
@@ -131,6 +131,7 @@ class Dispatcher extends Object {
 						}
 						$this->_actionPath = $path;
 						$this->_actionFunction = $to['action'];
+//print_r($to);
 						if ( isset($to['arguments']) ) {
 							$this->_actionArguments = (array)$to['arguments'];
 						}
@@ -149,11 +150,10 @@ class Dispatcher extends Object {
 //						$to = $path;
 //					}
 				}
-				else {
+				else { */
 					// Just another URI, so evaluate normally
 					$path = ltrim($to, '/');
-				}
-//var_dump($path); exit;
+				/* } */
 			}
 		}
 		if ( !isset($application) ) {
@@ -163,6 +163,7 @@ class Dispatcher extends Object {
 			$actionPath = empty($uri[1]) ? '' : $uri[1];
 			$application = $this->getControllerObject($module);
 		}
+//var_dump($path, $actionPath); exit;
 		$application->_fire('init');
 		$_actions = $application->_getActionPaths(); // This and only this decides which Dispatch Type to use
 		if ( is_array($_actions) ) {
