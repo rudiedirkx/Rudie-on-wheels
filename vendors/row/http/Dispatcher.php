@@ -161,7 +161,7 @@ class Dispatcher extends Object {
 //echo '<pre>';
 
 		if ( $routes && $this->router ) {
-			$path != '' || $path = '/';
+//			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
 
 				// 3. 

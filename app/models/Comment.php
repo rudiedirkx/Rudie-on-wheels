@@ -3,6 +3,7 @@
 namespace app\models;
 
 use row\database\Model;
+use row\validation;
 
 class Comment extends Model {
 
@@ -25,7 +26,9 @@ class Comment extends Model {
 				'type' => 'row\form\TextField',
 				'title' => 'Username',
 				'rules' => array(
-					new ValidateFunction(function( &$value, $field, $form, &$context ) use ($db) {
+					new validation\ValidateNotEmpty('We neeeeeed your username!'),
+					new validation\ValidateFunction(function( &$data, $field, $form, &$context ) {
+						$value = $data[$field];
 						try {
 							$context->user = User::getUserFromUsername($value);
 							$value = $context->user->user_id;
@@ -41,17 +44,20 @@ class Comment extends Model {
 				'type' => 'row\form\TextArea',
 				'title' => 'Comment',
 				'rules' => array(
-					new ValidateNotEmpty('If you want to say nothing, don\t comment...'),
+					new validation\ValidateNotEmpty('If you want to say nothing, don\t comment...'),
 				),
 				'description' => 'Your comment **will** be moderated.',
 			),
+			new validation\ValidateFunction(function( &$data, $field, $form, &$context ) {
+				return strlen($data['username']) < strlen($data['comment']);
+			}, 'Comment must be taller than username =)'),
 		);
 		$edit = $add;
 		unset($edit['username']);
-		if ( null === $name ) {
-			return compact('add', 'edit');
-		}
 		$forms = compact('add', 'edit');
+		if ( null === $name ) {
+			return $forms;
+		}
 		if ( isset($forms[$name]) ) {
 			return $forms[$name];
 		}

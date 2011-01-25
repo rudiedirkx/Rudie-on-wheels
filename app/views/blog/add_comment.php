@@ -1,4 +1,6 @@
 
+<pre><? print_r($form) ?></pre>
+
 <form method=post action=<?=$app->_uri?>>
 <fieldset>
 	<legend>Add comment</legend>

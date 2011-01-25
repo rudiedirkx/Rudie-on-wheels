@@ -7,6 +7,7 @@ use row\http\NotFoundException;
 use row\database\ModelException;
 use app\models;
 use row\utils\Inflector;
+use row\validation\Validator;
 
 class blogController extends ControllerParent {
 
@@ -31,7 +32,7 @@ class blogController extends ControllerParent {
 		}
 
 		/* Future validation *
-		$validator = new Validator(Comment::form('edit'));
+		$validator = new Validator(models\Comment::form('edit'));
 		var_dump($validator->validate($_POST));
 		/**/
 
@@ -42,13 +43,18 @@ class blogController extends ControllerParent {
 		$app = $this;
 		$post = $this->getPost($post);
 
+		$form = null;
 		/* Future validation *
-		$validator = new Validator(Comment::form('add'));
-		var_dump($validator->validate($_POST));
+		$form = models\Comment::form('add');
 		/**/
 
 		if ( !$this->post->isEmpty() ) {
 			// Submitted
+
+			$validator = new Validator(models\Comment::form('add'));
+			var_dump($validator->validate($_POST));
+			exit;
+
 			$user = models\User::getUserFromUsername($this->post->username);
 			if ( $user && $this->post->comment ) {
 				$commentID = models\Comment::insert(array(

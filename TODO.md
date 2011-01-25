@@ -2,7 +2,7 @@
 To do:
 ------
 
-1. Validator: Start with Form/Validator like pseudo-coded in MVC3\ARO
+1. Validator: Do `Form`/`Validator` like started, but smarter. Will have to solobrainstorm about this...<br><br>
 2. Auth: Finish Auth like started with
 3. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
 4. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the msising ErrorController (which is good).)
