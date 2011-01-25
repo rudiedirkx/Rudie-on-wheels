@@ -7,7 +7,8 @@ $router = new Router;
 
 
 
-// For now: only string -> string routes:
+// To an applet
+$router->add('/scaffolding.*', array('controller' => 'row\\applets\\scaffolding\\Controller'));
 
 // (1) This is how simple it **can** be
 $router->add('/', '/todo', array('redirect' => true));

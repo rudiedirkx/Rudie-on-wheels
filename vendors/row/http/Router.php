@@ -25,7 +25,7 @@ class Router extends Object {
 
 	public function resolve( $path ) {
 		foreach ( $this->routes AS $route ) {
-			if ( $to = $route->resolve($path) ) {
+			if ( $to = $route->resolve('/'.$path) ) {
 				return $to;
 			}
 		}

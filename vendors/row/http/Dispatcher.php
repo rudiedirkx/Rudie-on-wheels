@@ -17,10 +17,13 @@ class Dispatcher extends Object {
 	public $requestPath = false; // false means unset - will become a (might-be-empty) string
 	public $requestBasePath = ''; // The path up to the application (e.g.: /admin/ or /row/)
 
-	public $_module = '';
-	public $_moduleArguments = array(); // 'Not yet implemented'
+//	public $_module = ''; // deprecated
+	public $_modulePath = '';
+	public $_controller = '';
+	public $_moduleArguments = array();
 	public $_actionPath = '';
-	public $_actionFunction = '';
+	public $_action = '';
+//	public $_actionFunction = ''; // deprecated
 	public $_actionArguments = array();
 
 	public $router; // typeof row\http\Router
@@ -112,15 +115,67 @@ class Dispatcher extends Object {
 	}
 
 
+	public function evaluatePath($path) {
+		$p = explode('/', $path);
+		$this->_modulePath = array_shift($p) ?: $this->options->default_module;
+		$this->_controller = '';
+		$this->_moduleArguments = array();
+		$this->_actionPath = implode('/', $p);
+		$this->_action = array_shift($p) ?: $this->options->default_action;
+		$this->_actionArguments = $p;
+	}
+
+	public function evaluateActionHooks( $actions, $actionPath ) {
+		$actionPath = '/'.$actionPath;
+		foreach ( $actions AS $hookPath => $actionFunction ) {
+			if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
+				$hookPath = rtrim($hookPath, '/');
+			}
+			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
+			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
+			if ( 0 < preg_match('#^'.$hookPath.'$#', $actionPath, $matches) ) {
+				array_shift($matches);
+				$this->_actionArguments = $matches;
+				$this->_action = $actionFunction;
+				return true;
+			}
+		}
+		$this->throwNotFound();
+	}
+
 	public function getController( $path, $routes = true ) {
 		$originalPath = $path;
-		$this->_module = reset(explode('/', ltrim($path, '/')));
-//var_dump($this->_module);
+		$path = ltrim($path, '/');
+
+//		$p = explode('/', $path);
+//		$this->_module = $p[0];
+
+		// 1. Evaluate path into pieces
+		$this->evaluatePath($path);
+		// 2. We now have everything we need, except for the Controller class
+		// 3. Run Router and overwrite pieces OR reevaluate new path
+		// 4. If the Router didn't set the _controller, evaluate the _modulePath into a valid class
+		// 5. Get the Controller object OR throw 404
+		// 6. If the Router didn't set an actionFunction and this controller is of type "specific", run its _actions
+		// 7. We now know if this path can be dispatched... Run or throw 404
 //echo '<pre>';
+
 		if ( $routes && $this->router ) {
 			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
-				if ( is_array($to) && isset($to['controller'], $to['action']) ) { // Don't evaluate URI like 'normal'
+
+				// 3. 
+				if ( is_array($to) ) {
+					foreach ( $to AS $k => $v ) {
+						$this->{'_'.$k} = $v;
+					}
+					$dontEvalActionHooks = isset($to['action']);
+				}
+				else if ( is_string($to) ) {
+					$this->evaluatePath($to);
+				}
+
+				/* if ( is_array($to) && isset($to['controller'], $to['action']) ) { // Don't evaluate URI like 'normal'
 //					$this->_module = $to['controller'];
 					$application = $this->getControllerObject($to['controller']);
 					$application->_fire('init');
@@ -137,10 +192,49 @@ class Dispatcher extends Object {
 				else {
 					// Just another URI, so evaluate normally
 					$path = ltrim($to, '/');
+				} */
+
+			}
+		}
+
+		// 4. 
+		if ( !$this->_controller ) {
+			$this->_controller = $this->getControllerClassName($this->_modulePath);
+		}
+		else if ( !is_int(strpos($this->_controller, '\\')) ) {
+			$this->_controller = $this->getControllerClassName($this->_modulePath);
+		}
+
+		// 5. 
+		$application = $this->getControllerObject($this->_controller);
+		$application->_fire('init');
+
+		// 6. 
+		if ( empty($dontEvalActionHooks) ) {
+			if ( is_array($_actions = $application->_getActionPaths()) ) {
+				$this->evaluateActionHooks($_actions, $this->_actionPath); // Might throw 404
+			}
+			else {
+				if ( is_callable($afTranslation = $this->options->action_name_translation) ) {
+					$this->_action = $afTranslation($this->_action);
+				}
+				else {
+					$this->_action = str_replace('-', '_', $this->_action);
 				}
 			}
 		}
-		$uri = explode('/', ltrim($path, '/'), 2);
+
+		// 7. 
+		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
+			return $this->throwNotFound();
+		}
+
+//print_r($this);
+//exit;
+
+		return $application;
+
+		/* $uri = explode('/', ltrim($path, '/'), 2);
 		$module = $uri[0] ?: $this->options->default_module;
 //		$this->_module = $module;
 		$actionPath = empty($uri[1]) ? '' : $uri[1];
@@ -193,7 +287,7 @@ class Dispatcher extends Object {
 		$this->_actionPath = $actionPath;
 		$this->_actionFunction = $actionFunction;
 		$this->_actionArguments = $actionDetails;
-		return $application;
+		return $application; */
 	}
 
 	protected function getControllerClassName( $module ) {
@@ -237,8 +331,8 @@ class Dispatcher extends Object {
 		return $namespacedModuleClass;
 	}
 
-	protected function getControllerObject( $module ) {
-		$namespacedModuleClass = $this->getControllerClassName($module);
+	protected function getControllerObject( $module, $eval = true ) {
+		$namespacedModuleClass = !$eval ? $module : $this->getControllerClassName($module);
 		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it and its dependancies/parents
 			return $this->throwNotFound();
 		}

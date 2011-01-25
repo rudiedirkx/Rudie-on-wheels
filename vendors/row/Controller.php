@@ -36,7 +36,7 @@ class Controller extends Object {
 	public function _run() { // Always return the Action's return value, so no argument needed
 		$this->_arguments = $this->_dispatcher->_moduleArguments;
 		$this->_fire('pre_action');
-		$r = call_user_func_array(array($this, $this->_dispatcher->_actionFunction), $this->_dispatcher->_actionArguments);
+		$r = call_user_func_array(array($this, $this->_dispatcher->_action), $this->_dispatcher->_actionArguments);
 		$this->_fire('post_action');
 		return $r;
 	}
