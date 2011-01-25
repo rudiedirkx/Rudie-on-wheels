@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\controllers\ControllerParent;
+use row\auth\Session;
 
 class todoController extends ControllerParent {
 
@@ -23,6 +24,9 @@ class todoController extends ControllerParent {
 	}
 
 	public function index( $file = 'TODO.md' ) {
+//		Session::success('You did the right thing coming here =)');
+//		print_r(Session::messages());
+
 		$todo = file_get_contents(ROW_PATH.'/'.$file);
 		$todo = \markdown\MarkdownParser::parse($todo);
 		echo $todo;

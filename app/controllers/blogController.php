@@ -29,12 +29,24 @@ class blogController extends ControllerParent {
 		if ( !$comment->canEdit() ) {
 			throw new NotFoundException('Uneditable comment # '.$comment->comment_id);
 		}
+
+		/* Future validation *
+		$validator = new Validator(Comment::form('edit'));
+		var_dump($validator->validate($_POST));
+		/**/
+
 		echo 'Yup, you can edit this... But you can\'t =)';
 	}
 
 	public function add_comment( $post ) {
 		$app = $this;
 		$post = $this->getPost($post);
+
+		/* Future validation *
+		$validator = new Validator(Comment::form('add'));
+		var_dump($validator->validate($_POST));
+		/**/
+
 		if ( !$this->post->isEmpty() ) {
 			// Submitted
 			$user = models\User::getUserFromUsername($this->post->username);

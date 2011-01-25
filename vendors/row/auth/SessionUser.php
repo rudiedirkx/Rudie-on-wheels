@@ -3,19 +3,89 @@
 namespace row\auth;
 
 use row\core\Object;
+use app\models;
 
-class SessionUser extends Object {
+abstract class SessionUser extends Object {
 
-	public $anonymous = true; // will only be true for very first layer
+	public $user; // typeof Model
 
-	public function hasAccess() {
-		return (bool)rand(0, 1);
+	// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
+	public function __construct() {
+		// _SESSION not required
+		// But try to validate =)
+		$this->validate();
 	}
 
+	// Step 1: login (once per session)
+	public function login( Model $user ) {
+		Session::required();
+		// Alter _SESSION
+		$login = array(
+			'user_id' => 0,
+			'unicheck' => rand(0, 99999999999),
+			'salt' => rand(1000000, 9999999),
+		);
+		// Add session record in db?
+		$insert = array(
+			'user_id' => $login['user_id'],
+			'unicheck' => $login['unicheck'],
+			'ip' => $_SERVER['REMOTE_ADDR'],
+			'start' => time(),
+		);
+		return compact('login', 'insert'); // To be used by SessionUser's (instantiable) extention
+	}
+
+	// Step 2: validate (once per HTTP request)
+	public function validate() {
+		// 1. FIRST: check env
+		if ( Session::validateEnvironment() ) { // Includes ::exists() and ::required()
+			// 2. Check session
+			if ( Session::$session['logins'] ) {
+				$login = Session::$session['logins'][count(Session::$session['logins'])-1];
+print_r($login);
+				// 3a. Check database
+				// 3b. Register User object in $this
+				// 4. Register ACL in $this? Or in _SESSION?
+				try {
+					/* For instance: */
+					$user = models\SessionUser::one(array(
+						'u.user_id' => $login['user_id'],
+						'login_sessions.unicheck' => $login['unicheck'],
+						'login_sessions.ip' => Session::$session['ip'],
+					));
+					$this->user = $user;
+					$user->saveACL(); // You might wanna lazy-load this with a _GETTER (will be lazy-loaded in $this->hasAccess())
+					/**/
+				}
+				catch ( \Exception $ex ) {
+					// No $this->user, so no $this->isLoggedIn()
+				}
+			}
+		}
+	}
+
+	// Step 3: check login status (many times per HTTP request)
+	public function isLoggedIn() {
+//		$this->validate(); // This should be done as little as possible...
+		return !!$this->user; // That easy??
+	}
+
+	// Step 4: check access (many times per HTTP request)
+	public function hasAccess( $zone ) {
+		/* For instance: *
+		return $this->isLoggedIn() && $this->user->acl->access($zone);
+		/**/
+		return false;
+	}
+
+	// Step 5: logout (once per session)
 	public function logout() {
-		// Do what exactly? Invalidate session layer how? Have a standard (ROW) implementation or let APP handle fully?
-		// Change _SESSION here or in auth\Session?
+		if ( $this->isLoggedIn() ) {
+			// Alter _SESSION
+			// Remove session record in db?
+		}
 	}
+
 
 	public function displayName() {
 		return 'Anonymous';

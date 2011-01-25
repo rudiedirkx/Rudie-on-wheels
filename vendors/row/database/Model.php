@@ -186,8 +186,8 @@ class Model extends Object {
 			$this->_fire('post_fill', array((array)$this));
 		}
 		else if ( is_array($init) ) { // Inited manually with data
-			$this->_fill($data);
-			$this->_fire('post_fill', array($data));
+			$this->_fill($init);
+			$this->_fire('post_fill', array($init));
 		}
 		$this->_fire('init');
 	}

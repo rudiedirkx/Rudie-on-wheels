@@ -3,38 +3,84 @@
 namespace row\auth;
 
 use row\core\Object;
-//use row\auth;
 
 class Session extends Object {
 
-	public $users = array();
+	static public $name = 'row_4_0'; // Change this frequently
 
-	public function __construct() {
-		$this->users[] = new SessionUser; // There is ALWAYS at least one 'layer'
+	static public $session;
+
+	static public function validateEnvironment() {
+		if ( static::exists() ) {
+			// Check IP
+			if ( isset(static::$session['ip'], $_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] == static::$session['ip'] ) {
+				// Check User Agent
+				if ( isset(static::$session['ua'], $_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == static::$session['ua'] ) {
+//					static::$session['active'] = time(); // Let's not...
+					return true;
+				}
+			}
+		}
 	}
 
-	public function addUser( SessionUser $user ) {
-		$this->users[] = $user;
-	}
-
-	public function logout() {
-		$user = $this->getUser();
-		if ( !$user->anonymous ) {
-			array_pop($this->users);
-			$user->logout();
-			// Change _SESSION here or in auth\SessionUser?
+	static public function exists() {
+		$sname = ini_get('session.name');
+		$exists = isset($_COOKIE[$sname]) || isset($_POST['SID']);
+		if ( $exists ) {
+			static::required();
 			return true;
 		}
-		// Can't 'logout' Anonymous user. Must always have that very first layer
 	}
 
-	public function getUser() {
-		$n = count($this->users);
-		return $this->users[$n-1];
+	static public function required() {
+		$sid = session_id();
+		if ( !$sid ) { // Session not started for this request
+			if ( isset($_POST['SID']) ) {
+				session_id($_POST['SID']);
+			}
+//echo 'reviving session with session_start'."\n";
+			session_start();
+			if ( !isset($_SESSION[self::$name], $_SESSION[self::$name]['ip'], $_SESSION[self::$name]['ua']) ) { // Session not started for this session
+				$_SESSION[self::$name] = array(
+					'ip' => $_SERVER['REMOTE_ADDR'],
+					'ua' => $_SERVER['HTTP_USER_AGENT'],
+					'start' => time(),
+					'active' => time(),
+					'messages' => array(),
+					'logins' => array(),
+				);
+//echo 'session reset with new vars'."\n";
+			}
+			else {
+//echo 'valid session found, so don\'t change it'."\n";
+				
+			}
+			static::$session =& $_SESSION[self::$name];
+		}
 	}
 
-	public function __tostring() {
-		return 'Session';
+	static public function messages( $clear = true ) {
+		static::required();
+		$messages = $_SESSION[self::$name]['messages'];
+		$_SESSION[self::$name]['messages'] = array();
+		return $messages;
+	}
+
+	static public function error( $msg ) {
+		return static::message($msg, 'error');
+	}
+
+	static public function warning( $msg ) {
+		return static::message($msg, 'warning');
+	}
+
+	static public function success( $msg ) {
+		return static::message($msg, 'success');
+	}
+
+	static public function message( $msg, $type = 'info' ) {
+		static::required();
+		$_SESSION[self::$name]['messages'][] = array($msg, $type);
 	}
 
 }

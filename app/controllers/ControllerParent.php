@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use row\Controller;
-use row\auth\SessionUser;
+use app\specs\SessionUser;
 use row\View;
 
 class ControllerParent extends Controller {
