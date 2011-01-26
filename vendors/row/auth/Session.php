@@ -40,8 +40,8 @@ class Session extends Object {
 			}
 //echo 'reviving session with session_start'."\n";
 			session_start();
-			if ( !isset($_SESSION[self::$name], $_SESSION[self::$name]['ip'], $_SESSION[self::$name]['ua']) ) { // Session not started for this session
-				$_SESSION[self::$name] = array(
+			if ( !isset($_SESSION[static::$name], $_SESSION[static::$name]['ip'], $_SESSION[static::$name]['ua']) ) { // Session not started for this session
+				$_SESSION[static::$name] = array(
 					'ip' => $_SERVER['REMOTE_ADDR'],
 					'ua' => $_SERVER['HTTP_USER_AGENT'],
 					'start' => time(),
@@ -55,7 +55,7 @@ class Session extends Object {
 //echo 'valid session found, so don\'t change it'."\n";
 				
 			}
-			static::$session =& $_SESSION[self::$name];
+			static::$session =& $_SESSION[static::$name];
 		}
 	}
 
@@ -63,9 +63,9 @@ class Session extends Object {
 		if ( !static::exists() ) {
 			return array();
 		}
-		$messages = $_SESSION[self::$name]['messages'];
+		$messages = static::$session['messages'];
 		if ( $clear ) {
-			$_SESSION[self::$name]['messages'] = array();
+			static::$session['messages'] = array();
 		}
 		return $messages;
 	}
@@ -84,7 +84,7 @@ class Session extends Object {
 
 	static public function message( $msg, $type = 'info' ) {
 		static::required();
-		$_SESSION[self::$name]['messages'][] = array($msg, $type);
+		static::$session['messages'][] = array($msg, $type);
 	}
 
 }
