@@ -20,6 +20,10 @@ use app\models;
 
 class SessionUser extends \row\auth\SessionUser {
 
+	public function hasAccess( $zone ) {
+		return $this->isLoggedIn() && ( in_array(strtolower($zone), $this->user->acl) || in_array('everything', $this->user->acl) );
+	}
+
 	public function displayName() {
 		return $this->isLoggedin() ? (string)$this->user->full_name : 'Anonymous';
 	}

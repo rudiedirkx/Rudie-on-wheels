@@ -15,7 +15,10 @@ class CommentRecord extends Comment implements VisitableRecord {
 	}
 
 	public function canEdit() {
-		return $_SERVER['REMOTE_ADDR'] === $this->created_by_ip && 300 > time() - $this->created_on;
+		$owner = $_SERVER['REMOTE_ADDR'] === $this->created_by_ip;
+		$inTime = 300 > time() - $this->created_on;
+		// How do I reach the session user from here? It's only registered in the $application
+		return ( $owner && $inTime ) /*|| $sessionUser->hasAccess('always edit comments')*/;
 	}
 
 	public function url( $more = '' ) {

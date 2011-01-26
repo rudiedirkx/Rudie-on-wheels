@@ -44,7 +44,8 @@ class Route extends Object {
 				return $goto;
 			}
 			else if ( is_array($to) ) {
-				$to['arguments'] = !isset($to['arguments']) ? array_slice($match, 1) : (array)$to['arguments'];
+				$to['actionArguments'] = !isset($to['arguments']) ? array_slice($match, 1) : (array)$to['arguments'];
+				unset($to['arguments']);
 				return $to;
 			}
 		}

@@ -38,7 +38,6 @@ class blogController extends ControllerParent {
 			catch ( \Exception $ex ) {}
 			Session::error('Sorry, buddy, that\'s not your username!');
 		}
-		$app = $this;
 		$messages = Session::messages();
 		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
 	}
@@ -58,7 +57,6 @@ class blogController extends ControllerParent {
 	}
 
 	public function add_comment( $post ) {
-		$app = $this;
 		$post = $this->getPost($post);
 
 		$form = null;
@@ -98,6 +96,7 @@ class blogController extends ControllerParent {
 	}
 
 	public function view( $post ) {
+
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
 		if ( $post->author->isUnaware() ) {
 			$post->is_published = true;
@@ -109,9 +108,8 @@ class blogController extends ControllerParent {
 	}
 
 	public function index() {
-		$app = $this;
 
-		$method = $this->user->hasAccess('BLOG__VIEW_UNPUBLISHED') ? 'newest' : 'newestPublished';
+		$method = $this->user->hasAccess('blog read unpublished') ? 'newest' : 'newestPublished';
 		$posts = models\Post::$method(self::config('posts_on_index'));
 
 		$messages = Session::messages();
@@ -133,7 +131,7 @@ echo '<pre>'.time()."\n";
 
 	protected function getPost( $post ) {
 		try {
-			$method = $this->user->hasAccess('BLOG__VIEW_UNPUBLISHED') ? 'get' : 'getPublishedPost';
+			$method = $this->user->hasAccess('blog read unpublished') ? 'get' : 'getPublishedPost';
 			return models\Post::$method($post); // does this work? Post::$method might (syntactically) just as well be a property
 		}
 		catch ( ModelException $ex ) {

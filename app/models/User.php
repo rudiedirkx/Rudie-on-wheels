@@ -11,7 +11,12 @@ class User extends Model {
 
 	static public $_getters = array(
 		'access_zones' => array( self::GETTER_FUNCTION, true, 'getAccessZones' ),
+		'acl' => array( self::GETTER_FUNCTION, true, 'getACL' ),
 	);
+
+	public function getACL() {
+		return array_map('trim', explode(',', strtolower($this->access)));
+	}
 
 	static public function getUserFromUsername( $username ) {
 		try {
