@@ -37,9 +37,9 @@ article.comment p:last-child { margin-bottom:0; }
 
 <header id="login">
 	<?if( $app->user->isLoggedIn() ):?>
-		Ingelogd als: <?=$app->user?> (<a href="/blog/uitloggen">uitloggen</a>)
+		Signed in as: <?=$app->user?> (<a href="/blog/logout">sign out</a>)
 	<?else:?>
-		Je bent niet ingelogd... (<a href="/blog/inloggen">inloggen</a>)
+		You're not signed in... (<a href="/blog/login">sign in</a>)
 	<?endif?>
 </header>
 

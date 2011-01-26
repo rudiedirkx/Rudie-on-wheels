@@ -1,5 +1,5 @@
 
-<p><a href="/blog">Terug naar overzicht</a></p>
+<p><a href="/blog">Back to posts overview</a></p>
 
 <article class="blogpost <?=!$post->is_published ? 'not-published' : ''?>">
 

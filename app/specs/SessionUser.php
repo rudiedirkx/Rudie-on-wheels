@@ -5,6 +5,19 @@ namespace app\specs;
 use row\auth\Session;
 use app\models;
 
+/**
+ * This class overwrites (but uses) the framework's base SessionUser,
+ * because the framework doesn't know how YOU (= the app) want to log
+ * in and verify sessions. It also doesn't know what the database
+ * looks like and how you named your columns.
+ * 
+ * This class knows all that, because you made it =)
+ * 
+ * You can do more app-specific things here. A few standard things are
+ * built into the framework: session security (with IP and UA), session
+ * init, salt security (partly) and it prepared Auth login and validation.
+ */
+
 class SessionUser extends \row\auth\SessionUser {
 
 	public function displayName() {
@@ -14,7 +27,7 @@ class SessionUser extends \row\auth\SessionUser {
 	public function logout() {
 		if ( $this->isLoggedIn() ) {
 			array_pop(Session::$session['logins']);
-			Session::success('Goed gedaan jonge, nou moet je weer opnieuw inloggen!?');
+			Session::success('Well done matey! Now you\'re gonne have to log-back-in!?');
 		}
 	}
 

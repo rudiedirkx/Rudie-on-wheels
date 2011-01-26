@@ -16,12 +16,12 @@ class blogController extends ControllerParent {
 		'posts_on_index' => 5,
 	);
 
-	public function uitloggen() {
+	public function logout() {
 		$this->user->logout();
 		$this->redirect('/blog');
 	}
 
-	public function inloggen( $uid = null ) {
+	public function login( $uid = null ) {
 		if ( null !== $uid ) {
 			$this->user->login(models\User::get($uid));
 		}
@@ -32,11 +32,11 @@ class blogController extends ControllerParent {
 			try {
 				$user = models\User::one(array( 'username' => (string)$this->post->username ));
 				$this->user->login($user);
-				Session::success('Ok, ok, ok, je bent ingelogd...');
+				Session::success('Alright, alright, alright, you\'re logged in...');
 				$this->redirect($this->post->get('goto', '/blog'));
 			}
 			catch ( \Exception $ex ) {}
-			Session::error('Jonge, da is je gebruikersnaam nie!');
+			Session::error('Sorry, buddy, that\'s not your username!');
 		}
 		$app = $this;
 		$messages = Session::messages();
@@ -85,7 +85,7 @@ class blogController extends ControllerParent {
 				Session::success('Comment toegevoegd');
 				$this->redirect($post->url('#comment-'.$commentID));
 			}
-			Session::error('Vul goed in jonge!');
+			Session::error('That\'s not right...');
 		}
 
 		$messages = Session::messages();
