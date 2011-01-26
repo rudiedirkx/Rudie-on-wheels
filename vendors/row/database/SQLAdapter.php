@@ -40,15 +40,6 @@ abstract class SQLAdapter extends Adapter {
 
 	static protected $aliasDelim = '.'; // [table] "." [column]
 
-	public function _post_connect() {
-		if ( $this->connectionArgs->names ) {
-			$this->execute('SET NAMES \''.$this->connectionArgs->names.'\'');
-		}
-		else if ( $this->connectionArgs->charachter_set ) {
-			$this->execute('SET CHARACTER SET \''.$this->connectionArgs->charachter_set.'\'');
-		}
-	}
-
 	public function select( $table, $conditions, $params = array(), $justFirst = false ) {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;

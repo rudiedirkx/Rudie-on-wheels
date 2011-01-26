@@ -56,13 +56,32 @@ class MySQL extends SQLAdapter {
 		$connection = $this->connectionArgs;
 		$this->db = @mysql_connect($connection->host, $connection->user ?: 'root', $connection->pass ?: '');
 		if ( !$this->db || ( $connection->dbname && !@mysql_select_db($connection->dbname, $this->db) ) ) {
-			throw new DatabaseException('Could not connect...');
+			return false;
 		}
 		$this->_fire('post_connect');
 	}
 
 	public function connected() {
-		return is_resource($this->db) && false !== $this->query('SHOW TABLES');
+		if ( !is_resource($this->db) ) {
+			return false;
+		}
+		try {
+			$r = $this->query('SHOW TABLES');
+			return false !== $r;
+		}
+		catch ( DatabaseException $ex ) {}
+		return false;
+	}
+
+	public function _post_connect() {
+		if ( $this->connected() ) {
+			if ( $this->connectionArgs->names ) {
+				$this->execute('SET NAMES \''.$this->connectionArgs->names.'\'');
+			}
+			else if ( $this->connectionArgs->charachter_set ) {
+				$this->execute('SET CHARACTER SET \''.$this->connectionArgs->charachter_set.'\'');
+			}
+		}
 	}
 
 

@@ -13,12 +13,12 @@ class MySQLi extends MySQL {
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = new \mysqli($connection->host, $connection->user ?: 'root', $connection->pass ?: '', $connection->dbname ?: '');
+		$this->db = @new \mysqli($connection->host, $connection->user ?: 'root', $connection->pass ?: '', $connection->dbname ?: '');
 		$this->_fire('post_connect');
 	}
 
 	public function connected() {
-		if ( !is_object($this->db) ) {
+		if ( !is_object($this->db) || $this->db->connect_error ) {
 			return false;
 		}
 		try {
@@ -114,7 +114,7 @@ class MySQLi extends MySQL {
 	}
 
 	public function query( $query ) {
-		$q = $this->db->query($query);
+		$q = @$this->db->query($query);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
