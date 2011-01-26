@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Genereertijd: 24 Jan 2011 om 07:54
+-- Genereertijd: 26 Jan 2011 om 03:49
 -- Serverversie: 5.1.36
 -- PHP-Versie: 5.3.0
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `created_on` int(10) unsigned NOT NULL,
   `created_by_ip` varchar(40) NOT NULL DEFAULT '',
   PRIMARY KEY (`comment_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `comments`
@@ -41,11 +41,14 @@ CREATE TABLE IF NOT EXISTS `comments` (
 
 INSERT INTO `comments` (`comment_id`, `author_id`, `post_id`, `comment`, `created_on`, `created_by_ip`) VALUES
 (1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 1295801104, ''),
+(10, 2, 5, 'oelze boelze', 1296006240, '127.0.0.1'),
+(9, 5, 5, 'boele', 1295892745, '127.0.0.1'),
 (4, 2, 3, '2\r\n\r\noelze\r\n\r\n2\r\n\r\nboelze\r\n\r\n2', 1295802841, ''),
 (5, 7, 3, 'poesje', 1295802992, ''),
 (6, 6, 3, 'halloooo iedereeeeen', 1295803007, ''),
 (7, 6, 5, 'Schizofreen anyone?', 1295803518, ''),
-(8, 5, 5, 'editable si?', 1295803928, '127.0.0.1');
+(8, 5, 5, 'editable si?', 1295803928, '127.0.0.1'),
+(11, 5, 5, 'd324frvcd', 1296006448, '127.0.0.1');
 
 -- --------------------------------------------------------
 
