@@ -60,9 +60,13 @@ class Session extends Object {
 	}
 
 	static public function messages( $clear = true ) {
-		static::required();
+		if ( !static::exists() ) {
+			return array();
+		}
 		$messages = $_SESSION[self::$name]['messages'];
-		$_SESSION[self::$name]['messages'] = array();
+		if ( $clear ) {
+			$_SESSION[self::$name]['messages'] = array();
+		}
 		return $messages;
 	}
 

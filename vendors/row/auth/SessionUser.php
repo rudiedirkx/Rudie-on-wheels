@@ -9,6 +9,8 @@ abstract class SessionUser extends Object {
 
 	public $user; // typeof Model
 
+	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
+
 	// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
 	public function __construct() {
 		// _SESSION not required
@@ -17,7 +19,7 @@ abstract class SessionUser extends Object {
 	}
 
 	// Step 1: login (once per session)
-	public function login( Model $user ) {
+	public function login( \row\database\Model $user ) {
 		Session::required();
 		// Alter _SESSION
 		$login = array(
@@ -27,7 +29,7 @@ abstract class SessionUser extends Object {
 		);
 		// Add session record in db?
 		$insert = array(
-			'user_id' => $login['user_id'],
+			'user_id' => &$login['user_id'],
 			'unicheck' => $login['unicheck'],
 			'ip' => $_SERVER['REMOTE_ADDR'],
 			'start' => time(),
@@ -42,12 +44,12 @@ abstract class SessionUser extends Object {
 			// 2. Check session
 			if ( Session::$session['logins'] ) {
 				$login = Session::$session['logins'][count(Session::$session['logins'])-1];
-print_r($login);
+				return $login;
 				// 3a. Check database
 				// 3b. Register User object in $this
 				// 4. Register ACL in $this? Or in _SESSION?
 				try {
-					/* For instance: */
+					/* For instance: *
 					$user = models\SessionUser::one(array(
 						'u.user_id' => $login['user_id'],
 						'login_sessions.unicheck' => $login['unicheck'],
@@ -88,11 +90,11 @@ print_r($login);
 
 
 	public function displayName() {
-		return 'Anonymous';
+		return $this->isLoggedin() ? (string)$this->user : 'Anonymous';
 	}
 
 	public function __tostring() {
-		return 'SessionUser: ' . $this->displayName();
+		return $this->displayName();
 	}
 
 }

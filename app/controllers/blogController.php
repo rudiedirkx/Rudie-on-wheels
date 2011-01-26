@@ -8,6 +8,7 @@ use row\database\ModelException;
 use app\models;
 use row\utils\Inflector;
 use row\validation\Validator;
+use row\auth\Session;
 
 class blogController extends ControllerParent {
 
@@ -15,14 +16,31 @@ class blogController extends ControllerParent {
 		'posts_on_index' => 5,
 	);
 
-	protected function getPost( $post ) {
-		try {
-			$method = $this->user->hasAccess('BLOG__VIEW_UNPUBLISHED') ? 'get' : 'getPublishedPost';
-			return models\Post::$method($post); // does this work? Post::$method might (syntactically) just as well be a property
+	public function uitloggen() {
+		$this->user->logout();
+		$this->redirect('/blog');
+	}
+
+	public function inloggen( $uid = null ) {
+		if ( null !== $uid ) {
+			$this->user->login(models\User::get($uid));
 		}
-		catch ( ModelException $ex ) {
-			throw new NotFoundException('Blog post # '.$post);
+		if ( $this->user->isLoggedIn() ) {
+			$this->redirect('/blog');
 		}
+		if ( !$this->post->isEmpty() ) {
+			try {
+				$user = models\User::one(array( 'username' => (string)$this->post->username ));
+				$this->user->login($user);
+				Session::success('Ok, ok, ok, je bent ingelogd...');
+				$this->redirect($this->post->get('goto', '/blog'));
+			}
+			catch ( \Exception $ex ) {}
+			Session::error('Jonge, da is je gebruikersnaam nie!');
+		}
+		$app = $this;
+		$messages = Session::messages();
+		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
 	}
 
 	public function edit_comment( $comment ) {
@@ -51,9 +69,9 @@ class blogController extends ControllerParent {
 		if ( !$this->post->isEmpty() ) {
 			// Submitted
 
-			$validator = new Validator(models\Comment::form('add'));
-			var_dump($validator->validate($_POST));
-			exit;
+//			$validator = new Validator(models\Comment::form('add'));
+//			var_dump($validator->validate($_POST));
+//			exit;
 
 			$user = models\User::getUserFromUsername($this->post->username);
 			if ( $user && $this->post->comment ) {
@@ -64,9 +82,14 @@ class blogController extends ControllerParent {
 					'created_on' => time(),
 					'created_by_ip' => $_SERVER['REMOTE_ADDR'],
 				));
+				Session::success('Comment toegevoegd');
 				$this->redirect($post->url('#comment-'.$commentID));
 			}
+			Session::error('Vul goed in jonge!');
 		}
+
+		$messages = Session::messages();
+
 		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
 	}
 
@@ -79,12 +102,19 @@ class blogController extends ControllerParent {
 		if ( $post->author->isUnaware() ) {
 			$post->is_published = true;
 		}
+
+		$messages = Session::messages();
+
 		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
 	}
 
 	public function index() {
+		$app = $this;
+
 		$method = $this->user->hasAccess('BLOG__VIEW_UNPUBLISHED') ? 'newest' : 'newestPublished';
 		$posts = models\Post::$method(self::config('posts_on_index'));
+
+		$messages = Session::messages();
 
 		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
 	}
@@ -99,6 +129,16 @@ echo '<pre>'.time()."\n";
 		var_dump($update);
 		var_dump($this->db->affectedRows());
 		print_r($comment);
+	}
+
+	protected function getPost( $post ) {
+		try {
+			$method = $this->user->hasAccess('BLOG__VIEW_UNPUBLISHED') ? 'get' : 'getPublishedPost';
+			return models\Post::$method($post); // does this work? Post::$method might (syntactically) just as well be a property
+		}
+		catch ( ModelException $ex ) {
+			throw new NotFoundException('Blog post # '.$post);
+		}
 	}
 
 	public function inflector() {

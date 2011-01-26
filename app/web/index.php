@@ -10,8 +10,7 @@ use row\http\Router;
 require(dirname(__DIR__).'/config/bootstrap.php');
 
 // Config Dispatcher
-$options = Options::make(array(
-
+$options = array(
 	'module_class_prefix' => '',
 	'module_class_postfix' => 'Controller',
 
@@ -22,8 +21,7 @@ $options = Options::make(array(
 //		$module = ucfirst(row\utils\Inflector::camelcase($module));
 		return $module;
 	}*/
-
-));
+);
 $dispatcher = new Dispatcher($options);
 
 // Enable routes (available through config/routes.php through config/bootstrap.php)
@@ -36,6 +34,7 @@ try {
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action
 	$response = $application->_run();
 //	echo "\ndone in: ".number_format(microtime(1)-$_start, 4);
+//	print_r($_SESSION);
 }
 catch ( \row\http\NotFoundException $ex ) {
 	$trace = $ex->getTrace();
