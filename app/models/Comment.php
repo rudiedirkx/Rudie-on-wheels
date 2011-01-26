@@ -26,7 +26,14 @@ class Comment extends Model {
 				'type' => 'row\form\TextField',
 				'title' => 'Username',
 				'rules' => array(
+					// this is one way:
 					new validation\ValidateNotEmpty('We neeeeeed your username!'),
+					// this is another way:
+					array(
+						'type' => 'row\validation\ValidateNotEmpty',
+						'message' => 'We neeeeeed your username!'
+					),
+					// this is one way:
 					new validation\ValidateFunction(function( &$data, $field, $form, &$context ) {
 						$value = $data[$field];
 						try {
@@ -37,6 +44,14 @@ class Comment extends Model {
 						catch ( \Exception $ex ) {}
 						return false;
 					}, 'This username doesn\'t exist...'),
+					// this is another:
+					array(
+						'type' => 'row\validation\ValidateFunction',
+						'function' => function( $data, $field, $form, $context ) {
+							
+						},
+						'message' => 'This username doesn\'t exist...'
+					),
 				),
 				'description' => 'Please enter a simple username: alphanumeric, at least 5 characters',
 			),
@@ -44,7 +59,13 @@ class Comment extends Model {
 				'type' => 'row\form\TextArea',
 				'title' => 'Comment',
 				'rules' => array(
+					// this is one way:
 					new validation\ValidateNotEmpty('If you want to say nothing, don\t comment...'),
+					// this is another:
+					array(
+						'type' => 'row\validation\ValidateNotEmpty',
+						'message' => 'If you want to say nothing, don\t comment...',
+					),
 				),
 				'description' => 'Your comment **will** be moderated.',
 			),
