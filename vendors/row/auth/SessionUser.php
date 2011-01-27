@@ -26,6 +26,7 @@ abstract class SessionUser extends Object {
 			'user_id' => 0,
 			'unicheck' => rand(0, 99999999999),
 			'salt' => rand(1000000, 9999999),
+			'vars' => array(),
 		);
 		// Add session record in db?
 		$insert = array(
@@ -68,7 +69,7 @@ abstract class SessionUser extends Object {
 
 	// Step 3: check login status (many times per HTTP request)
 	public function isLoggedIn() {
-//		$this->validate(); // This should be done as little as possible...
+//		$this->validate(); // Done in __construct
 		return !!$this->user; // That easy??
 	}
 
@@ -78,6 +79,23 @@ abstract class SessionUser extends Object {
 		return $this->isLoggedIn() && $this->user->acl->access($zone);
 		/**/
 		return false;
+	}
+
+	public function variable( $key, $val = null ) {
+		/* For instance: *
+		if ( !$this->isLoggedIn() ) {
+			return Session::variable($key, $val);
+		}
+		if ( null !== $val ) {
+			if ( !isset($login['vars']) ) {
+				$login['vars'] = array();
+			}
+			$login['vars'][$key] = $val;
+			return $val;
+		}
+		$login = Session::$session['logins'][count(Session::$session['logins'])-1];
+		return isset($login['vars'][$key]) ? $login['vars'][$key] : null;
+		/**/
 	}
 
 	// Step 5: logout (once per session)

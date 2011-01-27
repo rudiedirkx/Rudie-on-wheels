@@ -6,9 +6,20 @@ use row\core\Object;
 
 class Session extends Object {
 
-	static public $name = 'row_4_0'; // Change this frequently
+	static public $name = 'row_4_0'; // Change this frequently!
 
 	static public $session;
+
+	static public function variable( $k, $v = null ) {
+		if ( 2 <= func_num_args() ) {
+			static::required();
+			static::$session['vars'][$k] = $v;
+			return $v;
+		}
+		if ( static::validateEnvironment() ) {
+			return isset(static::$session['vars'][$k]) ? static::$session['vars'][$k] : null;
+		}
+	}
 
 	static public function validateEnvironment() {
 		if ( static::exists() ) {
@@ -48,6 +59,7 @@ class Session extends Object {
 					'active' => time(),
 					'messages' => array(),
 					'logins' => array(),
+					'vars' => array(),
 				);
 //echo 'session reset with new vars'."\n";
 			}

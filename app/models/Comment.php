@@ -3,7 +3,7 @@
 namespace app\models;
 
 use row\database\Model;
-use row\validation;
+use row\form\Validator;
 
 class Comment extends Model {
 
@@ -20,7 +20,80 @@ class Comment extends Model {
 		return self::all('id BETWEEN ? AND ?', array($a, $b));
 	}
 
-	static public function _form( $name = 'default' ) {
+
+	static public function _validator( $name ) {
+		$rules['add'] = array(
+			array(
+				'fields' => array('username', 'comment'),
+				'validator' => 'notEmpty',
+			),
+			array(
+				'fields' => 'username',
+				'validator' => function( $validator, $field ) {
+					// We know input[username] is not empty...
+					try {
+						$user = User::one(array('username' => trim($validator->input[$field])));
+						$validator->output['user_id'] = $user->user_id;
+						return true;
+					}
+					catch ( \Exception $ex ) {}
+					return 'Username doesn\'t exist?';
+				}
+			),
+		);
+		$rules['edit'] = $rules['add'];
+		$rules['edit'][0]['fields'] = 'comment';
+		unset($rules['edit'][1]);
+		if ( null === $name ) {
+			return $rules;
+		}
+		else if ( isset($rules[$name]) ) {
+			return new Validator($rules[$name], array(
+				'model' => get_called_class()
+			));
+		}
+	}
+
+
+/*	static public function _form( $name = 'add' ) {
+
+		$form = new \row\Form(array(
+			'comment' => array(
+				'rules' => array(
+					new \row\form\validators\NotEmpty('Comment must not be empty.'),
+					new \row\form\validators\MinMaxLength(array(
+						'min' => 12,
+						'max' => 999,
+					), 'Comment must be at least 12 characters long.'),
+				),
+			),
+			new \row\form\validators\Custom(function( $rule, $field ) {
+				$form = $rule->form;
+				return $_SERVER['REMOTE_ADDR'] !== '192.168.1.1';
+			}, 'Wrong IP address, buddy...'),
+		));
+
+		if ( 'add' == $name ) {
+
+			$form->field('username', array(
+				'rules' => array(
+					
+				)
+			));
+
+			$form->validator(new \row\form\validators\Custom(function( $rule, $field ) {
+				$form = $rule->form;
+				
+			}));
+
+		}
+
+		return $form;
+
+	}*/
+
+
+/*	static public function _form( $name = 'default' ) {
 		$add = array(
 			'username' => array(
 				'type' => 'row\form\TextField',
@@ -82,7 +155,7 @@ class Comment extends Model {
 		if ( isset($forms[$name]) ) {
 			return $forms[$name];
 		}
-	}
+	}*/
 
 }
 

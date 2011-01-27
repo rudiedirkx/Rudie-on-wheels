@@ -48,23 +48,23 @@ class blogController extends ControllerParent {
 			throw new NotFoundException('Uneditable comment # '.$comment->comment_id);
 		}
 
-		/* Future validation *
-		$validator = new Validator(models\Comment::form('edit'));
-		var_dump($validator->validate($_POST));
-		/**/
-
 		echo 'Yup, you can edit this... But you can\'t =)';
 	}
 
 	public function add_comment( $post ) {
 		$post = $this->getPost($post);
 
-		$form = null;
-		/* Future validation *
-		$form = models\Comment::form('add');
-		/**/
+		$validator = models\Comment::validator('add');
+		if ( !empty($_POST) ) {
+			if ( $validator->validate($_POST) ) {
+				$insert = $validator->output;
+				unset($insert['username']);
+				print_r($insert);
+				exit;
+			}
+		}
 
-		if ( !$this->post->isEmpty() ) {
+/*		if ( !$this->post->isEmpty() ) {
 			// Submitted
 
 //			$validator = new Validator(models\Comment::form('add'));
@@ -84,7 +84,7 @@ class blogController extends ControllerParent {
 				$this->redirect($post->url('#comment-'.$commentID));
 			}
 			Session::error('That\'s not right...');
-		}
+		}*/
 
 		$messages = Session::messages();
 
