@@ -24,11 +24,16 @@ class Comment extends Model {
 	static public function _validator( $name ) {
 		$rules['add'] = array(
 			array(
-				'fields' => array('username', 'comment'),
+				'field' => array('username', 'comment'),
 				'validator' => 'notEmpty',
 			),
 			array(
-				'fields' => 'username',
+				'validator' => 'someNotEmpty',
+				'min' => 1,
+				'fields' => array('phone1', 'phone2'),
+			),
+			array(
+				'field' => 'username',
 				'validator' => function( $validator, $field ) {
 					// We know input[username] is not empty...
 					try {
