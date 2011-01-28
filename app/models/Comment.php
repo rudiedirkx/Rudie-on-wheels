@@ -4,6 +4,8 @@ namespace app\models;
 
 use row\database\Model;
 use row\form\Validator;
+use row\auth\SessionUser;
+use row\utils\DateTime;
 
 class Comment extends Model {
 
@@ -16,39 +18,69 @@ class Comment extends Model {
 		'post' => array( self::GETTER_ONE, true, 'app\models\Post', 'post_id', 'post_id' ),
 	);
 
+	public function _post_fill( $data ) {
+		if ( isset($data['created_on']) ) {
+			$this->_created_on = new DateTime($this->created_on);
+		}
+	}
+
+	public function canEdit() {
+		$sessionUser = SessionUser::user();
+		$owner = $_SERVER['REMOTE_ADDR'] === $this->created_by_ip;
+		$owner = $sessionUser->userID() === (int)$this->author_id;
+		$inTime = 300 > time() - $this->created_on;
+		// How do I reach the session user from here? It's only registered in the $application
+		return ( $owner && $inTime ) || $sessionUser->hasAccess('always edit comments');
+	}
+
+	public function url( $more = '' ) {
+		return '/blog/view/' . $this->post_id . '#comment-' . $this->comment_id;
+	}
+
 	static public function getCommentsBetween( $a, $b ) {
 		return self::all('id BETWEEN ? AND ?', array($a, $b));
 	}
 
-
 	static public function _validator( $name ) {
 		$rules['add'] = array(
-			array(
-				'field' => array('username', 'comment'),
+			'requireds' => array(
+				'field' => 'comment',
 				'validator' => 'notEmpty',
 			),
-			array(
-				'validator' => 'someNotEmpty',
-				'min' => 1,
-				'fields' => array('phone1', 'phone2'),
-			),
-			array(
-				'field' => 'username',
-				'validator' => function( $validator, $field ) {
-					// We know input[username] is not empty...
-					try {
-						$user = User::one(array('username' => trim($validator->input[$field])));
-						$validator->output['user_id'] = $user->user_id;
-						return true;
-					}
-					catch ( \Exception $ex ) {}
-					return 'Username doesn\'t exist?';
-				}
-			),
 		);
-		$rules['edit'] = $rules['add'];
-		$rules['edit'][0]['fields'] = 'comment';
-		unset($rules['edit'][1]);
+
+		$rules['add_anonymous'] = $rules['add'];
+		$rules['add_anonymous']['requireds']['field'] = array('username', 'password', 'comment');
+		$rules['add_anonymous']['login'] = array(
+			'validator' => function( $validator ) {
+				try {
+					$user = User::one(array(
+						'username' => trim($validator->input['username']),
+						'password' => $validator->input['password'],
+					));
+					$validator->context['user'] = $user;
+					$validator->output['author_id'] = $user->user_id;
+//					SessionUser::user()->login($user);
+					return true;
+				}
+				catch ( \Exception $ex ) {}
+				$validator->setError(array('username', 'password'), 'I don\'t know that username/password combination...');
+			}
+		);
+		$rules['add_anonymous']['removes'] = array(
+			'validator' => 'remove',
+			'field' => array('username', 'password'),
+		);
+
+		$rules['add']['user'] = array(
+			'validator' => function( $validator ) {
+				$validator->output['author_id'] = SessionUser::user()->userID();
+			}
+		);
+
+		$rules['edit'] =& $rules['add'];
+		$rules['edit_anonymous'] =& $rules['add_anonymous'];
+
 		if ( null === $name ) {
 			return $rules;
 		}
@@ -58,109 +90,6 @@ class Comment extends Model {
 			));
 		}
 	}
-
-
-/*	static public function _form( $name = 'add' ) {
-
-		$form = new \row\Form(array(
-			'comment' => array(
-				'rules' => array(
-					new \row\form\validators\NotEmpty('Comment must not be empty.'),
-					new \row\form\validators\MinMaxLength(array(
-						'min' => 12,
-						'max' => 999,
-					), 'Comment must be at least 12 characters long.'),
-				),
-			),
-			new \row\form\validators\Custom(function( $rule, $field ) {
-				$form = $rule->form;
-				return $_SERVER['REMOTE_ADDR'] !== '192.168.1.1';
-			}, 'Wrong IP address, buddy...'),
-		));
-
-		if ( 'add' == $name ) {
-
-			$form->field('username', array(
-				'rules' => array(
-					
-				)
-			));
-
-			$form->validator(new \row\form\validators\Custom(function( $rule, $field ) {
-				$form = $rule->form;
-				
-			}));
-
-		}
-
-		return $form;
-
-	}*/
-
-
-/*	static public function _form( $name = 'default' ) {
-		$add = array(
-			'username' => array(
-				'type' => 'row\form\TextField',
-				'title' => 'Username',
-				'rules' => array(
-					// this is one way:
-					new validation\ValidateNotEmpty('We neeeeeed your username!'),
-					// this is another way:
-					array(
-						'type' => 'row\validation\ValidateNotEmpty',
-						'message' => 'We neeeeeed your username!'
-					),
-					// this is one way:
-					new validation\ValidateFunction(function( &$data, $field, $form, &$context ) {
-						$value = $data[$field];
-						try {
-							$context->user = User::getUserFromUsername($value);
-							$value = $context->user->user_id;
-							return true;
-						}
-						catch ( \Exception $ex ) {}
-						return false;
-					}, 'This username doesn\'t exist...'),
-					// this is another:
-					array(
-						'type' => 'row\validation\ValidateFunction',
-						'function' => function( $data, $field, $form, $context ) {
-							
-						},
-						'message' => 'This username doesn\'t exist...'
-					),
-				),
-				'description' => 'Please enter a simple username: alphanumeric, at least 5 characters',
-			),
-			'comment' => array(
-				'type' => 'row\form\TextArea',
-				'title' => 'Comment',
-				'rules' => array(
-					// this is one way:
-					new validation\ValidateNotEmpty('If you want to say nothing, don\t comment...'),
-					// this is another:
-					array(
-						'type' => 'row\validation\ValidateNotEmpty',
-						'message' => 'If you want to say nothing, don\t comment...',
-					),
-				),
-				'description' => 'Your comment **will** be moderated.',
-			),
-			new validation\ValidateFunction(function( &$data, $field, $form, &$context ) {
-				return strlen($data['username']) < strlen($data['comment']);
-			}, 'Comment must be taller than username =)'),
-		);
-		$edit = $add;
-		unset($edit['username']);
-		$forms = compact('add', 'edit');
-		if ( null === $name ) {
-			return $forms;
-		}
-		if ( isset($forms[$name]) ) {
-			return $forms[$name];
-		}
-	}*/
 
 }
 

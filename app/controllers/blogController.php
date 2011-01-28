@@ -48,47 +48,57 @@ class blogController extends ControllerParent {
 			throw new NotFoundException('Uneditable comment # '.$comment->comment_id);
 		}
 
-		echo 'Yup, you can edit this... But you can\'t =)';
+		$validator = models\Comment::validator('edit');
+		if ( !empty($_POST) ) {
+			if ( $validator->validate($_POST) ) {
+				$update = $validator->output;
+				if ( $comment->update($update) ) {
+					Session::success('Comment changed');
+					$this->redirect($comment->url());
+				}
+				Session::error('Didn\'t save... Try again!?');
+			}
+		}
+
+		$messages = Session::messages();
+
+		return $this->tpl->assign(get_defined_vars())->display(__CLASS__.'::comment_form');
 	}
 
 	public function add_comment( $post ) {
 		$post = $this->getPost($post);
 
-		$validator = models\Comment::validator('add');
+		$anonymous = $this->user->isLoggedIn() ? '' : '_anonymous';
+		$validator = models\Comment::validator('add'.$anonymous);
+echo '<pre>';
+//print_r($validator); exit;
 		if ( !empty($_POST) ) {
-			if ( $validator->validate($_POST) ) {
+			if ( $validator->validate($_POST, $context) ) {
 				$insert = $validator->output;
-				unset($insert['username']);
-				print_r($insert);
-				exit;
+//print_r($insert); print_r($context); exit;
+				$insert['post_id'] = $post->post_id;
+				$insert['created_on'] = time();
+				$insert['created_by_ip'] = $_SERVER['REMOTE_ADDR'];
+print_r($insert); exit;
+				try {
+					$cid = models\Comment::insert($insert);
+//var_dump($cid); exit;
+					$comment = models\Comment::get($cid);
+//print_r($comment); exit;
+					Session::success('Comment created');
+					$this->redirect($comment->url());
+				}
+				catch ( \Exception $ex ) {
+					Session::error('Didn\'t save... Try again!?');
+				}
 			}
 		}
 
-/*		if ( !$this->post->isEmpty() ) {
-			// Submitted
-
-//			$validator = new Validator(models\Comment::form('add'));
-//			var_dump($validator->validate($_POST));
-//			exit;
-
-			$user = models\User::getUserFromUsername($this->post->username);
-			if ( $user && $this->post->comment ) {
-				$commentID = models\Comment::insert(array(
-					'post_id' => $post->post_id,
-					'author_id' => $user->user_id,
-					'comment' => $this->post->comment,
-					'created_on' => time(),
-					'created_by_ip' => $_SERVER['REMOTE_ADDR'],
-				));
-				Session::success('Comment toegevoegd');
-				$this->redirect($post->url('#comment-'.$commentID));
-			}
-			Session::error('That\'s not right...');
-		}*/
+		$comment = \row\utils\Options::make(array('new' => true));
 
 		$messages = Session::messages();
 
-		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
+		return $this->tpl->assign(get_defined_vars())->display(__CLASS__.'::comment_form');
 	}
 
 	public function best( $num = 900 ) {

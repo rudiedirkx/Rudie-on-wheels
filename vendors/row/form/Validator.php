@@ -6,6 +6,10 @@ use row\utils\Options;
 
 class Validator extends \row\core\Object {
 
+	public function remove( $validator, $field ) {
+		unset($validator->output[$field]);
+	}
+
 	public function allow() {
 		return true;
 	}
@@ -44,9 +48,9 @@ class Validator extends \row\core\Object {
 		$this->options = Options::make($options);
 	}
 
-	public function validate( $input, $context = null ) {
+	public function validate( $input, &$context = array() ) {
 		$this->input = $input;
-		$this->context = $context;
+		$this->context =& $context;
 		foreach ( $this->rules AS $rule ) {
 			$fields = isset($rule['field']) ? (array)$rule['field'] : array(0);
 			$fn = $rule['validator'];
@@ -78,6 +82,9 @@ class Validator extends \row\core\Object {
 						}
 					}
 				}
+			}
+			if ( !empty($this->errors) ) {
+				return false;
 			}
 		}
 		return empty($this->errors);

@@ -7,7 +7,13 @@ use app\models;
 
 abstract class SessionUser extends Object {
 
+	static public function user() {
+		return $GLOBALS['application']->user;
+	}
+
 	public $user; // typeof Model
+//	public $name = 'Anonymous';
+//	public $id = 0;
 
 	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
 
@@ -109,6 +115,10 @@ abstract class SessionUser extends Object {
 
 	public function displayName() {
 		return $this->isLoggedin() ? (string)$this->user : 'Anonymous';
+	}
+
+	public function userID() {
+		return $this->isLoggedin() ? (int)$this->user->user_id : 0;
 	}
 
 	public function __tostring() {

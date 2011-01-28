@@ -15,7 +15,7 @@ h1 { margin:20px 0; }
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
 fieldset p.field.error { color:red; }
-fieldset p.field input, fieldset p.field textarea, fieldset p.field select { border:solid 1px #999; }
+fieldset p.field input, fieldset p.field textarea, fieldset p.field select { border:solid 1px #999; width:300px; }
 fieldset p.field.error input, fieldset p.field.error textarea, fieldset p.field.error select { border-color:red; }
 article:hover { background-color:rgba(0, 0, 0, 0.03); }
 article.not-published > h1 { color:red; }

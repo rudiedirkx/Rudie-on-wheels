@@ -58,6 +58,8 @@ class SessionUser extends \row\auth\SessionUser {
 			try {
 				$this->user = models\User::get($login['user_id']);
 				$this->salt = $login['salt'];
+//				$this->id = $this->user->user_id;
+//				$this->name = $this->user->full_name;
 			}
 			catch ( \Exception $ex ) {}
 		}

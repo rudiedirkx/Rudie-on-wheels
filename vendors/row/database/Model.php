@@ -312,6 +312,11 @@ class Model extends Object {
 	}
 
 
+	public function isEmpty() {
+		return (array)$this == array();
+	}
+
+
 } // END Class Model
 
 

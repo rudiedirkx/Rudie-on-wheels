@@ -3,7 +3,7 @@
 namespace app\Models;
 
 use row\database\Model;
-//use app\models\User;
+use row\utils\DateTime;
 
 class Post extends Model {
 
@@ -15,6 +15,19 @@ class Post extends Model {
 		'author' => array( self::GETTER_ONE, true, 'app\models\User', 'author_id', 'user_id' ),
 		'comments' => array( self::GETTER_ALL, true, 'app\models\Comment', 'post_id', 'post_id' ),
 	);
+
+	public function _post_fill( $data ) {
+		if ( isset($data['is_published']) ) {
+			$this->is_published = (bool)$this->is_published; // because a Bool is prettier than a '0' or '1'
+		}
+		if ( isset($data['created_on']) ) {
+			$this->_created_on = new DateTime($this->created_on);
+		}
+	}
+
+	public function url( $more = '' ) {
+		return '/blog/view/' . $this->post_id . $more;
+	}
 
 	static public function _customSave( $a1 = '', $a2 = '' ) {
 		return static::_update($a1, $a2);
