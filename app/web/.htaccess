@@ -6,4 +6,5 @@ RewriteRule (.*) index.php?url=$1 [QSA,L]
 
 SetEnv APPLICATION_ENV "development"
 
+php_value error_reporting 4095
 php_value date.timezone "Europe/Amsterdam"

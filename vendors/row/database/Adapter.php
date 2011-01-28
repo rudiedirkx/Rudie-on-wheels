@@ -26,6 +26,7 @@ abstract class Adapter extends Object {
 
 	abstract public function escapeValue( $value );
 
+	public $queries = array();
 	protected $db;
 	protected $connectionArgs;
 	public $throwExceptions = true;

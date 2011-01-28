@@ -114,6 +114,7 @@ class MySQLi extends MySQL {
 	}
 
 	public function query( $query ) {
+		$this->queries[] = $query;
 		$q = @$this->db->query($query);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {

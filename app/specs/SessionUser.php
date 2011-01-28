@@ -35,7 +35,7 @@ class SessionUser extends \row\auth\SessionUser {
 		}
 	}
 
-	public function login( $user ) {
+	public function login( \row\database\Model $user ) {
 		$login = parent::login($user);
 		extract($login); // Extracts arrays $login and $insert
 

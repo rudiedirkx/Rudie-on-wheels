@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\specs\Controller;
 use row\auth\Session;
+use app\specs\Output;
 
 class todoController extends Controller {
 
@@ -28,7 +29,7 @@ class todoController extends Controller {
 //		print_r(Session::messages());
 
 		$todo = file_get_contents(ROW_PATH.'/'.$file);
-		$todo = \markdown\MarkdownParser::parse($todo);
+		$todo = Output::markdown($todo);
 		echo $todo;
 	}
 

@@ -8,7 +8,7 @@ class User extends Model {
 
 	static public $_table = 'users';
 	static public $_pk = 'user_id';
-
+	static public $_title = 'full_name';
 	static public $_getters = array(
 		'access_zones' => array( self::GETTER_FUNCTION, true, 'getAccessZones' ),
 		'acl' => array( self::GETTER_FUNCTION, true, 'getACL' ),
