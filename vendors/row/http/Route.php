@@ -23,9 +23,9 @@ class Route extends Object {
 	}
 
 	public function resolve( $path ) {
-		$from = '/'.trim($this->from, '$^ /');
+		$from = '/'.trim($this->from, '^ /');
 //var_dump($path, $this->from, '--------------------------------------');
-		if ( 0 < preg_match('#^'.$from.'$#', $path, $match) ) {
+		if ( 0 < preg_match('#^'.$from.'#', $path, $match) ) {
 			$to = $this->to;
 			if ( null === $to ) {
 				$to = $match;
@@ -44,8 +44,13 @@ class Route extends Object {
 				return $goto;
 			}
 			else if ( is_array($to) ) {
-				$to['actionArguments'] = !isset($to['arguments']) ? array_slice($match, 1) : (array)$to['arguments'];
-				unset($to['arguments']);
+				if ( isset($to['arguments']) ) {
+					$to['actionArguments'] = (array)$to['arguments'];
+					unset($to['arguments']);
+				}
+				else if ( 1 < count($match) ) {
+					$to['actionArguments'] = array_slice($match, 1);
+				}
 				return $to;
 			}
 		}
