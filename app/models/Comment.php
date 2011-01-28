@@ -42,18 +42,17 @@ class Comment extends Model {
 	}
 
 	static public function _validator( $name ) {
-		$rules['add'] = array(
-			'requireds' => array(
-				'field' => 'comment',
-				'validator' => 'notEmpty',
-				'min' => 12,
-				'message' => 'We need at least 12 characters from you, buddy!',
-			),
+		$comment = array(
+			'field' => 'comment',
+			'validator' => 'notEmpty',
+			'min' => 12,
+			'message' => 'We need at least 12 characters from you, buddy!',
 		);
-
-		$rules['add_anonymous'] = $rules['add'];
-		$rules['add_anonymous']['requireds']['field'] = array('username', 'password', 'comment');
-		$rules['add_anonymous']['login'] = array(
+		$requireds = array(
+			'field' => array('username', 'password'),
+			'validator' => 'notEmpty',
+		);
+		$login = array(
 			'validator' => function( $validator ) {
 				try {
 					$user = User::one(array(
@@ -62,34 +61,30 @@ class Comment extends Model {
 					));
 					$validator->context['user'] = $user;
 					$validator->output['author_id'] = $user->user_id;
-//					SessionUser::user()->login($user);
+//					SessionUser::user()->login($user); // Auto-login?
 					return true;
 				}
 				catch ( \Exception $ex ) {}
 				$validator->setError(array('username', 'password'), 'I don\'t know that username/password combination...');
 			}
 		);
-		$rules['add_anonymous']['removes'] = array(
+		$removes = array(
 			'validator' => 'remove',
 			'field' => array('username', 'password'),
 		);
-
-		$rules['add']['user'] = array(
+		$setUser = array(
 			'validator' => function( $validator ) {
 				$validator->output['author_id'] = SessionUser::user()->userID();
 			}
 		);
 
-		$rules['edit'] =& $rules['add'];
-		$rules['edit_anonymous'] =& $rules['add_anonymous'];
-
-		if ( null === $name ) {
-			return $rules;
-		}
-		else if ( isset($rules[$name]) ) {
-			return new Validator($rules[$name], array(
-				'model' => get_called_class()
-			));
+		switch ( $name ) {
+			case 'add':
+				return new Validator(array($comment, $setUser), array('model' => get_called_class()));
+			case 'add_anonymous':
+				return new Validator(array($requireds, $comment, $login, $removes), array('model' => get_called_class()));
+			case 'edit':
+				return new Validator(array($comment), array('model' => get_called_class()));
 		}
 	}
 

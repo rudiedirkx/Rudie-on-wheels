@@ -16,10 +16,10 @@ h1 smaller { font-size:16px; }
 pre { margin-left:10px; padding:5px 10px; background-color:#777;  color:#fff; font-size:16px; overflow:auto; }
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
-fieldset p.field.error { color:red; }
-fieldset p.field input, fieldset p.field textarea, fieldset p.field select { border:solid 1px #999; width:400px; }
+fieldset p.field.error span.errmsg { color:red; }
+fieldset p.field input, fieldset p.field textarea, fieldset p.field select { padding:1px; border:solid 1px #999; width:400px; }
 fieldset p.field.error input, fieldset p.field.error textarea, fieldset p.field.error select { border-color:red; }
-article:hover { background-color:rgba(0, 0, 0, 0.03); }
+article { background-color:rgba(0, 0, 0, 0.04); }
 article.unpublished > h1, article.unpublished > header > h2 > a { color:red; }
 article article { margin:0; }
 article h3, article h2, article h1 { margin:0; }

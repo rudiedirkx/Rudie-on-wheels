@@ -6,6 +6,14 @@ use row\utils\Options;
 
 class Validator extends \row\core\Object {
 
+	public function regex( $validator, $field, $options ) {
+		if ( !isset($validator->input[$field]) ) return false;
+		$options = Options::make($options);
+		$pattern = $options->pattern ?: $options->regex ?: $options->regexp;
+		$pattern = '#^'.$pattern.'$#';
+		return 0 < preg_match($pattern, $validator->input[$field]);
+	}
+
 	public function remove( $validator, $field ) {
 		unset($validator->output[$field]);
 	}
@@ -15,9 +23,7 @@ class Validator extends \row\core\Object {
 	}
 
 	public function notEmpty( $validator, $field, $options = array() ) {
-		if ( empty($validator->input[$field]) ) {
-			return false;
-		}
+		if ( !isset($validator->input[$field]) ) return false;
 		$options = Options::make($options);
 		$length = is_array($validator->input[$field]) ? count($validator->input[$field]) : strlen(trim((string)$validator->input[$field]));
 		$min = $options->min ?: 1;
@@ -51,7 +57,12 @@ class Validator extends \row\core\Object {
 
 	public function __construct( $rules, $options = array() ) {
 		$this->rules = $rules;
-		$this->options = Options::make($options);
+		$this->options = Options::make($options, Options::make(array(
+			'errors' => Options::make(array(
+				'notEmpty' => 'Must submit value',
+				'regex' => 'Invalid value format',
+			))
+		)));
 	}
 
 	public function validate( $input, &$context = array() ) {
@@ -69,6 +80,7 @@ class Validator extends \row\core\Object {
 				}
 			}
 			if ( is_callable($fn) ) {
+				$validatorType = is_string($rule['validator']) ? $rule['validator'] : 'custom';
 				unset($rule['field'], $rule['validator']);
 				foreach ( $fields AS $field ) {
 					if ( !$field || empty($this->errors[$field]) ) {
@@ -80,7 +92,7 @@ class Validator extends \row\core\Object {
 							// Ignore?
 						}
 						else if ( true !== $error ) {
-							$this->errors[$field][] = isset($rule['message']) ? $rule['message'] : $this->options->get('default_error', $this->defaultError);
+							$this->errors[$field][] = isset($rule['message']) ? $rule['message'] : $this->options->errors->get($validatorType, $this->options->get('default_error', $this->defaultError));
 //							return false;
 						}
 						else if ( $field && isset($this->input[$field]) && !isset($this->output[$field]) ) {
@@ -90,7 +102,7 @@ class Validator extends \row\core\Object {
 				}
 			}
 			if ( !empty($this->errors) ) {
-				return false;
+//				return false;
 			}
 		}
 		return empty($this->errors);
@@ -100,6 +112,10 @@ class Validator extends \row\core\Object {
 		foreach ( (array)$field AS $f ) {
 			$this->errors[$f][] = $error;
 		}
+	}
+
+	public function getError( $field ) {
+		return isset($this->errors[$field]) ? $this->errors[$field][0] : '';
 	}
 
 	public function ifError( $field, $error = 'error', $noError = '' ) {

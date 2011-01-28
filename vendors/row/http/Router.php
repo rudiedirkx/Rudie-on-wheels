@@ -3,7 +3,7 @@
 namespace row\http;
 
 use row\core\Object;
-use row\http\Route;
+use row\utils\Options;
 
 class Router extends Object {
 
@@ -20,12 +20,51 @@ class Router extends Object {
 	}
 
 	public function add( $from, $to = null, $options = array() ) {
-		$this->routes[] = new Route($this, $from, $to, $options);
+		$this->routes[] = array(
+			'from' => $from,
+			'to' => $to,
+			'options' => $options,
+		);
 	}
 
 	public function resolve( $path ) {
 		foreach ( $this->routes AS $route ) {
-			if ( $to = $route->resolve('/'.$path) ) {
+			if ( $to = $this->resolveRoute($route, '/'.$path) ) {
+				return $to;
+			}
+		}
+	}
+
+	public function resolveRoute( $route, $path ) {
+		$route = (object)$route;
+		$from = '/'.trim($route->from, '^ /');
+//var_dump($path, $route->from, '--------------------------------------');
+		if ( 0 < preg_match('#^'.$from.'#', $path, $match) ) {
+			$to = $route->to;
+			if ( null === $to ) {
+				$to = $match;
+			}
+			else if ( is_callable($to) ) {
+				$to = $to($match);
+			}
+			if ( is_string($to) ) {
+				$options = Options::make($route->options);
+				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
+				$goto = call_user_func_array('sprintf', $match);
+				if ( $options->redirect ) {
+					header('Location: '.$goto);
+					exit;
+				}
+				return $goto;
+			}
+			else if ( is_array($to) ) {
+				if ( isset($to['arguments']) ) {
+					$to['actionArguments'] = (array)$to['arguments'];
+					unset($to['arguments']);
+				}
+				else if ( 1 < count($match) ) {
+					$to['actionArguments'] = array_slice($match, 1);
+				}
 				return $to;
 			}
 		}
