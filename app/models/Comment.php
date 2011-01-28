@@ -46,6 +46,8 @@ class Comment extends Model {
 			'requireds' => array(
 				'field' => 'comment',
 				'validator' => 'notEmpty',
+				'min' => 12,
+				'message' => 'We need at least 12 characters from you, buddy!',
 			),
 		);
 

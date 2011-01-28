@@ -15,7 +15,13 @@ class Validator extends \row\core\Object {
 	}
 
 	public function notEmpty( $validator, $field, $options = array() ) {
-		return !empty($validator->input[$field]) && '' != trim((string)$validator->input[$field]);
+		if ( empty($validator->input[$field]) ) {
+			return false;
+		}
+		$options = Options::make($options);
+		$length = is_array($validator->input[$field]) ? count($validator->input[$field]) : strlen(trim((string)$validator->input[$field]));
+		$min = $options->min ?: 1;
+		return $length >= $min;
 	}
 
 	public function someNotEmpty( $validator, $field, $options = array() ) {
@@ -24,7 +30,7 @@ class Validator extends \row\core\Object {
 			$min = $options->min ?: 1;
 			$notEmpty = 0;
 			foreach ( $options->fields AS $f ) {
-				$notEmpty += (int)$this->notEmpty($validator, $f);
+				$notEmpty += (int)$this->notEmpty($validator, $f, $options);
 			}
 			if ( $notEmpty >= $min ) {
 				return true;
@@ -74,7 +80,7 @@ class Validator extends \row\core\Object {
 							// Ignore?
 						}
 						else if ( true !== $error ) {
-							$this->errors[$field][] = $this->options->get('default_error', $this->defaultError);
+							$this->errors[$field][] = isset($rule['message']) ? $rule['message'] : $this->options->get('default_error', $this->defaultError);
 //							return false;
 						}
 						else if ( $field && isset($this->input[$field]) && !isset($this->output[$field]) ) {
