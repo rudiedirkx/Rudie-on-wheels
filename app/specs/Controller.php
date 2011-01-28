@@ -2,6 +2,11 @@
 
 namespace app\specs;
 
+/**
+ * No need to `use` classes SessionUser and View because
+ * they exist in the same namespace: app\specs.
+ */
+
 class Controller extends \row\Controller {
 
 	public function _init() {
