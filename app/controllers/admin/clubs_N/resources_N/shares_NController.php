@@ -2,7 +2,9 @@
 
 namespace app\controllers\admin\clubs_N\resources_N;
 
-class shares_NController extends \app\controllers\ControllerParent {
+use app\specs\Controller;
+
+class shares_NController extends Controller {
 
 	public function toggle() {
 		echo '<pre>Home of '.__METHOD__."\n";

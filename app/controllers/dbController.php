@@ -2,9 +2,9 @@
 
 namespace app\controllers;
 
-use app\controllers\ControllerParent;
+use app\specs\Controller;
 
-class dbController extends ControllerParent {
+class dbController extends Controller {
 
 	public function _pre_action() {
 		echo '<pre>'."\n";

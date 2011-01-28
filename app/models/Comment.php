@@ -2,9 +2,9 @@
 
 namespace app\models;
 
-use row\database\Model;
-use row\form\Validator;
-use row\auth\SessionUser;
+use app\specs\Model;
+use app\specs\Validator;
+use app\specs\SessionUser;
 use row\utils\DateTime;
 
 class Comment extends Model {

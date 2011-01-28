@@ -2,7 +2,9 @@
 
 namespace app\controllers\admin\clubs_N;
 
-class resourcesController extends \app\controllers\ControllerParent {
+use app\specs\Controller;
+
+class resourcesController extends Controller {
 
 	public function index() {
 		echo '<pre>Home of '.__METHOD__."\n";

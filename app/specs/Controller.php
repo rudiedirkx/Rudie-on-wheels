@@ -1,12 +1,8 @@
 <?php
 
-namespace app\controllers;
+namespace app\specs;
 
-use row\Controller;
-use app\specs\SessionUser;
-use row\View;
-
-class ControllerParent extends Controller {
+class Controller extends \row\Controller {
 
 	public function _init() {
 		$this->user = new SessionUser;

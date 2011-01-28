@@ -2,9 +2,8 @@
 
 namespace app\controllers;
 
-use row\Controller;
+use app\specs\Controller;
 use symfony\Component\Yaml\Parser;
-//use doctrine\Symfony\Component\Yaml\Parser AS DoctrineYamlParser; // won't find
 
 class doctrineController extends Controller {
 

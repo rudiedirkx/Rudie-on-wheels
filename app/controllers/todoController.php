@@ -2,10 +2,10 @@
 
 namespace app\controllers;
 
-use app\controllers\ControllerParent;
+use app\specs\Controller;
 use row\auth\Session;
 
-class todoController extends ControllerParent {
+class todoController extends Controller {
 
 	protected function _pre_action() {
 		echo '<!doctype html><head><style>body{font-family:Arial,sans-serif;}code{white-space:nowrap;padding:3px;background-color:#e4e4e4;}</style></head><body>'."\n\n";

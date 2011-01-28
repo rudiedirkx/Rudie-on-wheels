@@ -2,15 +2,13 @@
 
 namespace app\controllers;
 
-use app\controllers\ControllerParent;
+use app\specs\Controller;
 use row\http\NotFoundException;
-use row\database\ModelException;
 use app\models;
 use row\utils\Inflector;
-use row\validation\Validator;
 use row\auth\Session;
 
-class blogController extends ControllerParent {
+class blogController extends Controller {
 
 	static public $config = array(
 		'posts_on_index' => 5,
@@ -144,7 +142,7 @@ echo '<pre>'.time()."\n";
 			$method = $this->user->hasAccess('blog read unpublished') ? 'get' : 'getPublishedPost';
 			return models\Post::$method($post); // does this work? Post::$method might (syntactically) just as well be a property
 		}
-		catch ( ModelException $ex ) {
+		catch ( \Exception $ex ) {
 			throw new NotFoundException('Blog post # '.$post);
 		}
 	}

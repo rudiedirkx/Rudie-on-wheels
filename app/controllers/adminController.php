@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
-class adminController extends \app\controllers\ControllerParent {
+use app\specs\Controller;
+
+class adminController extends Controller {
 
 	public function index() {
 		echo '<pre>Home of '.__METHOD__."\n";

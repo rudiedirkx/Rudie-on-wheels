@@ -2,7 +2,7 @@
 
 namespace app\Models;
 
-use row\database\Model;
+use app\specs\Model;
 use row\utils\DateTime;
 
 class Post extends Model {

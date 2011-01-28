@@ -2,6 +2,7 @@
 To do:
 ------
 
+0. [`APC`](http://www.php.net/manual/en/book.apc.php): Check out its uses and implement automatic, if-available form (in `Dispatcher`?)
 1. Validator: Implement $context
 1. Validator: Implement custom error message(s)<br><br>
 2. Auth: Finish Auth like started with

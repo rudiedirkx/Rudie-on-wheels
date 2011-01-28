@@ -2,12 +2,12 @@
 
 namespace app\controllers;
 
-use app\controllers\ControllerParent;
+use app\specs\Controller;
 use row\database\adapter\SQLite;
 use row\database\adapter\SQLite3;
 use row\database\adapter\PDOSQLite;
 
-class sqliteController extends ControllerParent {
+class sqliteController extends Controller {
 
 	protected function _pre_action() {
 		echo '<ul>';

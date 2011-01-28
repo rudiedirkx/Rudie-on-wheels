@@ -2,10 +2,10 @@
 
 namespace app\controllers;
 
-use app\controllers\ControllerParent;
+use app\specs\Controller;
 use row\auth\Session;
 
-class sessionsController extends ControllerParent {
+class sessionsController extends Controller {
 
 	public function get( $key ) {
 		echo '<pre>';
