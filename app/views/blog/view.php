@@ -1,20 +1,35 @@
+<?php
 
-<p><a href="/blog">Back to posts overview</a></p>
+use row\utils\Inflector;
 
-<article class="blogpost <?=!$post->is_published ? 'not-published' : ''?>">
+?>
+<p><?=$this::link('Back to posts overview', 'blog')?></p>
 
-	<h1><?=$this->title($post->title)?></h1>
+<article class="blogpost <?=!$post->is_published ? 'unpublished' : ''?>">
+
+	<h1>
+		<?=$this->title($post->title)?>
+		<?if(!$post->is_published):?>
+			<?if($app->user->hasAccess('blog publish')):?>
+				<smaller>(<?=$this::link('publish', 'blog/publish-post/'.$post->post_id)?>)</smaller>
+			<?endif?>
+		<?else:?>
+			<?if($app->user->hasAccess('blog unpublish')):?>
+				<smaller>(<?=$this::link('unpublish', 'blog/unpublish-post/'.$post->post_id)?>)</smaller>
+			<?endif?>
+		<?endif?>
+	</h1>
 
 	<section class="article">
-		<footer>Posted by <em><?=$post->author->full_name?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em>.</footer>
+		<footer>Posted by <em><?=$post->author->full_name?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em> in category <em><?=$this::link($post->category_name, $post->catUrl())?></em><?if($post->canEdit()):?> (<?=$this::link('edit', 'blog/edit-post/'.$post->post_id)?>)<?endif?>.</footer>
 		<?=$this->markdown($post->body)."\n"?>
 	</section>
 	<a id="comments"></a>
-	<h2>Comments (<a href="/blog/add-comment/<?=$post->post_id?>">add</a>)</h2>
+	<h2>Comments (<?=$this::link('add', 'blog/add-comment/'.$post->post_id)?>)</h2>
 	<section class="comments">
 		<?foreach( $post->comments as $n => $comment ):?>
 			<article class="comment">
-				<h3><a id="comment-<?=$comment->comment_id?>" href="<?=$comment->url()?>"># <?=($n+1)?></a> <em><?=$comment->author->full_name?></em> zei op <em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:</h3>
+				<h3><?=$this::link('# '.($n+1), $comment->url(), array('id' => 'comment-'.$comment->comment_id))?><!--<a id="comment-<?=$comment->comment_id?>" href="<?=$comment->url()?>"># <?=($n+1)?></a>--> <em><?=$comment->author->full_name?></em> zei op <em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:</h3>
 				<?=$this->markdown($comment->comment)?>
 				<?if( $comment->canEdit() ):?>
 					<footer>You can <a href="/blog/edit-comment/<?=$comment->comment_id?>">edit</a> this post...</footer>

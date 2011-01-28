@@ -3,7 +3,7 @@
 namespace row\applets\scaffolding;
 
 use row\database\Model;
-use row\View;
+use row\Output;
 
 class Controller extends \row\Controller {
 
@@ -21,7 +21,7 @@ class Controller extends \row\Controller {
 	protected function _init() {
 		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
 
-		$this->view = new View($this);
+		$this->view = new Output($this);
 		$this->view->viewsFolder = __DIR__.'/views';
 		$this->view->viewLayout = __DIR__.'/views/_layout.php';
 		$this->view->assign('app', $this);
@@ -82,6 +82,7 @@ class Controller extends \row\Controller {
 
 	public function add_data( $table ) {
 		$columns = Model::dbObject()->_getTableColumns($table);
+		$pkColumns = Model::dbObject()->_getPKColumns($table);
 		return $this->view->display('add_data', get_defined_vars());
 	}
 
@@ -117,7 +118,8 @@ class Controller extends \row\Controller {
 	}
 
 	public function _url( $action = '', $more = '' ) {
-		return '/'.reset(explode('/', ltrim($this->_dispatcher->requestPath, '/'))).( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
+		$x = explode('/', ltrim($this->_dispatcher->requestPath, '/'));
+		return '/'.$x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
 	}
 
 }

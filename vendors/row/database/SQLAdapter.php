@@ -74,6 +74,12 @@ abstract class SQLAdapter extends Adapter {
 		return $this->fetchFieldsNumeric($query);
 	}
 
+	public function count( $table, $conditions = '', $params = array() ) {
+		$conditions = $this->replaceholders($conditions, $params);
+		$sql = 'SELECT 1 FROM '.$this->escapeAndQuoteTable($table).' WHERE '.( $conditions ?: '1' );
+		return $this->countRows($sql);
+	}
+
 	public function replace( $table, $values ) {
 		$values = array_map(array($this, 'escapeAndQuoteValue'), $values);
 		$sql = 'REPLACE INTO '.$this->escapeAndQuoteTable($table).' ('.implode(',', array_keys($values)).') VALUES ('.implode(',', $values).');';

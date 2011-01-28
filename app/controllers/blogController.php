@@ -14,6 +14,84 @@ class blogController extends Controller {
 		'posts_on_index' => 5,
 	);
 
+	public function unpublish_post( $post ) {
+		return $this->publish_post($post, 0);
+	}
+
+	public function publish_post( $post, $pub = null ) {
+		$post = $this->getPost($post);
+		if ( $this->user->hasAccess('blog publish') ) {
+			$post->doPublish( is_int($pub) ? $pub : 1 );
+		}
+		$this->redirect($post->url());
+	}
+
+	public function category( $category ) {
+		$category = models\Category::get($category);
+
+		$messages = Session::messages();
+		return $this->tpl->display(__METHOD__, get_defined_vars());
+	}
+
+	public function categories( $category = null ) {
+		if ( null !== $category ) {
+			return $this->category($category);
+		}
+
+		$categories = models\Category::all('1 ORDER BY category_name ASC');
+
+		$messages = Session::messages();
+		return $this->tpl->display(__METHOD__, get_defined_vars());
+	}
+
+	public function add_post() {
+		$validator = models\Post::validator('edit');
+		if ( !empty($_POST) ) {
+			if ( $validator->validate($_POST) ) {
+				$insert = $validator->output;
+				$insert['author_id'] = $this->user->UserID();
+				$insert['created_on'] = time();
+				if ( $pid = models\Post::insert($insert) ) {
+					$post = models\Post::get($pid);
+					Session::success('Post Created. Look:');
+					$this->redirect($post->url());
+				}
+				Session::error('Couldn\'t save... =( Try again!?');
+			}
+		}
+
+		$post = \row\utils\Options::make(array('new' => true));
+		$categories = models\Category::all();
+
+		$messages = Session::messages();
+
+		return $this->tpl->display(__CLASS__.'::post_form', get_defined_vars());
+	}
+
+	public function edit_post( $post ) {
+		$post = $this->getPost($post);
+		if ( !$post->canEdit() ) {
+			throw new NotFoundException('Editable post # '.$post->post_id);
+		}
+
+		$validator = models\Post::validator('edit');
+		if ( !empty($_POST) ) {
+			if ( $validator->validate($_POST) ) {
+				if ( $post->update($validator->output) ) {
+					Session::success('Post updated =) woohooo');
+					$this->redirect($post->url());
+				}
+				Session::error('Couldn\'t save... =( Try again!?');
+			}
+		}
+
+		$categories = models\Category::all();
+
+		$messages = Session::messages();
+
+		return $this->tpl->display(__CLASS__.'::post_form', get_defined_vars());
+	}
+
 	public function logout() {
 		$this->user->logout();
 		$this->redirect('/blog');
@@ -37,13 +115,13 @@ class blogController extends Controller {
 			Session::error('Sorry, buddy, that\'s not your username!');
 		}
 		$messages = Session::messages();
-		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
+		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}
 
 	public function edit_comment( $comment ) {
 		$comment = models\Comment::get($comment);
 		if ( !$comment->canEdit() ) {
-			throw new NotFoundException('Uneditable comment # '.$comment->comment_id);
+			throw new NotFoundException('Editable comment # '.$comment->comment_id);
 		}
 
 		$validator = models\Comment::validator('edit');
@@ -60,7 +138,7 @@ class blogController extends Controller {
 
 		$messages = Session::messages();
 
-		return $this->tpl->assign(get_defined_vars())->display(__CLASS__.'::comment_form');
+		return $this->tpl->display(__CLASS__.'::comment_form', get_defined_vars());
 	}
 
 	public function add_comment( $post ) {
@@ -68,7 +146,7 @@ class blogController extends Controller {
 
 		$anonymous = $this->user->isLoggedIn() ? '' : '_anonymous';
 		$validator = models\Comment::validator('add'.$anonymous);
-echo '<pre>';
+//echo '<pre>';
 //print_r($validator); exit;
 		if ( !empty($_POST) ) {
 			if ( $validator->validate($_POST, $context) ) {
@@ -77,7 +155,7 @@ echo '<pre>';
 				$insert['post_id'] = $post->post_id;
 				$insert['created_on'] = time();
 				$insert['created_by_ip'] = $_SERVER['REMOTE_ADDR'];
-print_r($insert); exit;
+//print_r($insert); exit;
 				try {
 					$cid = models\Comment::insert($insert);
 //var_dump($cid); exit;
@@ -96,7 +174,7 @@ print_r($insert); exit;
 
 		$messages = Session::messages();
 
-		return $this->tpl->assign(get_defined_vars())->display(__CLASS__.'::comment_form');
+		return $this->tpl->display(__CLASS__.'::comment_form', get_defined_vars());
 	}
 
 	public function best( $num = 900 ) {
@@ -106,23 +184,24 @@ print_r($insert); exit;
 	public function view( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
-		if ( $post->author->isUnaware() ) {
-			$post->is_published = true;
-		}
 
 		$messages = Session::messages();
 
-		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
+		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}
 
 	public function index() {
 
-		$method = $this->user->hasAccess('blog read unpublished') ? 'newest' : 'newestPublished';
+		$unpub = $this->user->hasAccess('blog read unpublished');
+		$method = $unpub ? 'newest' : 'newestPublished';
 		$posts = models\Post::$method(self::config('posts_on_index'));
+
+		$conditions = $unpub ? '' : array('is_published' => true);
+		$allPosts = models\Post::count($conditions);
 
 		$messages = Session::messages();
 
-		return $this->tpl->assign(get_defined_vars())->display(__METHOD__);
+		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}
 
 	/**

@@ -9,7 +9,7 @@ use row\database\ModelException; // model errors
 class Model extends Object {
 
 	public function __tostring() {
-		return get_class($this).' model';
+		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};
 	}
 
 	static public $_db;
@@ -30,7 +30,9 @@ class Model extends Object {
 
 	static public $_table = '';
 
-	static public $_pk = array('id');
+	static public $_pk = array();
+
+	static public $_title = '';
 
 
 	const GETTER_ONE		= 1;
@@ -94,7 +96,7 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _all( $conditions, $params = array() ) {
+	static public function _all( $conditions = '1', $params = array() ) {
 		return static::_fetch($conditions);
 	}
 
@@ -173,8 +175,12 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _replace( $values, $conditions ) {
-		return static::dbObject()->replace(static::$_table, $values, $conditions);
+	static public function _replace( $values ) {
+		return static::dbObject()->replace(static::$_table, $values);
+	}
+
+	static public function _count( $conditions = '' ) {
+		return static::dbObject()->count(static::$_table, $conditions);
 	}
 
 
