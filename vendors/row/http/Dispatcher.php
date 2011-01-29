@@ -17,15 +17,14 @@ class Dispatcher extends Object {
 	public $requestPath = false; // false means unset - will become a (might-be-empty) string
 	public $requestBasePath = ''; // The path up to the application (e.g.: /admin/ or /row/)
 
-//	public $_module = ''; // deprecated
 	public $_modulePath = '';
 	public $_controller = '';
 	public $_moduleArguments = array();
 	public $_actionPath = '';
 	public $_action = '';
-//	public $_actionFunction = ''; // deprecated
 	public $_actionArguments = array();
 
+//	public $cachedModules = array();
 	public $router; // typeof row\http\Router
 
 	public $options; // typeof row\core\Options
@@ -35,7 +34,6 @@ class Dispatcher extends Object {
 			'module_delim' => '-',
 			'default_module' => 'index',
 			'default_action' => 'index',
-//			'dispatch_order' => array('specific', 'generic', 'fallback'), // This doesn't exist anymore?
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
@@ -45,8 +43,8 @@ class Dispatcher extends Object {
 				'INT'		=> '(\d+)',
 				'STRING'	=> '([^/]+)',
 				'DATE'		=> '(\d\d\d\d\-\d\d?\-\d\d?)',
-				'ANYTHING'	=> '(.+)',
-				'VERSION'	=> '(\d+\.\d+\.\d+\)',
+//				'ANYTHING'	=> '(.+)',
+//				'VERSION'	=> '(\d+\.\d+\.\d+\)',
 			)),
 			'action_path_wildcard_aliases' => Options::make(array(
 				'#' => 'INT',
@@ -54,23 +52,45 @@ class Dispatcher extends Object {
 			)),
 			'ignore_trailing_slash' => false,
 			'case_sensitive_paths' => false,
-			// Unimplemented:
-//			'path_source' => 'REQUEST_URI', // REQUEST_URI | INDEX_PHP | QUERY_STRING | GET
-//			'path_source_get_param' => 'url',
 		));
 	}
 
 	public function __construct( $options = array() ) {
 		$defaults = static::getDefaultOptions();
 		$this->options = new Options($options, $defaults);
-		$this->_init();
+/*		$this->options->slashed_multi_module = '/' === $this->options->module_delim;
+		if ( $this->options->slashed_multi_module ) {
+			$this->cacheAllModules();
+		}*/
+		$this->_fire('init');
 	}
 
 
-	public function _init() {
-		$this->getRequestPath();
-		// Anything else? Anything??
-	}
+/*	public function cacheAllModules() {
+		if ( !$this->cachedModules ) {
+			$controllerDir = ROW_APP_PATH.'/controllers/';
+			$cdLength = strlen($controllerDir);
+			$moduleName = create_function('$file', 'return substr($file, '.strlen($this->options->module_class_prefix).', '.(-1*(4+strlen($this->options->module_class_postfix))).');');
+			$modules = array();
+			$find = function($dir) use (&$find, $moduleName, &$modules, $cdLength) {
+				$files = glob($dir);
+				foreach ( $files AS $file ) {
+					if ( is_dir($file) ) {
+						$find($file.'/*');
+					}
+					else {
+						$path = explode('/', substr($file, $cdLength));
+						$pl = count($path)-1;
+						$path[$pl] = $moduleName($path[$pl]);
+						$modules[] = str_replace('_N', '/#', implode('/', $path));
+					}
+				}
+			};
+			$find($controllerDir.'*');
+			$this->cachedModules = $modules;
+		}
+		return $this->cachedModules;
+	}*/
 
 
 	public function setRouter( \row\http\Router $router ) {
@@ -145,8 +165,11 @@ class Dispatcher extends Object {
 		$originalPath = $path;
 		$path = ltrim($path, '/');
 
-//		$p = explode('/', $path);
-//		$this->_module = $p[0];
+/*		if ( $this->options->slashed_multi_module ) {
+echo '<pre>';
+var_dump($path);
+exit;
+		}*/
 
 		// 1. Evaluate path into pieces
 		$this->evaluatePath($path);
@@ -173,25 +196,6 @@ class Dispatcher extends Object {
 					$this->evaluatePath($to);
 				}
 
-				/* if ( is_array($to) && isset($to['controller'], $to['action']) ) { // Don't evaluate URI like 'normal'
-//					$this->_module = $to['controller'];
-					$application = $this->getControllerObject($to['controller']);
-					$application->_fire('init');
-					if ( !$this->isCallableActionFunction($application, $to['action']) ) {
-						return $this->throwNotFound();
-					}
-					$this->_actionPath = $path; // Who cares?
-					$this->_actionFunction = $to['action'];
-					if ( isset($to['arguments']) ) {
-						$this->_actionArguments = (array)$to['arguments'];
-					}
-					return $application;
-				}
-				else {
-					// Just another URI, so evaluate normally
-					$path = ltrim($to, '/');
-				} */
-
 			}
 		}
 
@@ -213,12 +217,7 @@ class Dispatcher extends Object {
 				$this->evaluateActionHooks($_actions, $this->_actionPath); // Might throw 404
 			}
 			else {
-				if ( is_callable($translation = $this->options->action_name_translation) ) {
-					$this->_action = call_user_func($translation, $this->_action);
-				}
-				else {
-					$this->_action = str_replace('-', '_', $this->_action);
-				}
+				$this->_action = $this->actionFunctionTranslation($this->_action);
 			}
 		}
 
@@ -233,42 +232,56 @@ class Dispatcher extends Object {
 		return $application;
 	}
 
+	protected function moduleClassTranslation( $moduleClass ) {
+		// Custom translation
+		if ( is_callable($translation = $this->options->module_to_class_translation) ) {
+			return call_user_func($translation, $moduleClass);
+		}
+		// Default (simple) translation
+		return $this->options->module_class_prefix . $moduleClass . $this->options->module_class_postfix;
+	}
+
+	protected function actionFunctionTranslation( $actionFunction ) {
+		// Custom translation
+		if ( is_callable($translation = $this->options->action_name_translation) ) {
+			return call_user_func($translation, $actionFunction);
+		}
+		// Default (simple) translation
+		return str_replace('-', '_', $actionFunction);
+	}
+
 	protected function getControllerClassName( $module ) {
 		if ( is_int(strpos($module, '\\')) ) {
 			return $module;
 		}
 		$delim = $this->options->module_delim;
-		$moduleParts = explode($delim, $module);
-		if ( 1 < count($moduleParts) ) {
-			$args = array();
-			$mi = count($moduleParts);
-			$li = 0;
-			for ( $i=1; $i<$mi; $i++ ) {
-				$submodule = $moduleParts[$i];
-				if ( (string)(int)$submodule === $submodule ) {
-					unset($moduleParts[$i]);
-					$moduleParts[$li] .= '_N';
-					$args[] = $submodule;
+		if ( $delim ) {
+			$moduleParts = explode($delim, $module);
+			if ( 1 < count($moduleParts) ) {
+				$args = array();
+				$mi = count($moduleParts);
+				$li = 0;
+				for ( $i=1; $i<$mi; $i++ ) {
+					$submodule = $moduleParts[$i];
+					if ( (string)(int)$submodule === $submodule ) {
+						unset($moduleParts[$i]);
+						$moduleParts[$li] .= '_N';
+						$args[] = $submodule;
+					}
+					else {
+						$li = $i;
+					}
 				}
-				else {
-					$li = $i;
-				}
+				$moduleParts = array_values($moduleParts);
+				$this->_moduleArguments = $args;
 			}
-			$moduleParts = array_values($moduleParts);
-			$this->_moduleArguments = $args;
-		}
-//print_r($args);
-//print_r($moduleParts);
-		$n = count($moduleParts)-1;
-		if ( is_callable($translation = $this->options->module_to_class_translation) ) {
-			$moduleParts[$n] = call_user_func($translation, $moduleParts[$n]);
+			$n = count($moduleParts)-1;
+			$moduleParts[$n] = $this->moduleClassTranslation($moduleParts[$n]);
+			$moduleClass = implode('\\', $moduleParts);
 		}
 		else {
-			$moduleParts[$n] = $this->options->module_class_prefix . $moduleParts[$n] . $this->options->module_class_postfix;
+			$moduleClass = $this->moduleClassTranslation($module);
 		}
-		$moduleClass = implode('\\', $moduleParts);
-//var_dump($moduleClass);
-//echo "\n\n";
 		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
 		return $namespacedModuleClass;
 	}

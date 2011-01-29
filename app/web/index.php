@@ -11,6 +11,8 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 
 // Config Dispatcher
 $options = array(
+//	'module_delim' => '/',
+
 	'module_class_prefix' => '',
 	'module_class_postfix' => 'Controller',
 
