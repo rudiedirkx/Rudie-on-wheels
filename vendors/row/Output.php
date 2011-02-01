@@ -15,6 +15,7 @@ class Output extends Object {
 
 	public function __construct( $app ) {
 		$this::$application = $app;
+		$this->_fire('init');
 	}
 
 	public $extension = '.php';
@@ -104,10 +105,6 @@ class Output extends Object {
 	}
 
 
-
-	static public function markdown( $text ) {
-		return \markdown\MarkdownParser::parse((string)$text); // 'markdown' is a Vendor. Is that necessary?
-	}
 
 	static public function nl2br( $text ) {
 		return '<p>'.nl2br((string)$text).'</p>';

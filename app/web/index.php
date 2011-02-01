@@ -1,10 +1,9 @@
 <?php
 
-$_start = microtime(1);
+$_start = microtime(1); // The very first thing this request
 
-use row\http\Dispatcher;
-use row\utils\Options;
-use row\http\Router;
+use app\specs\Dispatcher; // My custom Dispatcher
+use row\utils\Options; // Necessary for not-default Dispatcher Options
 
 // Config Vendors, database, ... ?
 require(dirname(__DIR__).'/config/bootstrap.php');
@@ -18,31 +17,36 @@ $options = array(
 
 //	'default_module' => 'Ooeele',
 	'ignore_trailing_slash' => true,
-
-/*	'module_to_class_translation' => function($module) {
-//		$module = ucfirst(row\utils\Inflector::camelcase($module));
-		return $module;
-	}*/
 );
 $dispatcher = new Dispatcher($options);
 
 // Enable routes (available through config/routes.php through config/bootstrap.php)
 $dispatcher->setRouter($router);
 
+// If your web host doesn't do pretty urls (Apache's mod_rewrite), you should
+// overwrite this method so that it gets the path from $_GET (or somewhere
+// else if you'd like).
+// If your web host doesn't do pretty urls, you should probably also change `Output::url()`.
+$path = $dispatcher->getRequestPath();
+
 try {
-	$application = $dispatcher->getApplication( $dispatcher->getRequestPath() ); // typeof Controller
+
+	// `getApplication()` does all of the dispatching (except the actual dispatching).
+	$application = $dispatcher->getApplication( $path ); // typeof Controller
+
 	// Everything's checked now... Invalid URI's would be intercepted.
+
 	// All there's left to do is push the red button:
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action
 	$response = $application->_run();
-//	echo "\ndone in: ".number_format(microtime(1)-$_start, 4);
-//	print_r($_SESSION);
+
 }
 catch ( \row\http\NotFoundException $ex ) {
 	$trace = $ex->getTrace();
 	$throw = $trace[0];
 	exit('[404] Not Found: '.$ex->getMessage().' ('.(int)$throw['line'].')');
 }
+
 // All other exceptions SHOULD have been caught within...
 catch ( \row\database\DatabaseException $ex ) {
 	exit('[Database (sql?)] '.$ex->getMessage().'');

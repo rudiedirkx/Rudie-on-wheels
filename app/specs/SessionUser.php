@@ -20,14 +20,34 @@ use app\models;
 
 class SessionUser extends \row\auth\SessionUser {
 
+	/**
+	 * This could be anything. It defaults to "return false;" because
+	 * Access & Validation are different in every app.
+	 *	Note: Access doesn't have to come from a database. It can come
+	 * from the environment: the IP address, the request method, the
+	 * given $salt (a session specific secret; automatically and always
+	 * created).
+	 *	Note: This function is incredibly useful to put both ACL and evironment
+	 * control in, because it's so tightly linked to a controller's ACL and
+	 * doesn't need a valid (authenticated) User to work. (You can ALWAYS use
+	 * SessionUser, even when your app doesn't even have logins or even
+	 * authenticated users.)
+	 */
 	public function hasAccess( $zone ) {
 		return $this->isLoggedIn() && ( in_array(strtolower($zone), $this->user->acl) || in_array('everything', $this->user->acl) );
 	}
 
+	/**
+	 * You might add a translation here... E.g. Output::translate('Anonymous')
+	 */
 	public function displayName() {
 		return $this->isLoggedin() ? (string)$this->user->full_name : 'Anonymous';
 	}
 
+	/**
+	 * If your authentication process required database records for authed
+	 * users, you should DELETE that db row here.
+	 */
 	public function logout() {
 		if ( $this->isLoggedIn() ) {
 			array_pop(Session::$session['logins']);
@@ -35,7 +55,15 @@ class SessionUser extends \row\auth\SessionUser {
 		}
 	}
 
+	/**
+	 * You can only log in a Model. Why? Consistency.
+	 *	An authenticated user means a database record. That db record
+	 * should have a Model. The model shouldn't have a login method
+	 * because it knows nothing of the environment.
+	 */
 	public function login( \row\database\Model $user ) {
+		// In this case I use the base login method, but you don't have to.
+		// You can put whatever you want in the database and/or session...
 		$login = parent::login($user);
 		extract($login); // Extracts arrays $login and $insert
 
@@ -51,19 +79,20 @@ class SessionUser extends \row\auth\SessionUser {
 		return true; // Why would this ever be false??
 	}
 
+	/**
+	 * This validation is not great, but well enough. The Session
+	 * environment has already been validated, so all you need is a
+	 * valid user ID.
+	 */
 	public function validate() {
 		$login = parent::validate();
-//print_r($login);
 		if ( is_array($login) && isset($login['user_id'], $login['salt']) ) {
 			try {
 				$this->user = models\User::get($login['user_id']);
 				$this->salt = $login['salt'];
-//				$this->id = $this->user->user_id;
-//				$this->name = $this->user->full_name;
 			}
 			catch ( \Exception $ex ) {}
 		}
-//print_r($this);
 	}
 
 }
