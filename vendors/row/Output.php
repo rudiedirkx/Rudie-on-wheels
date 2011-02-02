@@ -5,6 +5,18 @@ namespace row;
 use row\core\Object;
 use row\utils\Options;
 
+/**
+ * Only very basic unprerequisited functionality in the base
+ * Output class. Application and personal specific methods
+ * can/should be added in the (always present!!) application's
+ * Output extension (e.g. app\specs\Output).
+ * 
+ * This class is far from decent and is not done! Although
+ * outside functionality/api probably won't change.
+ * For one: more helpers should be added. (Remember to steal
+ * some from Smarty.)
+ */
+
 class Output extends Object {
 
 	public function __tostring() {

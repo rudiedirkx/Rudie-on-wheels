@@ -5,6 +5,14 @@ namespace row;
 use row\core\Object;
 use row\utils\Options;
 
+/**
+ * All Dispatcher functionality is in the Dispatcher (hey!) so the
+ * only thing the Controller does, is run itself.
+ * 
+ * Also it contains some helper functions (like redirect) and the
+ * application's base Controller will probably contain many more.
+ */
+
 class Controller extends Object {
 
 	public function __tostring() {
@@ -12,19 +20,18 @@ class Controller extends Object {
 	}
 
 	public $_dispatcher;
-	public $_executable = false;
-	public $_action = '';
-	public $_arguments = array();
-	static protected $_actions = false; // Must be Array
+//	public $_action = ''; // deprecated
+//	public $_arguments = array(); // deprecated
+
+	static protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
 	static protected $config = array();
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
 		$this->_uri = $this->_dispatcher->requestPath;
-//		$this->_action = $dispatcher->_action;
-//		$this->_arguments = $dispatcher->_arguments;
-//		$this->_fire('init'); // This seems premature then as well...
+//		$this->_action = $dispatcher->_action; // deprecated
+//		$this->_arguments = $dispatcher->_arguments; // deprecated
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
 	}
@@ -34,7 +41,7 @@ class Controller extends Object {
 	}
 
 	public function _run() { // Always return the Action's return value, so no argument needed
-		$this->_arguments = $this->_dispatcher->_moduleArguments;
+//		$this->_arguments = $this->_dispatcher->_moduleArguments; // deprecated
 		$this->_fire('pre_action');
 		$r = call_user_func_array(array($this, $this->_dispatcher->_action), $this->_dispatcher->_actionArguments);
 		$this->_fire('post_action');
