@@ -30,8 +30,8 @@ abstract class SessionUser extends Object {
 		// Alter _SESSION
 		$login = array(
 			'user_id' => 0,
-			'unicheck' => rand(0, 99999999999),
-			'salt' => rand(1000000, 9999999),
+			'unicheck' => (string)rand(0, 99999999999),
+			'salt' => (string)rand(1000000, 9999999),
 			'vars' => array(),
 		);
 		// Add session record in db?
@@ -118,7 +118,7 @@ abstract class SessionUser extends Object {
 	}
 
 	public function userID() {
-		return $this->isLoggedin() ? (int)$this->user->user_id : 0;
+		return 0;
 	}
 
 	public function __tostring() {

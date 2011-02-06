@@ -1,6 +1,6 @@
 <?php
 
-namespace row\utils;
+namespace row\core;
 
 use row\core\Object;
 
@@ -12,7 +12,7 @@ class Options extends Object {
 
 	static public function make( $options, Options $defaults = null ) {
 		if ( !is_a($options, 'Options') ) {
-			$options = new Options((array)$options, $defaults);
+			$options = new static((array)$options, $defaults);
 		}
 		return $options;
 	}

@@ -1,5 +1,5 @@
 
-<h1><?=$this->title('Posts')?> <smaller>(<a href="<?=$this::url('blog/add_post')?>">new</a>)</smaller></h1>
+<h1><?=$this->title('Posts')?><?if ($app->user->hasAccess('blog create posts')):?> <smaller>(<a href="<?=$this::url('blog/add_post')?>">new</a>)</smaller><?endif?></h1>
 
 <p>Showing <?=count($posts)?> newest of <?=$allPosts?> posts...</p>
 
@@ -13,7 +13,3 @@
 	</article>
 
 <?endforeach?>
-
-<!-- <pre>
-<? print_r($posts) ?>
-</pre> -->

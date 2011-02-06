@@ -3,8 +3,7 @@
 namespace row\http;
 
 use row\core\Object;
-use row\utils\Options;
-//use row\core\Vendors;
+use row\core\Options;
 
 class NotFoundException extends \RowException { } // Where to put this?
 

@@ -3,7 +3,8 @@
 namespace row;
 
 use row\core\Object;
-use row\utils\Options;
+use row\core\Options;
+use row\auth\ControllerACL;
 
 /**
  * All Dispatcher functionality is in the Dispatcher (hey!) so the
@@ -30,10 +31,25 @@ class Controller extends Object {
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
 		$this->_uri = $this->_dispatcher->requestPath;
+
 //		$this->_action = $dispatcher->_action; // deprecated
 //		$this->_arguments = $dispatcher->_arguments; // deprecated
+
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
+	}
+
+	// Easily overwritable (to remove or extend below functionality)
+	protected function _init() {
+		$this->acl = new ControllerACL($this);
+	}
+
+	protected function _pre_action() {
+		$this->acl->check($this->_dispatcher->_action);
+	}
+
+	protected function _post_action() {
+		
 	}
 
 	public function _getActionPaths() {

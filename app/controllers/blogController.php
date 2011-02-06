@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use row\core\Options;
 use app\specs\Controller;
+use app\specs\ControllerACL;
 use row\http\NotFoundException;
 use app\models;
 use row\utils\Inflector;
@@ -13,6 +15,13 @@ class blogController extends Controller {
 	static public $config = array(
 		'posts_on_index' => 5,
 	);
+
+	protected function _init() {
+		parent::_init();
+		$this->acl = new ControllerACL($this);
+		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));
+		$this->acl->add('blog create posts', 'add_post');
+	}
 
 	// A Action port to the publish function that does practically the same
 	public function unpublish_post( $post ) {
@@ -54,7 +63,7 @@ class blogController extends Controller {
 	// Form is (manually) 'built' in the template
 	// Validation from the Post Model
 	public function add_post() {
-		$validator = models\Post::validator('edit');
+		$validator = models\Post::validator('add');
 		if ( !empty($_POST) ) {
 			if ( $validator->validate($_POST) ) {
 				$insert = $validator->output;
@@ -69,8 +78,8 @@ class blogController extends Controller {
 			}
 		}
 
-		$post = \row\utils\Options::make(array('new' => true));
-		$categories = models\Category::all();
+		$post = Options::make(array('new' => true));
+		$categories = $validator->options->categories;
 
 		$messages = Session::messages();
 
@@ -190,7 +199,7 @@ class blogController extends Controller {
 			}
 		}
 
-		$comment = \row\utils\Options::make(array('new' => true));
+		$comment = Options::make(array('new' => true));
 
 		$messages = Session::messages();
 
@@ -259,7 +268,9 @@ echo '<pre>'.time()."\n";
 	protected function getPost( $post ) {
 		try {
 			$method = $this->user->hasAccess('blog read unpublished') ? 'get' : 'getPublishedPost';
-			return models\Post::$method($post); // does this work? Post::$method might (syntactically) just as well be a property
+			$post = models\Post::$method($post);
+//			$post = models\Post::get($post);
+			return $post;
 		}
 		catch ( \Exception $ex ) {
 			throw new NotFoundException('Blog post # '.$post);

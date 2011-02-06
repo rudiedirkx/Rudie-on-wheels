@@ -3,7 +3,7 @@
 namespace row;
 
 use row\core\Object;
-use row\utils\Options;
+use row\core\Options;
 
 /**
  * Only very basic unprerequisited functionality in the base

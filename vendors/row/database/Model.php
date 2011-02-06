@@ -52,16 +52,12 @@ class Model extends Object {
 	 * Enables calling of Post::update with defined function _update
 	 */
 	static public function __callStatic( $func, $args ) {
-//		static $n = 0;
-//		$n++;
 		if ( '_' != $func{0} ) {
 			$func = '_'.$func;
 		}
 		if ( !method_exists(get_called_class(), $func) ) {
 			throw new \row\database\ModelException('Methodo "'.$func.'" no existo!');
 		}
-//var_dump($func);
-//if ( 10 <= $n ) exit;
 		return call_user_func_array(array('static', $func), $args);
 	} // END __callStatic() */
 

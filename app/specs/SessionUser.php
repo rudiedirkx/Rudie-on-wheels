@@ -34,6 +34,14 @@ class SessionUser extends \row\auth\SessionUser {
 	 * authenticated users.)
 	 */
 	public function hasAccess( $zone ) {
+		switch ( $zone ) {
+			case 'logged in':
+				return $this->isLoggedIn();
+			case 'method post':
+				return 'POST' === $_SERVER['HTTP_METHOD'];
+			case 'check salt':
+				return isset($_GET['salt']) && $this->salt === $_GET['salt'];
+		}
 		return $this->isLoggedIn() && ( in_array(strtolower($zone), $this->user->acl) || in_array('everything', $this->user->acl) );
 	}
 
@@ -80,7 +88,7 @@ class SessionUser extends \row\auth\SessionUser {
 	}
 
 	/**
-	 * This validation is not great, but well enough. The Session
+	 * This validation is not great, but good enough. The Session
 	 * environment has already been validated, so all you need is a
 	 * valid user ID.
 	 */
@@ -93,6 +101,14 @@ class SessionUser extends \row\auth\SessionUser {
 			}
 			catch ( \Exception $ex ) {}
 		}
+	}
+
+	/**
+	 * Only you know where a User's ID is found, so userID() is extended
+	 * from the base SessionUser class.
+	 */
+	public function userID() {
+		return $this->isLoggedin() ? (int)$this->user->user_id : 0;
 	}
 
 }

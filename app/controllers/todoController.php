@@ -9,7 +9,7 @@ use app\specs\Output;
 class todoController extends Controller {
 
 	protected function _pre_action() {
-		echo '<!doctype html><head><style>body{font-family:Arial,sans-serif;}code{white-space:nowrap;padding:3px;background-color:#e4e4e4;}</style></head><body>'."\n\n";
+		echo '<!doctype html><head><style>body{font-family:Arial,sans-serif;}code{white-space:nowrap;padding:3px;background-color:#e4e4e4;}</style></head><body><p><a href="'.Output::url('blog').'">Check out the example application blog!</a></p>'."\n\n";
 	}
 
 	protected function _post_action() {

@@ -3,7 +3,6 @@
 $_start = microtime(1); // The very first thing this request
 
 use app\specs\Dispatcher; // My custom Dispatcher
-use row\utils\Options; // Necessary for not-default Dispatcher Options
 
 // Config Vendors, database, ... ?
 require(dirname(__DIR__).'/config/bootstrap.php');
@@ -26,7 +25,7 @@ $dispatcher->setRouter($router);
 // If your web host doesn't do pretty urls (Apache's mod_rewrite), you should
 // overwrite this method so that it gets the path from $_GET (or somewhere
 // else if you'd like).
-// If your web host doesn't do pretty urls, you should probably also change `Output::url()`.
+// If that's the case, you should probably also change `Output::url()`.
 $path = $dispatcher->getRequestPath();
 
 try {

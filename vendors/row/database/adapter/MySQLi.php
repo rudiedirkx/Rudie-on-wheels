@@ -18,15 +18,18 @@ class MySQLi extends MySQL {
 	}
 
 	public function connected() {
+		if ( is_bool($this->_connected) ) {
+			return $this->_connected;
+		}
 		if ( !is_object($this->db) || $this->db->connect_error ) {
-			return false;
+			return $this->_connected = false;
 		}
 		try {
 			$r = $this->query('SHOW TABLES');
-			return false !== $r;
+			return $this->_connected = (false !== $r);
 		}
 		catch ( DatabaseException $ex ) {}
-		return false;
+		return $this->_connected = false;
 	}
 
 

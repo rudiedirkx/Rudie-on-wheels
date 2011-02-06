@@ -19,24 +19,26 @@ class Post extends Model {
 	);
 
 	static public function _validator( $name ) {
-		$rules['add'] = array(
-			'requireds' => array(
-				'field' => array('title', 'body'),
-				'validator' => 'notEmpty',
-				'min' => 6,
-				'message' => 'A good title/body has at least 6 chars',
-			),
+		$requireds = array(
+			'validator' => 'notEmpty',
+			'field' => array('category_id', 'title', 'body'),
+		);
+		$categories = Category::all('1 ORDER BY RAND()');
+		$category = array(
+			'validator' => 'oneOfOptions',
+			'field' => 'category_id',
+			'options' => $categories,
+		);
+		$filling = array(
+			'validator' => 'notEmpty',
+			'field' => array('title', 'body'),
+			'min' => 4,
 		);
 
-		$rules['edit'] = $rules['add'];
-
-		if ( null === $name ) {
-			return $rules;
-		}
-		else if ( isset($rules[$name]) ) {
-			return new Validator($rules[$name], array(
-				'model' => get_called_class()
-			));
+		switch ( $name ) {
+			case 'add':
+			case 'edit':
+				return new Validator(array($requireds, $category, $filling), array('categories' => $categories));
 		}
 	}
 

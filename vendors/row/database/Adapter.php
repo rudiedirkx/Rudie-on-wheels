@@ -3,7 +3,7 @@
 namespace row\database;
 
 use row\core\Object;
-use row\utils\Options;
+use row\core\Options;
 
 abstract class Adapter extends Object {
 
@@ -28,6 +28,7 @@ abstract class Adapter extends Object {
 
 	public $queries = array();
 	protected $db;
+	protected $_connected;
 	protected $connectionArgs;
 	public $throwExceptions = true;
 	public $logErrors = false;

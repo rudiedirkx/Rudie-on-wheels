@@ -62,15 +62,18 @@ class MySQL extends SQLAdapter {
 	}
 
 	public function connected() {
+		if ( is_bool($this->_connected) ) {
+			return $this->_connected;
+		}
 		if ( !is_resource($this->db) ) {
-			return false;
+			return $this->_connected = false;
 		}
 		try {
 			$r = $this->query('SHOW TABLES');
-			return false !== $r;
+			return $this->_connected = (false !== $r);
 		}
 		catch ( DatabaseException $ex ) {}
-		return false;
+		return $this->_connected = false;
 	}
 
 	public function _post_connect() {

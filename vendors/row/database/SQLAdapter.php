@@ -3,7 +3,7 @@
 namespace row\database;
 
 use row\database\Adapter;
-use row\utils\Options;
+use row\core\Options;
 
 abstract class SQLAdapter extends Adapter {
 

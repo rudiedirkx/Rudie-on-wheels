@@ -4,7 +4,7 @@
 
 	<legend>Log in</legend>
 
-	<p>Username:<br><input name="username" /></p>
+	<p>Username:<br><input name="username" autofocus /></p>
 
 	<p><input type=submit></p>
 

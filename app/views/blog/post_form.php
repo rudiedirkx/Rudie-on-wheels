@@ -14,3 +14,7 @@
 
 </fieldset>
 </form>
+
+<pre>
+<? print_r($validator) ?>
+</pre>

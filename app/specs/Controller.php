@@ -18,7 +18,9 @@ namespace app\specs;
 
 class Controller extends \row\Controller {
 
-	public function _init() {
+	protected function _init() {
+		parent::_init();
+
 		// Make the session user always available in every controller:
 		$this->user = new SessionUser;
 

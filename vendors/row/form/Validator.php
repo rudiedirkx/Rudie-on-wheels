@@ -2,9 +2,19 @@
 
 namespace row\form;
 
-use row\utils\Options;
+use row\core\Options;
 
 class Validator extends \row\core\Object {
+
+	public function oneOfOptions( $validator, $field, $options ) {
+		if ( !isset($validator->input[$field]) ) return false;
+		$options = Options::make($options);
+		$value = $validator->input[$field];
+		$allowedValues = array_map(function($val) {
+			return is_a($val, 'row\database\Model') ? implode(',', $val->_pkValue()) : $val;
+		}, (array)$options->options);
+		return in_array($value, $allowedValues);
+	}
 
 	public function regex( $validator, $field, $options ) {
 		if ( !isset($validator->input[$field]) ) return false;

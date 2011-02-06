@@ -19,6 +19,8 @@ class Controller extends \row\Controller {
 	);
 
 	protected function _init() {
+		parent::_init();
+
 		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
 
 		$this->view = new Output($this);

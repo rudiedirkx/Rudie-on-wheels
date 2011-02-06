@@ -42,13 +42,18 @@ class PDOSQLite extends PDO {
 	public function connect() {
 		$connection = $this->connectionArgs;
 		$this->db = new \PDO('sqlite:'.$connection->path);
-		$this->db->sqliteCreateFunction('IF', array('row\database\adapter\SQLite', 'fn_if'));
-		$this->db->sqliteCreateFunction('RAND', array('row\database\adapter\SQLite', 'fn_rand'));
 		$this->_fire('post_connect');
 	}
 
 	public function connected() {
 		return is_object($this->query('SELECT 1 FROM sqlite_master'));
+	}
+
+	public function _post_connect() {
+		if ( $this->connected() ) {
+			$this->db->sqliteCreateFunction('IF', array('row\database\adapter\SQLite', 'fn_if'));
+			$this->db->sqliteCreateFunction('RAND', array('row\database\adapter\SQLite', 'fn_rand'));
+		}
 	}
 
 	public function escapeTable( $table ) {

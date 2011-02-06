@@ -81,6 +81,13 @@ class SQLite extends SQLAdapter {
 		return is_object($this->query('SELECT 1 FROM sqlite_master'));
 	}
 
+	public function _post_connect() {
+		if ( $this->connected() ) {
+			$this->db->createFunction('IF', array('row\database\adapter\SQLite', 'fn_if'));
+			$this->db->createFunction('RAND', array('row\database\adapter\SQLite', 'fn_rand'));
+		}
+	}
+
 
 	public function selectOne( $table, $field, $conditions, $params = array() ) {
 		$conditions = $this->replaceholders($conditions, $params);
