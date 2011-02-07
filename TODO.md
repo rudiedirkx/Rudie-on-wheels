@@ -2,15 +2,20 @@
 To do:
 ------
 
-0. [`APC`](http://www.php.net/manual/en/book.apc.php): Check out its uses and implement automatic, if-available form (in `Dispatcher`?)
-1. Validator: Implement $context
-1. Validator: Implement custom error message(s)<br><br>
-2. Auth: Finish Auth like started with
-3. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
-4. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the msising ErrorController (which is good).)
-5. Database: Implement the SQLite3 adapter
-6. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
+0. Views: Disable notices in Views (`error_reporting` as setting?)
+0. Views: Enable/simplify simple includes (with PHP's native `include()`) using `include_path`.<br><br>
+2. Vendors: Try [`APC`](http://www.php.net/manual/en/book.apc.php) for Vendor class locations (all those `file_exists`'s and Vendor specific closures can't be efficient).<br><br>
+4. Validator: Implement custom error message(s)<br><br>
+6. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
+6. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the msising ErrorController (which is good).)<br><br>
+8. Database: Implement the SQLite3 adapter
+8. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
 
+<br>
+
+_The following is less maintained..._
+
+<br>
 
 Debatables:
 -----------
