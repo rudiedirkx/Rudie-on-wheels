@@ -36,7 +36,7 @@ class Session extends Object {
 
 	static public function exists() {
 		$sname = ini_get('session.name');
-		$exists = isset($_COOKIE[$sname]) || isset($_POST['SID']);
+		$exists = !empty($_SESSION) || isset($_COOKIE[$sname]) || isset($_POST['SID']);
 		if ( $exists ) {
 			static::required();
 			return true;

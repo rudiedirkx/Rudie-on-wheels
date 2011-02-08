@@ -1,4 +1,9 @@
 
+<pre>
+<? var_dump(error_reporting()) ?>
+<? var_dump(get_include_path()) ?>
+</pre>
+
 <form method="post">
 <fieldset>
 

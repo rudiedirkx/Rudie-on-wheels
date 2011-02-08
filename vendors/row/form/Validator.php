@@ -18,10 +18,6 @@ class Validator extends \row\core\Object {
 		return $this->regex($validator, $field, array('pattern' => $this::$dateRegex));
 	}
 
-	public function time( $validator, $field, $options ) {
-		$validator->output[$field] = !empty($validator->input[$field]);
-	}
-
 	public function integer( $validator, $field, $options ) {
 		if ( !isset($validator->input[$field]) ) {
 			return false;

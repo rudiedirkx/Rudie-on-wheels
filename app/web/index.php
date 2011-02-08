@@ -39,6 +39,8 @@ try {
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action
 	$response = $application->_run();
 
+//	var_dump(get_include_path()); // This should be your standard, normal, not-altered include_path
+
 }
 catch ( \row\http\NotFoundException $ex ) {
 	$trace = $ex->getTrace();

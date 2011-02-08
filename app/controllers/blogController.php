@@ -78,7 +78,7 @@ class blogController extends Controller {
 			}
 		}
 
-		$post = Options::make(array('new' => true));
+//		$post = Options::make(array('new' => true));
 		$categories = $validator->options->categories;
 
 		$messages = Session::messages();

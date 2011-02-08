@@ -25,19 +25,23 @@ class Output extends Object {
 
 	static public $application;
 
-	public function __construct( $app ) {
-		$this::$application = $app;
-		$this->_fire('init');
-	}
-
+	public $errorReporting = 2039; // Don't show notices
+		public $oldErrorReporting = false;
 	public $extension = '.php';
 	public $viewsFolder = '';
+		public $oldIncludePath = false;
 	public $viewLayout = false;
 
 	public $vars = array(
 		'title' => '',
 	);
 	public $viewFile = '';
+
+	public function __construct( $app ) {
+		$this::$application = $app;
+		$this->viewsFolder = ROW_APP_PATH.'/views';
+		$this->_fire('init');
+	}
 
 	public function assign( $key, $val = null ) {
 		if ( 1 == func_num_args() ) {
@@ -94,19 +98,31 @@ class Output extends Object {
 	}
 
 	public function render( $viewLayout ) {
-//var_dump($this->viewFile);
+		// Change include_path for as short a period as possible
+		if ( false === $this->oldIncludePath ) {
+			$this->oldIncludePath = set_include_path($this->viewsFolder);
+		}
+		// Do the same for error_reporting
+		if ( false === $this->oldErrorReporting ) {
+			$this->oldErrorReporting = error_reporting($this->errorReporting);
+		}
+		// Unpack template variables
 		extract($this->vars);
+		// Render template AND layout
 		if ( false !== $viewLayout ) {
 			ob_start();
 			include($this->viewFile);
 			$content = ob_get_contents();
 			ob_end_clean();
-//exit($content);
 			$this->assign('content', $content);
 			$this->viewFile = $viewLayout;
 			return $this->render(false);
 		}
+		// Render template
 		include($this->viewFile);
+		// Quickly change the include_path & error_reporting back!
+		set_include_path($this->oldIncludePath);
+		error_reporting($this->oldErrorReporting);
 	}
 
 	public function title( $title = null ) {
