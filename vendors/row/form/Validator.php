@@ -6,6 +6,44 @@ use row\core\Options;
 
 class Validator extends \row\core\Object {
 
+	static public $dateRegex = '\d{4}\-\d\d?-\d\d?';
+
+	static public $timeRegex = '\d\d?:\d\d';
+
+	public function time( $validator, $field, $options ) {
+		return $this->regex($validator, $field, array('pattern' => $this::$timeRegex));
+	}
+
+	public function date( $validator, $field, $options ) {
+		return $this->regex($validator, $field, array('pattern' => $this::$dateRegex));
+	}
+
+	public function time( $validator, $field, $options ) {
+		$validator->output[$field] = !empty($validator->input[$field]);
+	}
+
+	public function integer( $validator, $field, $options ) {
+		if ( !isset($validator->input[$field]) ) {
+			return false;
+		}
+		$int = $validator->input[$field];
+		if ( (string)$int !== (string)(int)$int ) {
+			return false;
+		}
+		$validator->output[$field] = (int)$int;
+	}
+
+	public function number( $validator, $field, $options ) {
+		if ( !isset($validator->input[$field]) || !is_numeric($number = $validator->input[$field]) ) {
+			return false;
+		}
+		$validator->output[$field] = (float)$number;
+	}
+
+	public function boolean( $validator, $field, $options ) {
+		$validator->output[$field] = !empty($validator->input[$field]);
+	}
+
 	public function oneOfOptions( $validator, $field, $options ) {
 		if ( !isset($validator->input[$field]) ) return false;
 		$options = Options::make($options);
