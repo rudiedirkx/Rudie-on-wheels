@@ -2,6 +2,7 @@
 To do:
 ------
 
+1. Put some kind of ultra easy form builder in row\form\Validator (in \row\Form?)... And then make the Form validatable?
 2. Vendors: Try [`APC`](http://www.php.net/manual/en/book.apc.php) for Vendor class locations (all those `file_exists`'s and Vendor specific closures can't be efficient).<br><br>
 4. Validator: Implement custom error message(s)<br><br>
 6. Dispatcher: Implement fallback. How exactly? Per controller or per total? If per total: in what controller?
@@ -32,4 +33,5 @@ Debatables:
 How to:
 -------
 
+* ACL: Require access X for all actions except action Y... (How to even fetch all actions?)
 * Vendors: include unnamespaced classes like phpMarkdownExtra (created namespaced extension that references to global markdown class - what to do with multiple classes like in Zend??)
