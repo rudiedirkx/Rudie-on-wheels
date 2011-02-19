@@ -7,10 +7,6 @@ use row\core\Options;
 
 abstract class Adapter extends Object {
 
-	public function __tostring() {
-		return get_class($this).' database adapter';
-	}
-
 	static public $_adapters = array('MySQL', 'MySQLi', 'SQLite', 'PDOSQLite', /*'SQLite3', 'pgSQL', 'PDOpgSQL'*/);
 
 	/* Reflection */ // Should this be put somewhere else?

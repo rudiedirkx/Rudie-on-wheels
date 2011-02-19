@@ -11,13 +11,11 @@ tr > * { border:solid 2px #888; padding:5px; }
 
 <body>
 
-<p><a href="<?=$app->_url()?>">Sandbox Home</a></p>
+<p><a href="<?=$app->_url()?>">Scaffolding Home</a></p>
 
 <h1><?=$title?></h1>
 
-<!-- $content -->
 <?=$content?>
-<!-- end $content -->
 
 </body>
 

@@ -19,10 +19,6 @@ use row\core\Options;
 
 class Output extends Object {
 
-	public function __tostring() {
-		return 'Output';
-	}
-
 	static public $application;
 
 	public $errorReporting = 2039; // Don't show notices
@@ -33,6 +29,7 @@ class Output extends Object {
 	public $viewLayout = false;
 
 	public $vars = array(
+		'content' => '',
 		'title' => '',
 	);
 	public $viewFile = '';
@@ -67,16 +64,21 @@ class Output extends Object {
 //		}
 
 		if ( true === $tpl ) {
-			$folder = $this::$application->_dispatcher->_module;
+			// Use view of Controller+Action
+			$folder = $this::$application->_dispatcher->_modulePath;
 			$file = $this::$application->_dispatcher->_action;
 			$tpl = $folder.'/'.$file;
 		}
+		else if ( false === $tpl ) {
+			// Use no view: just the $content var
+			$tpl = $viewLayout;
+			$viewLayout = false;
+		}
 		else if ( 2 == count($view = explode('::', $tpl)) ) {
-//			print_r($view);
+			// Use given View (probably passed __METHOD__)
 			$file = $view[1];
 			$folder = explode('\\', $view[0]);
 			$folder = $folder[count($folder)-1];
-//			var_dump($folder);
 			if ( $this::$application->_dispatcher->options->module_class_prefix ) {
 				$mcp = $this::$application->_dispatcher->options->module_class_prefix;
 				$folder = substr($folder, strlen($mcp));
@@ -85,11 +87,13 @@ class Output extends Object {
 				$mcp = $this::$application->_dispatcher->options->module_class_postfix;
 				$folder = substr($folder, 0, -1*strlen($mcp));
 			}
-//			var_dump($folder);
-//			print_r($this::$application);
 			$tpl = $folder.'/'.$file;
 		}
-		$this->viewFile = $this->viewsFolder.'/'.$tpl.$this->extension;
+		else {
+			// Use $tpl literally
+		}
+
+		$this->viewFile = $this->viewsFolder.'/'.$tpl /*.$this->extension*/;
 		$this->render($viewLayout);
 
 //		if ( isset($oldViewLayout) ) {
@@ -111,7 +115,7 @@ class Output extends Object {
 		// Render template AND layout
 		if ( false !== $viewLayout ) {
 			ob_start();
-			include($this->viewFile);
+			include($this->viewFile.$this->extension);
 			$content = ob_get_contents();
 			ob_end_clean();
 			$this->assign('content', $content);
@@ -119,7 +123,7 @@ class Output extends Object {
 			return $this->render(false);
 		}
 		// Render template
-		include($this->viewFile);
+		include($this->viewFile.$this->extension);
 		// Quickly change the include_path & error_reporting back!
 		set_include_path($this->oldIncludePath);
 		error_reporting($this->oldErrorReporting);

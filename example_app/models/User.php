@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\specs\Model;
+use row\utils\Inflector;
 
 class User extends Model {
 
@@ -15,6 +16,10 @@ class User extends Model {
 	);
 
 	static public $_user_accesses = array(); // I save this statically, because it MIGHT happen there are more than 1 User objects per unique user =(
+
+	public function url() {
+		return 'blog/user/'.$this->user_id.'/'.Inflector::slugify((string)$this);
+	}
 
 	public function hasAccess( $zone ) {
 		// If this user is (the same one as) the SessionUser->user, don't get this from the database, but from the session (HOW??)
@@ -49,6 +54,10 @@ class User extends Model {
 	public function getAccessZones() {
 		$iGroupId = $this->getGroupId();
 		return self::dbObject()->selectFieldsNumeric('group_access ga, access_zones az', 'access_zone', 'ga.access_zone_id = az.access_zone_id AND ga.access_group_id = ?', array($iGroupId));
+	}
+
+	public function __tostring() {
+		return $this->full_name;
 	}
 
 }

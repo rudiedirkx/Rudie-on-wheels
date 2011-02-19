@@ -3,7 +3,7 @@
 define( 'ROW_PATH', dirname(dirname(__DIR__)) ); // Absolute root
 define( 'ROW_VENDORS_PATH', ROW_PATH.'/vendors' ); // Folders with all the vendor folders
 define( 'ROW_VENDOR_ROW_PATH', ROW_VENDORS_PATH.'/row' ); // The folder for the framework vendor Rudie On Wheels
-define( 'ROW_APP_PATH', ROW_PATH.'/app' ); // The application root
+define( 'ROW_APP_PATH', ROW_PATH.'/example_app' ); // The application root
 
 // core classes
 require(ROW_VENDOR_ROW_PATH.'/core/Object.php');

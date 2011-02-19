@@ -9,10 +9,6 @@ class NotFoundException extends \RowException { } // Where to put this?
 
 class Dispatcher extends Object {
 
-	public function __tostring() {
-		return 'Dispatcher';
-	}
-
 	public $requestPath = false; // false means unset - will become a (might-be-empty) string
 	public $requestBasePath = ''; // The path up to the application (e.g.: /admin/ or /row/)
 

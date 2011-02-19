@@ -27,7 +27,7 @@ class Controller extends \row\Controller {
 		// Initialize Output/Views (used in 90% of controller actions):
 		$this->tpl = new Output($this);
 		$this->tpl->viewsFolder = ROW_APP_PATH.'/views';
-		$this->tpl->viewLayout = ROW_APP_PATH.'/views/_layout.php';
+		$this->tpl->viewLayout = '_blogLayout';
 		$this->tpl->assign('app', $this);
 
 		// Might come in handy sometimes: direct access to the DBAL:

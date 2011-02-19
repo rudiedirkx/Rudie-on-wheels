@@ -16,10 +16,6 @@ use row\auth\ControllerACL;
 
 class Controller extends Object {
 
-	public function __tostring() {
-		return 'Controller';
-	}
-
 	public $_dispatcher;
 //	public $_action = ''; // deprecated
 //	public $_arguments = array(); // deprecated

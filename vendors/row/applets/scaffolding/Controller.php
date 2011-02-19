@@ -25,7 +25,7 @@ class Controller extends \row\Controller {
 
 		$this->view = new Output($this);
 		$this->view->viewsFolder = __DIR__.'/views';
-		$this->view->viewLayout = __DIR__.'/views/_layout.php';
+		$this->view->viewLayout = __DIR__.'/views/_layout';
 		$this->view->assign('app', $this);
 	}
 

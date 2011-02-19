@@ -36,7 +36,7 @@ class Output extends \row\Output {
 	}
 
 	static public function ajaxlink( $text, $path, $options = array() ) {
-		$options['onlick'] = 'return $(this).openInAjaxPopup();';
+		$options['onclick'] = 'return openInAjaxPopup(this.href);';
 		return static::link($text, $path, $options);
 	}
 

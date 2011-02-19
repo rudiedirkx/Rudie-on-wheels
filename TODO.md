@@ -8,11 +8,6 @@ To do:
 8. Database: Implement the SQLite3 adapter
 8. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
 
-<br>
-
-_The following is less maintained..._
-
-<br>
 
 Debatables:
 -----------

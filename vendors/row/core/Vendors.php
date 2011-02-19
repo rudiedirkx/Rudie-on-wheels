@@ -26,7 +26,7 @@ class Vendors {
 	}
 	static public function cachePut( $class, $file ) {
 //var_dump(__METHOD__);
-		if ( function_exists('apc_store') ) {
+		if ( function_exists('apc_store') && !isset(static::$cache[$class]) ) {
 			static::$cache[$class] = $file;
 			apc_store(static::cacheKey(), static::$cache);
 		}

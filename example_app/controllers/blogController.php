@@ -13,7 +13,7 @@ use row\auth\Session;
 class blogController extends Controller {
 
 	static public $config = array(
-		'posts_on_index' => 5,
+		'posts_on_index' => 3,
 	);
 
 	protected function _init() {
@@ -21,6 +21,17 @@ class blogController extends Controller {
 		$this->acl = new ControllerACL($this);
 		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));
 		$this->acl->add('blog create posts', 'add_post');
+	}
+
+	public function user( $id ) {
+		try {
+			$user = models\User::get($id);
+		}
+		catch ( \Exception $ex ) {
+			throw new NotFoundException('User # '.$id);
+		}
+
+		return $this->tpl->display(__METHOD__, get_defined_vars(), false); // Show only View, no Layout
 	}
 
 	// A Action port to the publish function that does practically the same
@@ -180,6 +191,9 @@ class blogController extends Controller {
 		if ( !empty($_POST) ) {
 			if ( $validator->validate($_POST, $context) ) {
 				$insert = $validator->output;
+				if ( !$this->user->isLoggedIn() && isset($context['user']) ) {
+					$this->user->login($context['user']);
+				}
 //print_r($insert); print_r($context); exit;
 				$insert['post_id'] = $post->post_id;
 				$insert['created_on'] = time();
@@ -196,6 +210,9 @@ class blogController extends Controller {
 				catch ( \Exception $ex ) {
 					Session::error('Didn\'t save... Try again!?');
 				}
+			}
+			else {
+				Session::error('See input errors below:');
 			}
 		}
 
@@ -223,7 +240,7 @@ class blogController extends Controller {
 
 	// Two ways to get the right posts. Access is called within the Controller, not
 	// the Model, because the Model doesn't have (as direct) access to the SessionUser.
-	public function index() {
+	public function index( $page = 1 ) {
 
 		// Way 1
 		// Define which get method to use to fetch Posts by checking ACL
@@ -235,7 +252,7 @@ class blogController extends Controller {
 		// Way 2
 		// Define the difference in conditions here (instead of in the Model)
 		$conditions = $unpub ? '' : array('is_published' => true);
-		$allPosts = models\Post::count($conditions);
+		$numAllPosts = models\Post::count($conditions);
 
 		// Way 3
 		// A third way would be a combination like this:
@@ -255,11 +272,11 @@ class blogController extends Controller {
 	 * This method is actually never called from the blog... Just playing with the super-Models.
 	 */
 	public function comment( $id ) {
-echo '<pre>'.time()."\n";
+echo '<pre>time() = '.time()."\n";
 		$comment = models\Comment::get($id);
 		$update = $comment->update(array('created_on' => time())); // no placeholder stuff here!
+		echo "Affected: ";
 		var_dump($update);
-		var_dump($this->db->affectedRows());
 		print_r($comment);
 	}
 

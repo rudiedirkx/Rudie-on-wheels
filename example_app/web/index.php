@@ -48,8 +48,15 @@ try {
 }
 catch ( \row\http\NotFoundException $ex ) {
 	$trace = $ex->getTrace();
-	$throw = $trace[0];
-	exit('[404] Not Found: '.$ex->getMessage().' ('.(int)$throw['line'].')');
+/*	$location = '?';
+	foreach ( $trace AS $lvl ) {
+		if ( isset($lvl['line']) ) {
+			$location = 'in file '.basename($lvl['file']).' on line '.$lvl['line'];
+			break;
+		}
+	}*/
+echo '<!-- '.print_r($trace, 1).' -->';
+	exit('[404] Not Found: '.$ex->getMessage() /*.' ('.$location.')'*/ );
 }
 
 // All other exceptions SHOULD have been caught within...

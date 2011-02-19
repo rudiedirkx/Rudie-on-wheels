@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Genereertijd: 28 Jan 2011 om 21:47
+-- Genereertijd: 19 Feb 2011 om 18:36
 -- Serverversie: 5.1.36
 -- PHP-Versie: 5.3.0
 
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `created_on` int(10) unsigned NOT NULL,
   `created_by_ip` varchar(40) NOT NULL DEFAULT '',
   PRIMARY KEY (`comment_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `comments`
@@ -72,7 +72,13 @@ INSERT INTO `comments` (`comment_id`, `author_id`, `post_id`, `comment`, `create
 (8, 5, 5, 'editable si?', 1295803928, '127.0.0.1'),
 (11, 5, 5, 'Nechte commentaaar!', 1296006448, '127.0.0.1'),
 (14, 1, 5, 'een nieuwetje om te testen', 1296174825, '127.0.0.1'),
-(18, 1, 4, 'Het is nog veel makkelijker dan dat tegenwoordig.\r\n\r\nHet enige dat je hoeft te doen is een route maken naar de goede controller:\r\n\r\n    $router->add(''/crud'', array(''controller'' => ''row\\\\applets\\\\sandboxController'')); // of waar je controller ook staat\r\n\r\nThat''s it! Alle URLs die beginnen met /crud, worden nu naar die (applet!) crontroller gestuurd.\r\n\r\nKewl =)', 1296246050, '127.0.0.1');
+(18, 1, 4, 'Het is nog veel makkelijker dan dat tegenwoordig.\r\n\r\nHet enige dat je hoeft te doen is een route maken naar de goede controller:\r\n\r\n    $router->add(''/crud'', array(''controller'' => ''row\\\\applets\\\\sandboxController'')); // of waar je controller ook staat\r\n\r\nThat''s it! Alle URLs die beginnen met /crud, worden nu naar die (applet!) crontroller gestuurd.\r\n\r\nKewl =)', 1296246050, '127.0.0.1'),
+(19, 2, 5, 'dit is een comment', 1296258384, '127.0.0.1'),
+(20, 2, 4, 'ff ene commentje', 1298136214, '127.0.0.1'),
+(21, 2, 4, 'setUser dus...\r\n\r\nen ginne username oder passowrd nodigt!', 1296258675, '127.0.0.1'),
+(22, 4, 16, 'not logged in right now...', 1298136291, '127.0.0.1'),
+(23, 4, 16, 'STILL not logged in!?!?', 1298136650, '127.0.0.1'),
+(24, 4, 16, 'Okay, fiew, that worked...', 1298136672, '127.0.0.1');
 
 -- --------------------------------------------------------
 
@@ -132,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `created_on` int(10) unsigned NOT NULL DEFAULT '0',
   `is_published` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`post_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 --
 -- Gegevens worden uitgevoerd voor tabel `posts`
@@ -142,9 +148,10 @@ INSERT INTO `posts` (`post_id`, `category_id`, `author_id`, `title`, `body`, `cr
 (1, 1, 1, 'testbericht', 'dit is een testbericht wihii', 1295467772, 1),
 (2, 1, 1, 'nog ene', 'nog een testbericht', 1295454158, 0),
 (3, 1, 1, 'Numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1295404557, 1),
-(4, 1, 1, 'Via sandbox', 'Al is sandbox misschien niet de goede naam... Scaffolding heet het volgens mij =)\r\n\r\nZou het ook CRUD kunnen noemen. Dat is het namelijk.\r\n\r\nMaakt niet uit. Is twee mapjes en een reference veranderen.', 1427482639, 1),
-(5, 1, 3, 'Nog een via de nieuwe scaffolding toolz', 'De scaffolding toolz is errug handig, want zo kan je makkelijk een paar posts invoeren en veranderen en het is 1000 miljard keer zo snel als - gaat ie het zeggen? jaaa hij gaat het zeggen - phpMyAdmin. - **aaaaaah**', 3784836182, 1),
-(6, 2, 5, 'nieuwe titel ouwe', 'Dus is de de niewste?', 1296231871, 1);
+(4, 1, 1, 'Via sandbox', 'Al is sandbox misschien niet de goede naam... Scaffolding heet het volgens mij =)\r\n\r\nZou het ook CRUD kunnen noemen. Dat is het namelijk.\r\n\r\nMaakt niet uit. Is twee mapjes en een reference veranderen.', 1296961522, 1),
+(5, 1, 3, 'Nog een via de nieuwe scaffolding toolz', 'De scaffolding toolz is errug handig, want zo kan je makkelijk een paar posts invoeren en veranderen en het is 1000 miljard keer zo snel als - gaat ie het zeggen? jaaa hij gaat het zeggen - phpMyAdmin. - **aaaaaah**', 1296961521, 1),
+(6, 2, 5, 'nieuwe titel ouwe', 'Dus is de de niewste?', 1296231871, 1),
+(16, 3, 1, 'front-end...', '...is almost as cool as\r\n\r\n_back-end_\r\n\r\nwink wink', 1296964295, 1);
 
 -- --------------------------------------------------------
 

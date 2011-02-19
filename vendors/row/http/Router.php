@@ -7,10 +7,6 @@ use row\core\Options;
 
 class Router extends Object {
 
-	public function __tostring() {
-		return 'Router';
-	}
-
 	public $routes = array();
 
 	public $dispatcher;
