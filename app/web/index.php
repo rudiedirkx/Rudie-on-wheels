@@ -11,6 +11,8 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 $options = array(
 //	'module_delim' => '/',
 
+	'fallback_module' => 'fallback',
+
 	'module_class_prefix' => '',
 	'module_class_postfix' => 'Controller',
 

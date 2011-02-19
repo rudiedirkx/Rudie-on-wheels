@@ -7,6 +7,9 @@ $router = new Router;
 
 
 
+// Define a fallback controller (any type)
+$router->add('/fallback/', array('controller' => 'app\\controllers\\fallbax'));
+
 // To an applet
 $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
 

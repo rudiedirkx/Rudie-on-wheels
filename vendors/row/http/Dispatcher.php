@@ -32,6 +32,7 @@ class Dispatcher extends Object {
 		return Options::make(array(
 			'module_delim' => '-',
 			'default_module' => 'index',
+			'fallback_module' => false,
 			'default_action' => 'index',
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
@@ -120,8 +121,7 @@ class Dispatcher extends Object {
 	public function getApplication( $f_path ) {
 		$application = $this->getController($f_path);
 		if ( !is_a($application, 'row\Controller') ) {
-			$class = $this->options->not_found_exception;
-			throw new $class($f_path);
+			$this->throwNotFound();
 		}
 
 		// Yuck!
@@ -157,7 +157,7 @@ class Dispatcher extends Object {
 				return true;
 			}
 		}
-		$this->throwNotFound();
+		$this->tryFallback();
 	}
 
 	public function getController( $path, $routes = true ) {
@@ -180,6 +180,7 @@ exit;
 		// 7. We now know if this path can be dispatched... Run or throw 404
 //echo '<pre>';
 
+		$dontEvalActionHooks = false;
 		if ( $routes && $this->router ) {
 //			$path != '' || $path = '/';
 			if ( $to = $this->router->resolve($path) ) {
@@ -208,6 +209,12 @@ exit;
 
 		// 5. 
 		$application = $this->getControllerObject($this->_controller);
+/*
+		return $this->initControllerObject($application, $dontEvalActionHooks);
+	}
+
+	function initControllerObject( $application, $dontEvalActionHooks = false ) {
+*/
 		$application->_fire('init');
 
 		// 6. 
@@ -222,11 +229,8 @@ exit;
 
 		// 7. 
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
-			return $this->throwNotFound();
+			return $this->tryFallback();
 		}
-
-//print_r($application);
-//exit;
 
 		return $application;
 	}
@@ -287,8 +291,8 @@ exit;
 
 	protected function getControllerObject( $module, $eval = true ) {
 		$namespacedModuleClass = !$eval ? $module : $this->getControllerClassName($module);
-		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it and its dependancies/parents
-			return $this->throwNotFound();
+		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it
+			return $this->tryFallback();
 		}
 		$application = new $namespacedModuleClass($this);
 		return $application;
@@ -301,6 +305,15 @@ exit;
 	protected function throwNotFound() {
 		$exceptionClass = $this->options->not_found_exception;
 		throw new $exceptionClass($this->requestPath);
+	}
+
+	protected function tryFallback() {
+		static $firstTime = true;
+		if ( $firstTime && $this->options->fallback_module ) {
+			$firstTime = false;
+			return $this->getApplication($this->options->fallback_module.$this->requestPath);
+		}
+		$this->throwNotFound();
 	}
 
 
