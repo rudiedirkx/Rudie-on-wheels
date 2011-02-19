@@ -16,6 +16,11 @@ class todoController extends Controller {
 		echo "\n\n".'</body></html>';
 	}
 
+	public function flush() {
+		// flush APC class cache
+		\Vendors::cacheClear();
+	}
+
 	public function issue( $n = 0 ) {
 		echo 'Show TODO issue # '.$n.' here...';
 	}

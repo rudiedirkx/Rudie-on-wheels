@@ -35,6 +35,14 @@ class Router extends Object {
 		}
 	}
 
+	public function redirect( $goto ) {
+		if ( 'http' != substr($goto, 0, 4) && '/' != substr($goto, 0, 1) ) {
+			$goto = $this->dispatcher->requestBasePath.'/'.$goto;
+		}
+		header('Location: '.$goto);
+		exit;
+	}
+
 	public function resolveRoute( $route, $path ) {
 		$route = (object)$route;
 		$from = '/'.trim($route->from, '^ /');
@@ -52,8 +60,7 @@ class Router extends Object {
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
 				if ( $options->redirect ) {
-					header('Location: '.$goto);
-					exit;
+					return $this->redirect($goto);
 				}
 				return $goto;
 			}

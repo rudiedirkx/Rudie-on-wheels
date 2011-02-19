@@ -14,7 +14,7 @@ $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\C
 $router->add('/posts', array('controller' => 'app\\controllers\\blogController'));
 
 // (1) This is how simple it **can** be
-$router->add('/$', '/todo', array('redirect' => true));
+$router->add('/$', 'todo', array('redirect' => true));
 
 // (2) Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
 $router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
