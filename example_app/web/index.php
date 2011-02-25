@@ -43,7 +43,7 @@ try {
 
 //	var_dump(get_include_path()); // This should be your standard, normal, not-altered include_path
 
-//	echo "\n\n".number_format(microtime(1) - $_start, 4);
+	echo "\n\n".number_format(microtime(1) - $_start, 4);
 
 }
 catch ( \row\http\NotFoundException $ex ) {

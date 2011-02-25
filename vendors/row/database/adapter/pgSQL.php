@@ -67,16 +67,16 @@ class pgSQL extends SQLAdapter {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->query($query);
-		if ( !$r || 0 >= mysql_num_rows($r) ) {
+		if ( !$r || 0 >= pg_num_rows($r) ) {
 			return false;
 		}
-		return mysql_result($r, 0);
+		return pg_fetch_result($r, 0, 0);
 	}
 
 	public function countRows( $query ) {
 		$r = $this->query($query);
 		if ( $r ) {
-			return mysql_num_rows($r);
+			return pg_num_rows($r);
 		}
 		return false;
 	}
@@ -87,7 +87,7 @@ class pgSQL extends SQLAdapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_assoc($r) ) {
+		while ( $l = pg_fetch_assoc($r) ) {
 			$a[$l[$field]] = $l;
 		}
 		return $a;
@@ -99,7 +99,7 @@ class pgSQL extends SQLAdapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = pg_fetch_row($r) ) {
 			$a[$l[0]] = $l[1];
 		}
 		return $a;
@@ -111,7 +111,7 @@ class pgSQL extends SQLAdapter {
 			return false;
 		}
 		$a = array();
-		while ( $l = mysql_fetch_row($r) ) {
+		while ( $l = pg_fetch_row($r) ) {
 			$a[] = $l[0];
 		}
 		return $a;
@@ -127,18 +127,18 @@ class pgSQL extends SQLAdapter {
 		}
 		if ( $justFirst ) {
 			if ( $class ) {
-				return mysql_fetch_object($r, $class);
+				return pg_fetch_object($r, null, $class);
 			}
-			return mysql_fetch_assoc($r);
+			return pg_fetch_assoc($r);
 		}
 		$a = array();
 		if ( $class ) {
-			while ( $l = mysql_fetch_object($r, $class) ) {
+			while ( $l = pg_fetch_object($r, null, $class) ) {
 				$a[] = $l;
 			}
 		}
 		else {
-			while ( $l = mysql_fetch_assoc($r) ) {
+			while ( $l = pg_fetch_assoc($r) ) {
 				$a[] = $l;
 			}
 		}
@@ -146,7 +146,7 @@ class pgSQL extends SQLAdapter {
 	}
 
 	public function query( $query ) {
-		$q = mysql_query($query, $this->db);
+		$q = pg_query($query, $this->db);
 		if ( !$q ) {
 			if ( $this->throwExceptions ) {
 				throw new DatabaseException($query.' -> '.$this->error());
@@ -161,23 +161,23 @@ class pgSQL extends SQLAdapter {
 	}
 
 	public function error() {
-		return mysql_error($this->db);
+		return pg_last_error($this->db);
 	}
 
 	public function errno() {
-		return mysql_errno($this->db);
+		return (int)(bool)pg_last_error($this->db);
 	}
 
 	public function affectedRows() {
-		return mysql_affected_rows($this->db);
+		return pg_affected_rows($this->db);
 	}
 
 	public function insertId() {
-		return mysql_insert_id($this->db);
+		return pg_last_oid($this->db);
 	}
 
 	public function escapeValue( $value ) {
-		return mysql_real_escape_string((string)$value, $this->db);
+		return pg_escape_string((string)$value, $this->db);
 	}
 
 }

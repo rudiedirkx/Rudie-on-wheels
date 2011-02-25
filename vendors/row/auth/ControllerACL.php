@@ -14,7 +14,18 @@ class ControllerACL extends Object {
 		$this->application = $application;
 	}
 
-	public function add( $zones, $actions ) {
+	public function add( $zones, $actions = null ) {
+		if ( !$actions ) {
+			// get all public methods (because those are actions) of the application
+			$refl = new \ReflectionClass($this->application);
+			$methods = $refl->getMethods();
+			$actions = array();
+			foreach ( $methods AS $m ) {
+				if ( $m->isPublic() && '_' != substr($m->name, 0, 1) ) {
+					$actions[] = $m->name;
+				}
+			}
+		}
 		foreach ( (array)$zones AS $zone ) {
 			foreach ( (array)$actions AS $action ) {
 				$this->acl[$action][$zone] = true;

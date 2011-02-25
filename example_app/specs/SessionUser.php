@@ -21,7 +21,7 @@ use app\models;
 class SessionUser extends \row\auth\SessionUser {
 
 	/**
-	 * This could be anything. It defaults to "return false;" because
+	 * This could be anything. It defaults to "return false" because
 	 * Access & Validation are different in every app.
 	 *	Note: Access doesn't have to come from a database. It can come
 	 * from the environment: the IP address, the request method, the
@@ -35,8 +35,12 @@ class SessionUser extends \row\auth\SessionUser {
 	 */
 	public function hasAccess( $zone ) {
 		switch ( $zone ) {
+			case 'true':
+				return true;
 			case 'logged in':
 				return $this->isLoggedIn();
+			case 'method get':
+				return 'GET' === $_SERVER['HTTP_METHOD'];
 			case 'method post':
 				return 'POST' === $_SERVER['HTTP_METHOD'];
 			case 'check salt':
