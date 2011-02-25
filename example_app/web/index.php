@@ -35,7 +35,7 @@ try {
 	// `getApplication()` does all of the dispatching (except the actual dispatching).
 	$application = $dispatcher->getApplication( $path ); // typeof Controller
 
-	// Everything's checked now... Invalid URI's would be intercepted.
+	// Everything's checked now... Invalid URI's would've been intercepted (= 'exceptionalized').
 
 	// All there's left to do is push the red button:
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action

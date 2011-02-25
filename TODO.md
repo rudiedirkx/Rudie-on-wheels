@@ -2,11 +2,12 @@
 To do:
 ------
 
+0. Components: make super simple `Component` structure (registered in the app) (with controlled construct and destruct)<br><br>
+0. ErrorController: 1 catch-all in `index.php` that calls `$errorController->catch($exception)` (or something)<br><br>
 1. Put some kind of ultra easy form builder in row\form\Validator (in \row\Form?)... And then make the Form validatable?
 4. Validator: Implement custom error message(s)<br><br>
-6. Dispatcher: Implement (optional!) ErrorController. Via catch in index.php or internally? (Internally means the catch could also catch the missing ErrorController (which is good).)<br><br>
-8. Database: Implement the SQLite3 adapter
-8. Database: Create PostgreSQL `database\Adapter` (as `database\adapters\pgSQL`?)
+8. Database: Implement `database\adapters\SQLite3`
+8. Database: Implement `database\adapters\PDOpgSQL`
 
 
 Debatables:
