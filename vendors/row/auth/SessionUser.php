@@ -2,10 +2,10 @@
 
 namespace row\auth;
 
-use row\core\Object;
+use row\Component;
 use app\models;
 
-abstract class SessionUser extends Object {
+abstract class SessionUser extends Component {
 
 	static public function user() {
 		return $GLOBALS['application']->user;
@@ -18,7 +18,8 @@ abstract class SessionUser extends Object {
 	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
 
 	// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
-	public function __construct() {
+	public function _init() {
+		parent::_init();
 		// _SESSION not required
 		// But try to validate =)
 		$this->validate();

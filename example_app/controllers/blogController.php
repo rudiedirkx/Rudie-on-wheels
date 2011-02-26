@@ -19,7 +19,6 @@ class blogController extends Controller {
 	protected function _init() {
 		parent::_init();
 
-		$this->acl = new ControllerACL($this);
 		$this->acl->add('true'); // adds required zone "true" to all Actions of this Controller
 		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));
 		$this->acl->add('blog create posts', 'add_post');

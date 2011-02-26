@@ -20,6 +20,9 @@ class Controller extends Object {
 //	public $_action = ''; // deprecated
 //	public $_arguments = array(); // deprecated
 
+	protected $_components = array();
+	protected $__components = array();
+
 	static protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
 	static protected $config = array();
@@ -35,9 +38,20 @@ class Controller extends Object {
 		$this->get = Options::make($_GET);
 	}
 
-	// Easily overwritable (to remove or extend below functionality)
 	protected function _init() {
-		$this->acl = new ControllerACL($this);
+		$this->_constructComponents();
+	}
+
+	protected function _constructComponents() {
+		foreach ( $this->_components AS $k => $c ) {
+			$this->$k = $this->getComponent($c[0], isset($c[1]) ? $c[1] : array());
+		}
+	}
+
+	protected function _destructComponents() {
+		foreach ( $this->__components AS $c ) {
+			$c->__destruct();
+		}
 	}
 
 	protected function _pre_action() {
@@ -45,7 +59,7 @@ class Controller extends Object {
 	}
 
 	protected function _post_action() {
-		
+		$this->_destructComponents();
 	}
 
 	public function _getActionPaths() {
@@ -58,6 +72,11 @@ class Controller extends Object {
 		$r = call_user_func_array(array($this, $this->_dispatcher->_action), $this->_dispatcher->_actionArguments);
 		$this->_fire('post_action');
 		return $r;
+	}
+
+	protected function getComponent( $class, $args = array() ) {
+		is_array($args) or $args = (array)$args;
+		return $this->__components[] = new $class($this, $args);
 	}
 
 	protected function redirect( $location, $exit = true ) {

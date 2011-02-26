@@ -2,17 +2,11 @@
 
 namespace row\auth;
 
-use row\core\Object;
+use row\Component;
 
-class ControllerACL extends Object {
-
-	protected $application;
+class ControllerACL extends Component {
 
 	protected $acl = array();
-
-	public function __construct( \row\Controller $application ) {
-		$this->application = $application;
-	}
 
 	public function add( $zones, $actions = null ) {
 		if ( !$actions ) {
