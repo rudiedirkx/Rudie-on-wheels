@@ -2,8 +2,6 @@
 To do:
 ------
 
-0. Components: make super simple `Component` structure (registered in the app) (with controlled construct and destruct)<br><br>
-0. ErrorController: 1 catch-all in `index.php` that calls `$errorController->catch($exception)` (or something)<br><br>
 1. Put some kind of ultra easy form builder in row\form\Validator (in \row\Form?)... And then make the Form validatable?
 4. Validator: Implement custom error message(s)<br><br>
 8. Database: Implement `database\adapters\SQLite3`
