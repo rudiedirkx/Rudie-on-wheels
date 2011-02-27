@@ -11,7 +11,8 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 $options = array(
 //	'module_delim' => '/',
 
-	'fallback_module' => 'fallback',
+	'fallback_module' => ':fallback',
+	'error_module' => ':error',
 
 	'module_class_prefix' => '',
 	'module_class_postfix' => 'Controller',
@@ -46,25 +47,8 @@ try {
 	echo "\n\n".number_format(microtime(1) - $_start, 4);
 
 }
-catch ( \row\http\NotFoundException $ex ) {
-	$trace = $ex->getTrace();
-/*	$location = '?';
-	foreach ( $trace AS $lvl ) {
-		if ( isset($lvl['line']) ) {
-			$location = 'in file '.basename($lvl['file']).' on line '.$lvl['line'];
-			break;
-		}
-	}*/
-echo '<!-- '.print_r($trace, 1).' -->';
-	exit('[404] Not Found: '.$ex->getMessage() /*.' ('.$location.')'*/ );
-}
-
-// All other exceptions SHOULD have been caught within...
-catch ( \row\database\DatabaseException $ex ) {
-	exit('[Database (sql?)] '.$ex->getMessage().'');
-}
-catch ( \row\database\ModelException $ex ) {
-	exit('[Model (config?)] '.$ex->getMessage().'');
+catch ( \Exception $ex ) {
+	$dispatcher->caught($ex);
 }
 
 

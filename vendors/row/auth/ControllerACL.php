@@ -4,7 +4,7 @@ namespace row\auth;
 
 use row\Component;
 
-class ControllerACL extends Component {
+abstract class ControllerACL extends Component {
 
 	protected $acl = array();
 

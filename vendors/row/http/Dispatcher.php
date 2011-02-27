@@ -29,6 +29,7 @@ class Dispatcher extends Object {
 			'module_delim' => '-',
 			'default_module' => 'index',
 			'fallback_module' => false,
+			'error_module' => false,
 			'default_action' => 'index',
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
@@ -46,7 +47,7 @@ class Dispatcher extends Object {
 				'#' => 'INT',
 				'*' => 'STRING',
 			)),
-			'ignore_trailing_slash' => false,
+			'ignore_trailing_slash' => true,
 			'case_sensitive_paths' => false,
 		));
 	}
@@ -115,16 +116,7 @@ class Dispatcher extends Object {
 
 
 	public function getApplication( $f_path ) {
-		$application = $this->getController($f_path);
-		if ( !is_a($application, 'row\Controller') ) {
-			$this->throwNotFound();
-		}
-
-		// Yuck!
-		$application->_dispatcher = $this;
-		$this->application = $application;
-
-		return $application;
+		return $this->getController($f_path);
 	}
 
 
@@ -160,21 +152,8 @@ class Dispatcher extends Object {
 		$originalPath = $path;
 		$path = ltrim($path, '/');
 
-/*		if ( $this->options->slashed_multi_module ) {
-echo '<pre>';
-var_dump($path);
-exit;
-		}*/
-
 		// 1. Evaluate path into pieces
 		$this->evaluatePath($path);
-		// 2. We now have everything we need, except for the Controller class
-		// 3. Run Router and overwrite pieces OR reevaluate new path
-		// 4. If the Router didn't set the _controller, evaluate the _modulePath into a valid class
-		// 5. Get the Controller object OR throw 404
-		// 6. If the Router didn't set an actionFunction and this controller is of type "specific", run its _actions
-		// 7. We now know if this path can be dispatched... Run or throw 404
-//echo '<pre>';
 
 		$dontEvalActionHooks = false;
 		if ( $routes && $this->router ) {
@@ -205,13 +184,6 @@ exit;
 
 		// 5. 
 		$application = $this->getControllerObject($this->_controller);
-/*
-		return $this->initControllerObject($application, $dontEvalActionHooks);
-	}
-
-	function initControllerObject( $application, $dontEvalActionHooks = false ) {
-*/
-		$application->_fire('init');
 
 		// 6. 
 		if ( empty($dontEvalActionHooks) ) {
@@ -227,6 +199,8 @@ exit;
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
 			return $this->tryFallback();
 		}
+
+		$application->_fire('init');
 
 		return $application;
 	}
@@ -290,8 +264,8 @@ exit;
 		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it
 			return $this->tryFallback();
 		}
-		$application = new $namespacedModuleClass($this);
-		return $application;
+		$this->application = new $namespacedModuleClass($this);
+		return $this->application;
 	}
 
 	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
@@ -310,6 +284,28 @@ exit;
 			return $this->getApplication($this->options->fallback_module.$this->requestPath);
 		}
 		$this->throwNotFound();
+	}
+
+	public function caught( $exception ) {
+		if ( $this->options->error_module ) {
+			$uri = $this->options->error_module.'/index';
+			$application = $this->getApplication($uri);
+			$this->_actionArguments = array($exception);
+			return $application->_run();
+
+/*			$class = $this->getControllerClassName($this->options->error_module);
+			if ( class_exists($class) ) {
+				$this->evaluatePath('error/index');
+				$this->_controller = $class;
+				$application = $this->getControllerObject($this->_controller);
+				if ( $this->isCallableActionFunction($application, $this->_action) ) {
+					$this->_actionArguments = array($exception);
+					$application->_fire('init');
+					return $application->_run();
+				}
+			}*/
+		}
+		exit('Uncaught exception: '.$exception->getMessage());
 	}
 
 

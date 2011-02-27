@@ -6,6 +6,10 @@ use app\specs\Controller;
 
 class fallbax extends Controller {
 
+	public function blog() {
+		echo '<p>You are here because you are on an INVALID BLOG URI...</p>';
+	}
+
 	public function more( $fallback = '?' ) {
 		echo '<p>More what?</p>';
 		echo '<pre>';

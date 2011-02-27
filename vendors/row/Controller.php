@@ -55,7 +55,7 @@ class Controller extends Object {
 	}
 
 	protected function _pre_action() {
-		$this->acl->check($this->_dispatcher->_action);
+//		$this->acl->check($this->_dispatcher->_action);
 	}
 
 	protected function _post_action() {
@@ -66,7 +66,7 @@ class Controller extends Object {
 		return static::$_actions;
 	}
 
-	public function _run() { // Always return the Action's return value, so no argument needed
+	public function _run() { // Always return the Action's return value
 //		$this->_arguments = $this->_dispatcher->_moduleArguments; // deprecated
 		$this->_fire('pre_action');
 		$r = call_user_func_array(array($this, $this->_dispatcher->_action), $this->_dispatcher->_actionArguments);
