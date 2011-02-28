@@ -14,7 +14,7 @@ use row\auth\ControllerACL;
  * application's base Controller will probably contain many more.
  */
 
-class Controller extends Object {
+abstract class Controller extends Object {
 
 	public $_dispatcher;
 //	public $_action = ''; // deprecated

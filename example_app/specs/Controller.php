@@ -17,7 +17,7 @@ namespace app\specs;
  * object is also available with `Model::dbObject()`.)
  */
 
-class Controller extends \row\Controller {
+abstract class Controller extends \row\Controller {
 
 	protected function _init() {
 		// DON'T do `parent::_init();` because I don't want to load the standard ROW crap ;)
@@ -26,10 +26,10 @@ class Controller extends \row\Controller {
 		$this->db = $GLOBALS['db'];
 
 		// Make the session user always available in every controller:
-		$this->user = $this->getComponent('app\specs\SessionUser');
+		$this->user = SessionUser::user(); // $this->getComponent('app\specs\SessionUser');
 
 		// And the ACL
-		$this->acl = $this->getComponent('app\specs\ControllerACL');
+		$this->acl = $this->getComponent('app\\specs\\ControllerACL');
 
 		// Initialize Output/Views (used in 90% of controller actions):
 		$this->tpl = new Output($this);
