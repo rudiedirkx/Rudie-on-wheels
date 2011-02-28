@@ -174,10 +174,7 @@ class SQLite extends SQLAdapter {
 	public function query( $query ) {
 		$q = @$this->db->query($query);
 		if ( !$q ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
-			}
-			return false;
+			return $this->except($query.' -> '.$this->error());
 		}
 		return $q;
 	}
@@ -185,10 +182,7 @@ class SQLite extends SQLAdapter {
 	public function execute( $query ) {
 		$q = @$this->db->queryExec($query);
 		if ( !$q ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
-			}
-			return false;
+			return $this->except($query.' -> '.$this->error());
 		}
 		return $q;
 	}

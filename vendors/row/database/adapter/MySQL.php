@@ -3,7 +3,6 @@
 namespace row\database\adapter;
 
 use row\database\SQLAdapter;
-use row\database\DatabaseException;
 use row\database\adapter\MySQLi;
 
 class MySQL extends SQLAdapter {
@@ -173,10 +172,7 @@ class MySQL extends SQLAdapter {
 	public function query( $query ) {
 		$q = mysql_query($query, $this->db);
 		if ( !$q ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
-			}
-			return false;
+			return $this->except($query.' -> '.$this->error());
 		}
 		return $q;
 	}

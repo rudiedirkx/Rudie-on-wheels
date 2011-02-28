@@ -148,10 +148,7 @@ class pgSQL extends SQLAdapter {
 	public function query( $query ) {
 		$q = pg_query($query, $this->db);
 		if ( !$q ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
-			}
-			return false;
+			return $this->except($query.' -> '.$this->error());
 		}
 		return $q;
 	}

@@ -4,6 +4,7 @@ namespace row\database;
 
 use row\core\Object;
 use row\core\Options;
+use row\database\DatabaseException;
 
 abstract class Adapter extends Object {
 
@@ -72,6 +73,13 @@ abstract class Adapter extends Object {
 
 	public function escapeAndQuoteColumn( $column ) {
 		return $this->quoteColumn($this->escapeColumn($column));
+	}
+
+	protected function except( $msg ) {
+		if ( $this->throwExceptions ) {
+			throw new DatabaseException($msg);
+		}
+		return false;
 	}
 
 }

@@ -2,7 +2,6 @@
 To do:
 ------
 
-0. Dispatcher: Accept `fallback` & `error` **controllers** (not modules) for direct access (so without `Router`!)<br><br>
 1. Validator: Put some kind of ultra easy form builder in `row\form\Validator` (in `row\Form`?)... And then make the Form validatable?
 4. Validator: Implement custom error message(s)<br><br>
 8. Database: Implement `database\adapters\SQLite3`

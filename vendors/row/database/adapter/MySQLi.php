@@ -120,10 +120,7 @@ class MySQLi extends MySQL {
 		$this->queries[] = $query;
 		$q = @$this->db->query($query);
 		if ( !$q ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$this->error());
-			}
-			return false;
+			return $this->except($query.' -> '.$this->error());
 		}
 		return $q;
 	}

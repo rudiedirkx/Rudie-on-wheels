@@ -296,12 +296,6 @@ class Dispatcher extends Object {
 	}
 
 	public function caught( $exception ) {
-		if ( $this->options->error_module ) {
-			$uri = $this->options->error_module.'/index';
-			$application = $this->getApplication($uri);
-			$this->_actionArguments = array($exception);
-			return $application->_run();
-		}
 		exit('Uncaught ['.get_class($exception).']: '.$exception->getMessage());
 	}
 

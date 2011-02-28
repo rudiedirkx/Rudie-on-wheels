@@ -24,10 +24,27 @@ class Dispatcher extends \row\http\Dispatcher {
 	 *
 	static public function getDefaultOptions() {
 		$options = parent::getDefaultOptions();
-		$options->module_delim = false;
+		$options->module_delim = false; // Don't check for multi-level Controllers
 		$options->default_module = 'home'; // If you don't like "index"
 		$options->default_action = 'controllerIndex'; // If you don't like "index"
+		return $options;
 	} // */
+
+	/**
+	 * And it's probably a smart thing to extend the very
+	 * minimal, standard exception catch.
+	 */
+	public function caught( $ex ) {
+		switch ( get_class($ex) ) {
+			case 'row\http\NotFoundException':
+				exit('[404] Not Found: '.$ex->getMessage());
+			case 'row\database\DatabaseException':
+				exit('[Model (config?)] '.$ex->getMessage().'');
+			case 'row\database\ModelException':
+				exit('[Model (config?)] '.$ex->getMessage().'');
+		}
+		exit('Unknown error encountered: '.$ex->getMessage().'');
+	}
 
 }
 

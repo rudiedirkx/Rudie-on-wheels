@@ -6,10 +6,10 @@ use row\database\Model;
 $db = MySQL::open(array('user' => 'blog', 'dbname' => 'blog', 'names' => 'utf8')); // Probably a MySQLi instance (not MySQL)
 
 if ( !$db->connected() ) {
-	exit('I\'m brutally ending your request due to a fatal SQL connection error... Edit config/database.php to overcome this gruesomeness!');
+	exit('I could not connect to the specified database. Edit <u>app/config/database.php</u> and import <u>app/_project/blog.sql</u> to fix this problem!');
 }
 
-//$db->throwExceptions = false; // If you wanna check FALSE returns
+//$db->throwExceptions = false; // Will return FALSE instead of throwing exceptions
 
 Model::dbObject($db);
 
