@@ -18,6 +18,7 @@ class blogController extends Controller {
 
 	protected function _init() {
 		parent::_init();
+//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
 
 		$this->acl->add('true'); // adds required zone "true" to all Actions of this Controller
 		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));

@@ -11,8 +11,11 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 $options = array(
 //	'module_delim' => '/',
 
-	'fallback_module' => ':fallback',
-	'error_module' => ':error',
+//	'fallback_module' => ':fallback',
+//	'error_module' => ':error',
+
+	'fallback_controller' => 'app\\controllers\\fallbax',
+	'error_controller' => 'app\\specs\\Error',
 
 	'module_class_prefix' => '',
 	'module_class_postfix' => 'Controller',

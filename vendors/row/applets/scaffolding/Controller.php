@@ -20,6 +20,7 @@ class Controller extends \row\Controller {
 
 	protected function _init() {
 		parent::_init();
+//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
 
 		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
 

@@ -24,12 +24,14 @@ class Dispatcher extends Object {
 
 	public $options; // typeof row\core\Options
 
-	static public function getDefaultOptions() { // Easily extendable without altering anything else
-		return Options::make(array(
+	static public function getDefaultOptions() {
+		return Options::make(array( // Easily extendable without altering anything else
 			'module_delim' => '-',
 			'default_module' => 'index',
-			'fallback_module' => false,
-			'error_module' => false,
+//			'fallback_module' => false,
+//			'error_module' => false,
+			'fallback_controller' => false,
+			'error_controller' => false,
 			'default_action' => 'index',
 			'not_found_exception' => 'row\http\NotFoundException',
 			'module_class_prefix' => '',
@@ -131,6 +133,7 @@ class Dispatcher extends Object {
 	}
 
 	public function evaluateActionHooks( $actions, $actionPath ) {
+		$this->_action = '';
 		$actionPath = '/'.$actionPath;
 		foreach ( $actions AS $hookPath => $actionFunction ) {
 			if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
@@ -145,23 +148,17 @@ class Dispatcher extends Object {
 				return true;
 			}
 		}
-		$this->tryFallback();
 	}
 
 	public function getController( $path, $routes = true ) {
-		$originalPath = $path;
 		$path = ltrim($path, '/');
 
 		// 1. Evaluate path into pieces
 		$this->evaluatePath($path);
 
-//print_r($this->_debug((array)$this));
-
 		$dontEvalActionHooks = false;
-		if ( $routes && $this->router ) {
-//			$path != '' || $path = '/';
+		if ( $routes && is_a($this->router, 'row\\http\\Router') ) {
 			if ( $to = $this->router->resolve($path) ) {
-
 				// 3. 
 				if ( is_array($to) ) {
 					foreach ( $to AS $k => $v ) {
@@ -172,11 +169,8 @@ class Dispatcher extends Object {
 				else if ( is_string($to) ) {
 					$this->evaluatePath(ltrim($to, '/'));
 				}
-
 			}
 		}
-
-//print_r($this->_debug((array)$this));
 
 		// 4. 
 		if ( !$this->_controller ) {
@@ -187,28 +181,26 @@ class Dispatcher extends Object {
 		}
 
 		// 5. 
-		$application = $this->getControllerObject($this->_controller);
+		if ( !($application = $this->getControllerObject($this->_controller)) ) {
+			return $this->tryFallback();
+		}
 
-		$application->_fire('init');
-
-		// 6. 
 		if ( empty($dontEvalActionHooks) ) {
+			// 6. 
 			if ( is_array($_actions = $application->_getActionPaths()) ) {
-				$this->evaluateActionHooks($_actions, $this->_actionPath); // Might throw 404
+				$this->evaluateActionHooks($_actions, $this->_actionPath);
 			}
 			else {
 				$this->_action = $this->actionFunctionTranslation($this->_action);
 			}
 		}
 
-//print_r($this->_debug((array)$this));
-
 		// 7. 
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
 			return $this->tryFallback();
 		}
 
-		return $application;
+		return $this->application = $application;
 	}
 
 	protected function moduleClassTranslation( $moduleClass ) {
@@ -234,26 +226,22 @@ class Dispatcher extends Object {
 			return $module;
 		}
 		$delim = $this->options->module_delim;
-		if ( $delim ) {
-			$moduleParts = explode($delim, $module);
-			if ( 1 < count($moduleParts) ) {
-				$args = array();
-				$mi = count($moduleParts);
-				$li = 0;
-				for ( $i=1; $i<$mi; $i++ ) {
-					$submodule = $moduleParts[$i];
-					if ( (string)(int)$submodule === $submodule ) {
-						unset($moduleParts[$i]);
-						$moduleParts[$li] .= '_N';
-						$args[] = $submodule;
-					}
-					else {
-						$li = $i;
-					}
+		if ( $delim && 1 < ($mi=count($moduleParts = explode($delim, $module))) ) {
+			$args = array();
+			$li = 0;
+			for ( $i=1; $i<$mi; $i++ ) {
+				$submodule = $moduleParts[$i];
+				if ( (string)(int)$submodule === $submodule ) {
+					unset($moduleParts[$i]);
+					$moduleParts[$li] .= '_N';
+					$args[] = $submodule;
 				}
-				$moduleParts = array_values($moduleParts);
-				$this->_moduleArguments = $args;
+				else {
+					$li = $i;
+				}
 			}
+			$moduleParts = array_values($moduleParts);
+			$this->_moduleArguments = $args;
 			$n = count($moduleParts)-1;
 			$moduleParts[$n] = $this->moduleClassTranslation($moduleParts[$n]);
 			$moduleClass = implode('\\', $moduleParts);
@@ -265,17 +253,17 @@ class Dispatcher extends Object {
 		return $namespacedModuleClass;
 	}
 
-	protected function getControllerObject( $module, $eval = true ) {
-		$namespacedModuleClass = !$eval ? $module : $this->getControllerClassName($module);
-		if ( !class_exists($namespacedModuleClass) ) { // Also _includes_ it
-			return $this->tryFallback();
+	protected function getControllerObject( $module ) {
+		$namespacedModuleClass = $this->getControllerClassName($module);
+		if ( class_exists($namespacedModuleClass) ) {
+			$application = new $namespacedModuleClass($this);
+			$application->_fire('init');
+			return $application;
 		}
-		$this->application = new $namespacedModuleClass($this);
-		return $this->application;
 	}
 
 	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
-		return substr($actionFunction, 0, 1) != '_' && is_callable(array($application, $actionFunction));
+		return $actionFunction && substr($actionFunction, 0, 1) != '_' && is_callable(array($application, $actionFunction));
 	}
 
 	protected function throwNotFound() {
@@ -284,10 +272,25 @@ class Dispatcher extends Object {
 	}
 
 	protected function tryFallback() {
-		static $firstTime = true;
-		if ( $firstTime && $this->options->fallback_module ) {
-			$firstTime = false;
-			return $this->getApplication($this->options->fallback_module.$this->requestPath);
+		if ( $this->options->fallback_controller ) {
+			// 5. 
+			if ( $application = $this->getControllerObject($this->options->fallback_controller) ) {
+				// reevaluate params for Action
+				$this->evaluatePath('fallback'.$this->requestPath);
+
+				// 6. 
+				if ( is_array($_actions = $application->_getActionPaths()) ) {
+					$this->evaluateActionHooks($_actions, $this->_actionPath);
+				}
+				else {
+					$this->_action = $this->actionFunctionTranslation($this->_action);
+				}
+
+				// 7. 
+				if ( $this->isCallableActionFunction($application, $this->_action) ) {
+					return $application;
+				}
+			}
 		}
 		$this->throwNotFound();
 	}
@@ -298,20 +301,8 @@ class Dispatcher extends Object {
 			$application = $this->getApplication($uri);
 			$this->_actionArguments = array($exception);
 			return $application->_run();
-
-/*			$class = $this->getControllerClassName($this->options->error_module);
-			if ( class_exists($class) ) {
-				$this->evaluatePath('error/index');
-				$this->_controller = $class;
-				$application = $this->getControllerObject($this->_controller);
-				if ( $this->isCallableActionFunction($application, $this->_action) ) {
-					$this->_actionArguments = array($exception);
-					$application->_fire('init');
-					return $application->_run();
-				}
-			}*/
 		}
-		exit('Uncaught exception: '.$exception->getMessage());
+		exit('Uncaught ['.get_class($exception).']: '.$exception->getMessage());
 	}
 
 

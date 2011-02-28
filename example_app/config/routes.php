@@ -14,16 +14,8 @@ $router = new Router;
  * Advised routes are:
 	- Crazy URLs (e.g. with reversed arguments)
 	- Home: / (the only URL with no Controller)
-	- :fallback (will soon be deprecated and handled internally)
-	- :error (will soon be deprecated and handled internally)
  */
 
-
-// Define a fallback controller (any type)
-$router->add('/:fallback/', array('controller' => 'app\\controllers\\fallbax'));
-
-// Define an error controller (any type)
-$router->add('/:error/', array('controller' => 'app\\specs\\Error'));
 
 // To an applet
 // $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));

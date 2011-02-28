@@ -6,6 +6,11 @@ use app\specs\Controller;
 
 class fallbax extends Controller {
 
+	protected function _init() {
+		parent::_init();
+//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
+	}
+
 	public function blog() {
 		echo '<p>You are here because you are on an INVALID BLOG URI...</p>';
 	}
@@ -29,6 +34,13 @@ class fallbax extends Controller {
 
 		\Vendors::cacheClear();
 		echo '<p>Also, I flushed the Vendors cache! You\'re welcome!</p>';
+	}
+
+	public function cache() {
+		echo '<pre>';
+		\Vendors::cacheLoad();
+		print_r(\Vendors::$cache);
+		echo '</pre>';
 	}
 
 }
