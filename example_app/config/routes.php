@@ -1,10 +1,22 @@
 <?php
 
 use row\http\Router;
-use row\http\Route;
 
 $router = new Router;
 
+
+/**
+ * Make as few routes as possible! It's much faster to make
+ * internal routes with a specific Controller.
+ * The more routes you add here, the work will be done EVERY
+ * request no matter the Controller.
+ * 
+ * Advised routes are:
+	- Crazy URLs (e.g. with reversed arguments)
+	- Home: / (the only URL with no Controller)
+	- :fallback (will soon be deprecated and handled internally)
+	- :error (will soon be deprecated and handled internally)
+ */
 
 
 // Define a fallback controller (any type)
@@ -14,7 +26,14 @@ $router->add('/:fallback/', array('controller' => 'app\\controllers\\fallbax'));
 $router->add('/:error/', array('controller' => 'app\\specs\\Error'));
 
 // To an applet
-$router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
+// $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
+// To an applet but with 'access control'
+$router->add('/scaffolding', function() {
+	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) ) {
+		exit('Access denied!');
+	}
+	return array('controller' => 'row\\applets\\scaffolding\\Controller');
+});
 
 // A module alias
 $router->add('/posts', array('controller' => 'app\\controllers\\blogController'));
@@ -23,12 +42,17 @@ $router->add('/posts', array('controller' => 'app\\controllers\\blogController')
 $router->add('/$', 'todo', array('redirect' => true));
 
 // (2) Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
-//$router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
+// $router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
 
 // (3) This should be possible (and do the exact same as (2)) because it's (much?) more efficient:
 $router->add('/record-id/(\d+)/of-table/([^/]+)$', function($match) {
+	// You can even do some access control in here:
+	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) ) {
+		exit('Access denied!');
+	}
+	// If you pass the 'access control', it's an easy route to the right Controller Action:
 	return array(
-		'controller' => 'app\controllers\dbsecretsController',
+		'controller' => 'row\\applets\\scaffolding\\Controller',
 		'action' => 'table_record',
 		'arguments' => array($match[2], $match[1]),
 	);

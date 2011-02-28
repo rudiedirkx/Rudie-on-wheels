@@ -155,6 +155,8 @@ class Dispatcher extends Object {
 		// 1. Evaluate path into pieces
 		$this->evaluatePath($path);
 
+//print_r($this->_debug((array)$this));
+
 		$dontEvalActionHooks = false;
 		if ( $routes && $this->router ) {
 //			$path != '' || $path = '/';
@@ -168,11 +170,13 @@ class Dispatcher extends Object {
 					$dontEvalActionHooks = isset($to['action']);
 				}
 				else if ( is_string($to) ) {
-					$this->evaluatePath($to);
+					$this->evaluatePath(ltrim($to, '/'));
 				}
 
 			}
 		}
+
+//print_r($this->_debug((array)$this));
 
 		// 4. 
 		if ( !$this->_controller ) {
@@ -196,6 +200,8 @@ class Dispatcher extends Object {
 				$this->_action = $this->actionFunctionTranslation($this->_action);
 			}
 		}
+
+//print_r($this->_debug((array)$this));
 
 		// 7. 
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
@@ -306,6 +312,16 @@ class Dispatcher extends Object {
 			}*/
 		}
 		exit('Uncaught exception: '.$exception->getMessage());
+	}
+
+
+	protected function _debug( $arr ) {
+		foreach ( $arr AS $k => $v ) {
+			if ( '_' != substr($k, 0, 1) ) {
+				unset($arr[$k]);
+			}
+		}
+		return $arr;
 	}
 
 

@@ -55,6 +55,7 @@ class Router extends Object {
 				$options = Options::make($route->options);
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
+//var_dump($goto); exit;
 				if ( $options->redirect ) {
 					return $this->redirect($goto);
 				}
