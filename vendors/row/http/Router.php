@@ -41,9 +41,8 @@ class Router extends Object {
 
 	public function resolveRoute( $route, $path ) {
 		$route = (object)$route;
-		$from = '/'.trim($route->from, '^ /');
-//var_dump($path, $route->from, '--------------------------------------');
-		if ( 0 < preg_match('#^'.$from.'#', $path, $match) ) {
+		$from = '^/'.trim($route->from, '^ /');
+		if ( 0 < preg_match('#'.$from.'#', $path, $match) ) {
 			$to = $route->to;
 			if ( null === $to ) {
 				$to = $match;
@@ -51,6 +50,7 @@ class Router extends Object {
 			else if ( is_callable($to) ) {
 				$to = $to($match);
 			}
+//var_dump($to); exit;
 			if ( is_string($to) ) {
 				$options = Options::make($route->options);
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);

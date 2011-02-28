@@ -185,6 +185,8 @@ class Dispatcher extends Object {
 		// 5. 
 		$application = $this->getControllerObject($this->_controller);
 
+		$application->_fire('init');
+
 		// 6. 
 		if ( empty($dontEvalActionHooks) ) {
 			if ( is_array($_actions = $application->_getActionPaths()) ) {
@@ -199,8 +201,6 @@ class Dispatcher extends Object {
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
 			return $this->tryFallback();
 		}
-
-		$application->_fire('init');
 
 		return $application;
 	}

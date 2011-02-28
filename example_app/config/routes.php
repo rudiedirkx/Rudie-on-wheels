@@ -23,12 +23,12 @@ $router->add('/posts', array('controller' => 'app\\controllers\\blogController')
 $router->add('/$', 'todo', array('redirect' => true));
 
 // (2) Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
-$router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
+//$router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
 
 // (3) This should be possible (and do the exact same as (2)) because it's (much?) more efficient:
 $router->add('/record-id/(\d+)/of-table/([^/]+)$', function($match) {
 	return array(
-		'controller' => 'dbsecrets',
+		'controller' => 'app\controllers\dbsecretsController',
 		'action' => 'table_record',
 		'arguments' => array($match[2], $match[1]),
 	);
