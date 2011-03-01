@@ -12,19 +12,18 @@ class Model extends Object {
 		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};
 	}
 
+	static public $_db_key = '_db';
 	static public $_db;
 
 	/**
 	 * 
 	 */
 	static public function dbObject( Adapter $db = null ) {
+		$dbk = static::$_db_key;
 		if ( $db ) {
-//			if !is_a($db, 'Adapter') ) {
-//				throw new ModelException('Database object IS NOT an instance of interface Adapter.');
-//			}
-			self::$_db = $db;
+			self::$$dbk = $db;
 		}
-		return self::$_db;
+		return self::$$dbk;
 	}
 
 
