@@ -52,16 +52,32 @@ class Output extends Object {
 		return $this;
 	}
 
+	public function templateFolderTranslation( $folder ) {
+		if ( $mcp = $this::$application->_dispatcher->options->module_class_prefix ) {
+			$folder = substr($folder, strlen($mcp));
+		}
+		if ( $mcp = $this::$application->_dispatcher->options->module_class_postfix ) {
+			$folder = substr($folder, 0, -1*strlen($mcp));
+		}
+		return $folder;
+	}
+
+	public function templateFileTranslation( $file ) {
+		if ( $anp = $this::$application->_dispatcher->options->action_name_prefix ) {
+			$file = substr($file, strlen($anp));
+		}
+		if ( $anp = $this::$application->_dispatcher->options->action_name_postfix ) {
+			$file = substr($file, 0, -1*strlen($anp));
+		}
+		return $file;
+	}
+
 	public function display( $tpl = true, $vars = null, $layout = null ) {
 		if ( is_array($vars) ) {
 			$this->assign($vars);
 		}
 
 		$viewLayout = is_string($layout) || false === $layout ? $layout : $this->viewLayout;
-//		if ( is_string($layout) && $layout !== $this->viewLayout ) {
-//			$oldViewLayout = $this->viewLayout;
-//			$this->viewLayout = $layout;
-//		}
 
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
@@ -75,18 +91,13 @@ class Output extends Object {
 			$viewLayout = false;
 		}
 		else if ( 2 == count($view = explode('::', $tpl)) ) {
-			// Use given View (probably passed __METHOD__)
+			// Use given view (probably passed __METHOD__)
 			$file = $view[1];
+			$file = $this->templateFileTranslation($file);
 			$folder = explode('\\', $view[0]);
-			$folder = $folder[count($folder)-1];
-			if ( $this::$application->_dispatcher->options->module_class_prefix ) {
-				$mcp = $this::$application->_dispatcher->options->module_class_prefix;
-				$folder = substr($folder, strlen($mcp));
-			}
-			if ( $this::$application->_dispatcher->options->module_class_postfix ) {
-				$mcp = $this::$application->_dispatcher->options->module_class_postfix;
-				$folder = substr($folder, 0, -1*strlen($mcp));
-			}
+			unset($folder[0], $folder[1]);
+			$folder = implode('/', $folder);
+			$folder = $this->templateFolderTranslation($folder);
 			$tpl = $folder.'/'.$file;
 		}
 		else {

@@ -6,20 +6,26 @@ use app\specs\Controller;
 
 class fallbax extends Controller {
 
+	/* this _init exists solely for debugging purposes *
 	protected function _init() {
 		parent::_init();
 //echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
 	}
+	/**/
 
 	public function blog() {
 		echo '<p>You are here because you are on an INVALID BLOG URI...</p>';
 	}
 
-	public function more( $fallback = '?' ) {
+	public function more( $path = '?' ) {
 		echo '<p>More what?</p>';
 		echo '<pre>';
-		var_dump($fallback);
+		var_dump($path);
 		echo '</pre>';
+	}
+
+	public function flush_apc_cache() {
+		return $this->flush();
 	}
 
 	public function flush() {

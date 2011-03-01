@@ -18,14 +18,16 @@ class blogController extends Controller {
 
 	protected function _init() {
 		parent::_init();
-//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
+
+		// This Controller uses "Action" as postfix for its Actions
+		$this->_dispatcher->options->action_name_postfix = 'Action';
 
 		$this->acl->add('true'); // adds required zone "true" to all Actions of this Controller
 		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));
 		$this->acl->add('blog create posts', 'add_post');
 	}
 
-	public function user( $id ) {
+	public function userAction( $id ) {
 		try {
 			$user = models\User::get($id);
 		}
@@ -37,12 +39,12 @@ class blogController extends Controller {
 	}
 
 	// A Action port to the publish function that does practically the same
-	public function unpublish_post( $post ) {
+	public function unpublish_postAction( $post ) {
 		return $this->publish_post($post, 0);
 	}
 
 	// (un)Publish a post IF you have the right access
-	public function publish_post( $post, $publish = null ) {
+	public function publish_postAction( $post, $publish = null ) {
 		$post = $this->getPost($post);
 		is_int($publish) or $publish = 1;
 		if ( $this->user->hasAccess('blog '.( $publish ? '' : 'un' ).'publish') ) {
@@ -52,7 +54,7 @@ class blogController extends Controller {
 	}
 
 	// Show 1 category. Most 'logic' in the Category Model
-	public function category( $category ) {
+	public function categoryAction( $category ) {
 		$category = models\Category::get($category);
 
 		$messages = Session::messages();
@@ -60,8 +62,8 @@ class blogController extends Controller {
 	}
 
 	// Show Categories list OR an alias for the category Action
-	// Using SQL is fine, because it's valid for all Adapters
-	public function categories( $category = null ) {
+	// Using a little SQL is fine, because it's valid for all SQLAdapters
+	public function categoriesAction( $category = null ) {
 		if ( null !== $category ) {
 			return $this->category($category);
 		}
@@ -75,7 +77,7 @@ class blogController extends Controller {
 	// The Add post form and the submit logic
 	// Form is (manually) 'built' in the template
 	// Validation from the Post Model
-	public function add_post() {
+	public function add_postAction() {
 		$validator = models\Post::validator('add');
 		if ( !empty($_POST) ) {
 			if ( $validator->validate($_POST) ) {
@@ -101,7 +103,7 @@ class blogController extends Controller {
 
 	// Same ass Add post, but now load a different Validator
 	// We can use the same template though. Only minor checks in the template.
-	public function edit_post( $post ) {
+	public function edit_postAction( $post ) {
 		$post = $this->getPost($post);
 		if ( !$post->canEdit() ) {
 			throw new NotFoundException('Editable post # '.$post->post_id);
@@ -126,7 +128,7 @@ class blogController extends Controller {
 	}
 
 	// If not logged in, the SessionUser->logout function will just ignore the call.
-	public function logout() {
+	public function logoutAction() {
 		$this->user->logout();
 		$this->redirect('/blog');
 	}
@@ -137,7 +139,7 @@ class blogController extends Controller {
 	// Validation (e.g. a password check) could come from a Validator but might
 	// be overkill in this case. Our blog doesn't need a password though =)
 	// Note how $this->post (typeof Options) can be used to fetch _POST data.
-	public function login( $uid = null ) {
+	public function loginAction( $uid = null ) {
 		if ( null !== $uid ) {
 			$this->user->login(models\User::get($uid));
 		}
@@ -159,7 +161,7 @@ class blogController extends Controller {
 	}
 
 	// See edit_post Action
-	public function edit_comment( $comment ) {
+	public function edit_commentAction( $comment ) {
 		$comment = models\Comment::get($comment);
 		if ( !$comment->canEdit() ) {
 			throw new NotFoundException('Editable comment # '.$comment->comment_id);
@@ -183,7 +185,7 @@ class blogController extends Controller {
 	}
 
 	// See add_post Action
-	public function add_comment( $post ) {
+	public function add_commentAction( $post ) {
 		$post = $this->getPost($post);
 
 		$anonymous = $this->user->isLoggedIn() ? '' : '_anonymous';
@@ -226,12 +228,12 @@ class blogController extends Controller {
 	}
 
 	// Test Action for a Route
-	public function best( $num = 900 ) {
+	public function bestAction( $num = 900 ) {
 		exit('Showing the '.$num.' best posts...');
 	}
 
 	// Most 'logic' and information comes from the Post Model
-	public function view( $post ) {
+	public function viewAction( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
 
@@ -242,7 +244,7 @@ class blogController extends Controller {
 
 	// Two ways to get the right posts. Access is called within the Controller, not
 	// the Model, because the Model doesn't have (as direct) access to the SessionUser.
-	public function index( $page = 1 ) {
+	public function indexAction( $page = 1 ) {
 
 		// Way 1
 		// Define which get method to use to fetch Posts by checking ACL
@@ -273,7 +275,7 @@ class blogController extends Controller {
 	 * Model update() test
 	 * This method is actually never called from the blog... Just playing with the super-Models.
 	 */
-	public function comment( $id ) {
+	public function commentAction( $id ) {
 echo '<pre>time() = '.time()."\n";
 		$comment = models\Comment::get($id);
 		$update = $comment->update(array('created_on' => time())); // no placeholder stuff here!
@@ -297,7 +299,7 @@ echo '<pre>time() = '.time()."\n";
 	}
 
 	// Testing Inflector methods
-	public function inflector() {
+	public function inflectorAction() {
 		echo "<pre><u>  camelcase:</u>\n\n";
 		echo $txt = 'Oele boele la la';
 		echo "\n";

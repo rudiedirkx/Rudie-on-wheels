@@ -9,19 +9,13 @@ require(dirname(__DIR__).'/config/bootstrap.php');
 
 // Config Dispatcher
 $options = array(
-//	'module_delim' => '/',
 
-//	'fallback_module' => ':fallback',
-//	'error_module' => ':error',
-
+	// I use the fallback several times. I love it. So I have to define it.
 	'fallback_controller' => 'app\\controllers\\fallbax',
-	'error_controller' => 'app\\specs\\Error',
 
-	'module_class_prefix' => '',
-	'module_class_postfix' => 'Controller',
+	// My Action names will be sensible and literal. No use for stupid prefixes or postfixes. PHP >= 5.3.4 ftw!
+	'action_name_postfix' => '',
 
-//	'default_module' => 'Ooeele',
-	'ignore_trailing_slash' => true,
 );
 $dispatcher = new Dispatcher($options);
 
@@ -45,13 +39,16 @@ try {
 	// 1) fire _pre_action, 2) execute action, 3) fire _post_action
 	$response = $application->_run();
 
-//	var_dump(get_include_path()); // This should be your standard, normal, not-altered include_path
-
+	// Only during development ofcourse
+	// The very last thing this request
 	echo "\n\n".number_format(microtime(1) - $_start, 4);
 
 }
 catch ( \Exception $ex ) {
+
+	// An extendable exception catch method, so you don't have to change index.php at all
 	$dispatcher->caught($ex);
+
 }
 
 

@@ -9,87 +9,97 @@ class NotFoundException extends \RowException { } // Where to put this?
 
 class Dispatcher extends Object {
 
-	public $requestPath = false; // false means unset - will become a (might-be-empty) string
-	public $requestBasePath = ''; // The path up to the application (e.g.: /admin/ or /row/)
+	// The path to the Action (e.g. "/" or "/blog/categories" or "/blogs-12-admin/users/jim")
+	public $requestPath = false;
+	// The path up to the application (e.g.: "" or "/admin")
+	public $requestBasePath = '';
 
+	// The path that defines the module of this request (e.g. "blog" or "blogs-12-admin")
 	public $_modulePath = '';
+	// The Controller (class!) to be loaded (e.g. "app\controllers\blogController" or "app\controllers\blogs\adminController")
 	public $_controller = '';
+	// Arguments filtered from the $_modulePath (e.g. array(12))
 	public $_moduleArguments = array();
+
+	// The request path after the $_modulePath (e.g. "categories" or "users/jim")
 	public $_actionPath = '';
+	// The Action (method!) to be executed (e.g. "categories" or "users")
 	public $_action = '';
+	// Arguments to be passed to the Action method (e.g. array() or array("jim"))
 	public $_actionArguments = array();
 
-//	public $cachedModules = array();
+	// The optional Router object that contains pre-dispatch routes
 	public $router; // typeof row\http\Router
 
+	// The options object for this Dispatcher instance
 	public $options; // typeof row\core\Options
 
+	// This method is easily extended so that your personal preferences won't smudge my index.php
 	static public function getDefaultOptions() {
-		return Options::make(array( // Easily extendable without altering anything else
+		return Options::make(array(
+
+			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
+			// If you don't want to evaluate a multi level controller app, make this false or "".
+			// The advantage of a multi level controller app: smaller controllers, more sensible Action names, $_moduleArguments
 			'module_delim' => '-',
+
+			// This module (not class!) will be used if none is specified in the URL (only for $requestPath "/")
 			'default_module' => 'index',
-//			'fallback_module' => false,
-//			'error_module' => false,
+
+			// If the URI doesn't evaluate to a Controller or existing Action method, the fallback Controller will be used
+			// For example, you might want to make the URI "/flush-apc-cache" available, but not make 2 folders and a Controller for it.
+			// All you have to do is make 1 fallback Controller (can be located anywhere) and create Action flush_apc_cache
+			// You could also handle $requestPath "/" in the fallback Controller.
 			'fallback_controller' => false,
-			'error_controller' => false,
+
+			// The Action if none specified in the URI (e.g. $requestPath "/blog" equals "/blog/index")
 			'default_action' => 'index',
+
+			// This exception will be thrown if no valid fallback Controller Action is found and is caught in index.php
 			'not_found_exception' => 'row\http\NotFoundException',
+
+			// With these three, you can name your Controller classes anything like. You might like "mod_blog_controller" instead of "blogController".
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
+			// This can be a callback. If a valid callback is found, it's executed **instead of** using the prefix & postfix.
 			'module_to_class_translation' => false,
+
+			// The following three options will do the same as the previous three but for the Action method name.
+			'action_name_prefix' => '',
+			'action_name_postfix' => 'Action',
 			'action_name_translation' => false,
+
+			// Wildcards to be used in the hooks of "specific" Controllers.
+			// See row\applets\scaffolding\Controller for examples.
+			// These wildcards are easily extended with expressions you often use (like VERSION for \d+\.\d\.\d) or USERNAME for [a-z][a-z0-9]{3,13})
 			'action_path_wildcards' => Options::make(array(
 				'INT'		=> '(\d+)',
 				'STRING'	=> '([^/]+)',
 				'DATE'		=> '(\d\d\d\d\-\d\d?\-\d\d?)',
-//				'ANYTHING'	=> '(.+)',
-//				'VERSION'	=> '(\d+\.\d+\.\d+\)',
 			)),
+			// Wildcard aliases so your hook paths are shorter and more readable
 			'action_path_wildcard_aliases' => Options::make(array(
 				'#' => 'INT',
 				'*' => 'STRING',
 			)),
+
+			// Only for "specific" Controllers:
+			// If true, $requestPath "/blog/categories" will do the same as "/blog/categories/"
 			'ignore_trailing_slash' => true,
+
+			// Only for Routes and "specific" Controllers:
+			// It's very much reccomended that you keep this false!
+			// If true, all paths (module & action) will be evaluated case-sensitive which will make a match less likely.
 			'case_sensitive_paths' => false,
 		));
 	}
 
+
 	public function __construct( $options = array() ) {
 		$defaults = static::getDefaultOptions();
 		$this->options = new Options($options, $defaults);
-/*		$this->options->slashed_multi_module = '/' === $this->options->module_delim;
-		if ( $this->options->slashed_multi_module ) {
-			$this->cacheAllModules();
-		}*/
 		$this->_fire('init');
 	}
-
-
-/*	public function cacheAllModules() {
-		if ( !$this->cachedModules ) {
-			$controllerDir = ROW_APP_PATH.'/controllers/';
-			$cdLength = strlen($controllerDir);
-			$moduleName = create_function('$file', 'return substr($file, '.strlen($this->options->module_class_prefix).', '.(-1*(4+strlen($this->options->module_class_postfix))).');');
-			$modules = array();
-			$find = function($dir) use (&$find, $moduleName, &$modules, $cdLength) {
-				$files = glob($dir);
-				foreach ( $files AS $file ) {
-					if ( is_dir($file) ) {
-						$find($file.'/*');
-					}
-					else {
-						$path = explode('/', substr($file, $cdLength));
-						$pl = count($path)-1;
-						$path[$pl] = $moduleName($path[$pl]);
-						$modules[] = str_replace('_N', '/#', implode('/', $path));
-					}
-				}
-			};
-			$find($controllerDir.'*');
-			$this->cachedModules = $modules;
-		}
-		return $this->cachedModules;
-	}*/
 
 
 	public function setRouter( \row\http\Router $router ) {
@@ -135,12 +145,18 @@ class Dispatcher extends Object {
 	public function evaluateActionHooks( $actions, $actionPath ) {
 		$this->_action = '';
 		$actionPath = '/'.$actionPath;
+		if ( !$this->options->case_sensitive_paths ) {
+			$actionPath = strtolower($actionPath);
+		}
 		foreach ( $actions AS $hookPath => $actionFunction ) {
 			if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
 				$hookPath = rtrim($hookPath, '/');
 			}
 			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
 			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
+			if ( !$this->options->case_sensitive_paths ) {
+				$hookPath = strtolower($hookPath);
+			}
 			if ( 0 < preg_match('#^'.$hookPath.'$#', $actionPath, $matches) ) {
 				array_shift($matches);
 				$this->_actionArguments = $matches;
@@ -218,7 +234,7 @@ class Dispatcher extends Object {
 			return call_user_func($translation, $actionFunction);
 		}
 		// Default (simple) translation
-		return str_replace('-', '_', $actionFunction);
+		return $this->options->action_name_prefix.str_replace('-', '_', $actionFunction).$this->options->action_name_postfix;
 	}
 
 	protected function getControllerClassName( $module ) {

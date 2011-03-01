@@ -42,6 +42,10 @@ class Router extends Object {
 	public function resolveRoute( $route, $path ) {
 		$route = (object)$route;
 		$from = '^/'.trim($route->from, '^ /');
+		if ( !$this->dispatcher->options->case_sensitive_paths ) {
+			$from = strtolower($from);
+			$path = strtolower($path);
+		}
 		if ( 0 < preg_match('#'.$from.'#', $path, $match) ) {
 			$to = $route->to;
 			if ( null === $to ) {
