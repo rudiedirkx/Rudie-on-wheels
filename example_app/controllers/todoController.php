@@ -21,6 +21,10 @@ class todoController extends Controller {
 		return $this->index('README.md');
 	}
 
+	public function install() {
+		return $this->index('INSTALL.md');
+	}
+
 	public function index( $file = 'TODO.md' ) {
 		$todo = file_get_contents(ROW_PATH.'/'.$file);
 		$todo = Output::markdown($todo);
