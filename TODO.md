@@ -2,8 +2,9 @@
 To do:
 ------
 
-1. Validator: Put some kind of ultra easy form builder in `row\form\Validator` (in `row\Form`?)... And then make the Form validatable?
-4. Validator: Implement custom error message(s)<br><br>
+1. Validator: Put some kind of ultra easy form builder in `row\form\Validator` (in `row\Form`?)... And then make the Form validatable?<br><br>
+2. E-mail: Create simple PHPMailer (?) implementation<br><br>
+4. Misc: Handy (extendable) functions like isDate, isTime, randomString etc<br><br>
 8. Database: Implement `database\adapters\SQLite3`
 8. Database: Implement `database\adapters\PDOpgSQL`
 
