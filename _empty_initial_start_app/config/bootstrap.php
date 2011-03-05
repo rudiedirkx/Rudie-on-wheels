@@ -28,7 +28,7 @@ Vendors::init(ROW_VENDORS_PATH);
 require(__DIR__.'/vendors.php');
 
 // init database
-require(__DIR__.'/database.php');
+//require(__DIR__.'/database.php');
 
 // include configured routes
 require(__DIR__.'/routes.php');

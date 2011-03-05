@@ -12,31 +12,14 @@ class Vendors {
 
 	/** experimental **/
 	static public $cache = array();
-	static public function cacheClear() {
-		apc_store(static::cacheKey(), array());
-	}
-	static public function cacheKey() {
-//var_dump(__METHOD__);
-		return ROW_APP_PATH.'/<classes>';
-	}
 	static public function cacheLoad() {
-//var_dump(__METHOD__);
-		if ( function_exists('apc_store') ) {
-			$cacheKey = static::cacheKey();
-			$cache = apc_fetch($cacheKey) ?: array();
-//print_r($cache);
-			static::$cache = $cache;
-		}
+		static::$cache = APC::get('classes', array());
 	}
 	static public function cachePut( $class, $file ) {
-//var_dump(__METHOD__);
-		if ( function_exists('apc_store') && !isset(static::$cache[$class]) ) {
-			static::$cache[$class] = $file;
-			apc_store(static::cacheKey(), static::$cache);
-		}
+		static::$cache[$class] = $file;
+		APC::put('classes', static::$cache);
 	}
 	static public function cacheGet( $class ) {
-//var_dump(__METHOD__);
 		if ( isset(static::$cache[$class]) ) {
 			return static::$cache[$class];
 		}
@@ -53,7 +36,7 @@ class Vendors {
 	static public function init($path) {
 //var_dump(__METHOD__);
 		static::cacheLoad();
-		Vendors::$defaultLoader = function($vendor, $class) { // e.g.: "row", "utils\Options"
+		Vendors::$defaultLoader = function( $vendor, $class ) { // e.g.: ( "row", "utils\Options" )
 			$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
 			return Vendors::$vendorPath.DIRECTORY_SEPARATOR.$vendor.'/'.$path.'.php';
 		};
@@ -62,7 +45,7 @@ class Vendors {
 		static::add('row');
 	}
 
-	static public function add($vendor, $loader = null) {
+	static public function add( $vendor, $loader = null ) {
 //var_dump(__METHOD__);
 		if ( !is_callable($loader) ) {
 			$loader = Vendors::$defaultLoader;
@@ -70,7 +53,7 @@ class Vendors {
 		Vendors::$loaders[$vendor] = $loader;
 	}
 
-	static public function load($class) {
+	static public function load( $class ) {
 //var_dump(__METHOD__);
 		$file = static::cacheGet($class);
 		if ( false === $file ) {

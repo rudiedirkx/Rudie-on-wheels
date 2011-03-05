@@ -33,7 +33,6 @@ abstract class Controller extends \row\Controller {
 
 		// Initialize Output/Views (used in 90% of controller actions):
 		$this->tpl = new Output($this);
-		$this->tpl->viewsFolder = ROW_APP_PATH.'/views';
 		$this->tpl->viewLayout = '_blogLayout';
 		$this->tpl->assign('app', $this);
 

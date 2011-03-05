@@ -26,17 +26,23 @@ class Output extends Object {
 	public $extension = '.php';
 	public $viewsFolder = '';
 		public $oldIncludePath = false;
-	public $viewLayout = false;
+	public $viewLayout = 'layout';
 
-	public $vars = array(
-		'content' => '',
-		'title' => '',
-	);
+	public static $_var_content = 'content';
+	public static $_var_title = 'title';
+	public $vars = array();
 	public $viewFile = '';
 
 	public function __construct( $app ) {
+		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
 		$this::$application = $app;
+
+		// The most sensible views location
 		$this->viewsFolder = ROW_APP_PATH.'/views';
+
+		// Make sure the content and title vars exist
+		$this->vars[$this::$_var_content] = $this->vars[$this::$_var_title] = '';
+
 		$this->_fire('init');
 	}
 
@@ -194,7 +200,8 @@ class Output extends Object {
 	 * Temporary (?) solution: static::$application
 	 */
 	static public function url( $path, $absolute = false ) {
-		return '/'.$path;
+		$base = static::$application ? static::$application->_dispatcher->requestBasePath.'/' : '/';
+		return $base.$path;
 	}
 
 	static public function attributes( $attr, $except = array() ) {
