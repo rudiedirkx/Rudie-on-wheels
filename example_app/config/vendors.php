@@ -23,3 +23,5 @@ Vendors::add('doctrine', function($vendor, $class) {
 	$file = ROW_VENDORS_PATH.'/doctrine-orm/Doctrine/'.str_replace('\\', '/', $class).'.php';
 	return $file;
 });
+
+
