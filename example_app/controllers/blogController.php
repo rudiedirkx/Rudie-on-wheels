@@ -5,7 +5,7 @@ namespace app\controllers;
 use row\core\Options;
 use app\specs\Controller;
 use app\specs\ControllerACL;
-use row\http\NotFoundException;
+use \NotFoundException;
 use app\models;
 use row\utils\Inflector;
 use row\auth\Session;
@@ -27,6 +27,45 @@ class blogController extends Controller {
 		$this->acl->add('blog create posts', 'add_post');
 	}
 
+	public function follow_postAction( $post = 0 ) {
+		try {
+			$post = $this->getPost((int)$post);
+		}
+		catch ( NotFoundException $ex ) {
+			return '??';
+		}
+//		$following = $this->user->user->isFollowingPost($post);
+		$following = $this->user->user->toggleFollowingPost($post);
+//		$following = !$following;
+		exit(( $following ? 'stop' : 'start' ) . ' following');
+	}
+
+	public function pageAction( $page = 'about' ) {
+		$tpl = 'blog/pages/'.$page;
+		return $this->tpl->display($tpl);
+	}
+
+	public function csv_archiveAction( $name = 'archive.csv' ) {
+		$posts = models\Post::all('is_published = 1 order by post_id desc');
+		if ( !$posts ) {
+			Session::error('Archive empty =)');
+			$this->_redirect('blog');
+		}
+
+//		header('Content-type: text/plain');
+		$this->_download($name, 'text/plain');
+
+//		unset($posts[0]->_created_on);
+		echo \app\specs\Output::csv(array_keys((array)$posts[0]), false);
+
+		foreach ( $posts as $post ) {
+//			unset($post->_created_on);
+			echo \app\specs\Output::csv($post, false);
+		}
+
+		exit; // No parse time
+	}
+
 	public function userAction( $id ) {
 		try {
 			$user = models\User::get($id);
@@ -40,7 +79,7 @@ class blogController extends Controller {
 
 	// A Action port to the publish function that does practically the same
 	public function unpublish_postAction( $post ) {
-		return $this->publish_post($post, 0);
+		return $this->publish_postAction($post, 0);
 	}
 
 	// (un)Publish a post IF you have the right access
@@ -50,7 +89,7 @@ class blogController extends Controller {
 		if ( $this->user->hasAccess('blog '.( $publish ? '' : 'un' ).'publish') ) {
 			$post->doPublish($publish);
 		}
-		$this->redirect($post->url());
+		$this->_redirect($post->url());
 	}
 
 	// Show 1 category. Most 'logic' in the Category Model
@@ -87,18 +126,17 @@ class blogController extends Controller {
 				if ( $pid = models\Post::insert($insert) ) {
 					$post = models\Post::get($pid);
 					Session::success('Post Created. Look:');
-					$this->redirect($post->url());
+					$this->_redirect($post->url());
 				}
 				Session::error('Couldn\'t save... =( Try again!?');
 			}
 		}
 
-//		$post = Options::make(array('new' => true));
 		$categories = $validator->options->categories;
 
 		$messages = Session::messages();
 
-		return $this->tpl->display(__CLASS__.'::post_form', get_defined_vars());
+		return $this->tpl->display('blog/post_form', get_defined_vars());
 	}
 
 	// Same ass Add post, but now load a different Validator
@@ -114,7 +152,7 @@ class blogController extends Controller {
 			if ( $validator->validate($_POST) ) {
 				if ( $post->update($validator->output) ) {
 					Session::success('Post updated =) woohooo');
-					$this->redirect($post->url());
+					$this->_redirect($post->url());
 				}
 				Session::error('Couldn\'t save... =( Try again!?');
 			}
@@ -124,13 +162,13 @@ class blogController extends Controller {
 
 		$messages = Session::messages();
 
-		return $this->tpl->display(__CLASS__.'::post_form', get_defined_vars());
+		return $this->tpl->display('blog/post_form', get_defined_vars());
 	}
 
 	// If not logged in, the SessionUser->logout function will just ignore the call.
 	public function logoutAction() {
 		$this->user->logout();
-		$this->redirect('/blog');
+		$this->_redirect('/blog');
 	}
 
 	// I'm allowing double logins (or "login layers"):
@@ -144,14 +182,14 @@ class blogController extends Controller {
 			$this->user->login(models\User::get($uid));
 		}
 		if ( $this->user->isLoggedIn() ) {
-			$this->redirect('/blog');
+			$this->_redirect('/blog');
 		}
 		if ( !$this->post->isEmpty() ) {
 			try {
 				$user = models\User::one(array( 'username' => (string)$this->post->username ));
 				$this->user->login($user);
 				Session::success('Alright, alright, alright, you\'re logged in...');
-				$this->redirect($this->post->get('goto', '/blog'));
+				$this->_redirect($this->post->get('goto', '/blog'));
 			}
 			catch ( \Exception $ex ) {}
 			Session::error('Sorry, buddy, that\'s not your username!');
@@ -173,7 +211,7 @@ class blogController extends Controller {
 				$update = $validator->output;
 				if ( $comment->update($update) ) {
 					Session::success('Comment changed');
-					$this->redirect($comment->url());
+					$this->_redirect($comment->url());
 				}
 				Session::error('Didn\'t save... Try again!?');
 			}
@@ -181,7 +219,7 @@ class blogController extends Controller {
 
 		$messages = Session::messages();
 
-		return $this->tpl->display(__CLASS__.'::comment_form', get_defined_vars());
+		return $this->tpl->display('blog/comment_form', get_defined_vars());
 	}
 
 	// See add_post Action
@@ -209,7 +247,7 @@ class blogController extends Controller {
 					$comment = models\Comment::get($cid);
 //print_r($comment); exit;
 					Session::success('Comment created');
-					$this->redirect($comment->url());
+					$this->_redirect($comment->url());
 				}
 				catch ( \Exception $ex ) {
 					Session::error('Didn\'t save... Try again!?');
@@ -220,11 +258,9 @@ class blogController extends Controller {
 			}
 		}
 
-		$comment = Options::make(array('new' => true));
-
 		$messages = Session::messages();
 
-		return $this->tpl->display(__CLASS__.'::comment_form', get_defined_vars());
+		return $this->tpl->display('blog/comment_form', get_defined_vars());
 	}
 
 	// Test Action for a Route
@@ -261,8 +297,8 @@ class blogController extends Controller {
 		// Way 3
 		// A third way would be a combination like this:
 		 /*
-		$access = $this->user->hasAccess('blog read unpublished');
-		$posts = model\Post::postsByAccess($access, self::config('posts_on_index'));
+			$access = $this->user->hasAccess('blog read unpublished');
+			$posts = model\Post::postsByAccess($access, self::config('posts_on_index'));
 		 */
 		// That way you can check access in the Controller and have fetch logic in the Model
 

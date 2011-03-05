@@ -91,7 +91,8 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _all( $conditions = '1', $params = array() ) {
+	static public function _all( $conditions = null, $params = array() ) {
+		$conditions or $conditions = '1';
 		return static::_fetch($conditions);
 	}
 

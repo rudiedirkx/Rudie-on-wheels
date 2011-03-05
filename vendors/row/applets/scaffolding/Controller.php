@@ -20,7 +20,6 @@ class Controller extends \row\Controller {
 
 	protected function _init() {
 		parent::_init();
-//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
 
 		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
 
@@ -43,7 +42,7 @@ class Controller extends \row\Controller {
 			exit($db->error());
 		}
 
-		$this->redirect($this->_url('table-data', $table));
+		$this->_redirect($this->_url('table-data', $table));
 	}
 
 	public function save_table_record( $table, $pkValues ) {
@@ -65,7 +64,7 @@ class Controller extends \row\Controller {
 			exit($db->error());
 		}
 
-		$this->redirect($this->_url('table-data', $table));
+		$this->_redirect($this->_url('table-data', $table));
 	}
 
 	public function insert_data( $table ) {
@@ -80,7 +79,7 @@ class Controller extends \row\Controller {
 			exit($db->error());
 		}
 
-		$this->redirect($this->_url('table-data', $table));
+		$this->_redirect($this->_url('table-data', $table));
 	}
 
 	public function add_data( $table ) {

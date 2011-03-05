@@ -29,7 +29,7 @@ class dbsecretsController extends \row\applets\scaffolding\Controller {
 		if ( !isset($_GET['pass']) || $_GET['pass'] !== 'oele' ) {
 //		if ( !in_array($_SERVER['REMOTE_ADDR'], $this->config('allowed_ip_addresses')) ) {
 			$pwdMessage = ' ( the password is "<a href="'.$this->_uri.'?pass=oele">oele</a>" you poepchinees =p )';
-//			throw new \row\http\NotFoundException($this->_uri.$pwdMessage);
+//			throw new \NotFoundException($this->_uri.$pwdMessage);
 			exit('Access denied!'.$pwdMessage);
 		}
 		parent::_init();

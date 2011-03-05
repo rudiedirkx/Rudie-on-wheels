@@ -1,9 +1,6 @@
 <?php
-
 use row\utils\Inflector;
-
 ?>
-<p><?=$this::link('Back to posts overview', 'blog')?></p>
 
 <article class="blogpost <?=!$post->is_published ? 'unpublished' : ''?>">
 
@@ -18,6 +15,9 @@ use row\utils\Inflector;
 				<smaller>(<?=$this::link('unpublish', 'blog/unpublish-post/'.$post->post_id)?>)</smaller>
 			<?endif?>
 		<?endif?>
+		<?if($app->user->isLoggedIn()):?>
+			<smaller>(<?=$this::ajaxActionLink(( $app->user->user->isFollowingPost($post) ? 'stop' : 'start' ).' following', 'blog/follow-post/'.$post->post_id, array('action' => 'updateFollowStatusOnLink'))?>)</smaller>
+		<?endif?>
 	</h1>
 
 	<section class="article">
@@ -29,7 +29,12 @@ use row\utils\Inflector;
 	<section class="comments">
 		<?foreach( $post->comments as $n => $comment ):?>
 			<article class="comment">
-				<h3><?=$this::link('# '.($n+1), $comment->url(), array('id' => 'comment-'.$comment->comment_id))?> <em><?=$this::ajaxLink($comment->author->full_name, $post->author->url())?></em> said on <em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:</h3>
+				<h3>
+					<?=$this::link('# '.($n+1), $comment->url(), array('id' => 'comment-'.$comment->comment_id))?>
+					<em><?=$this::ajaxLink($comment->author->full_name, $comment->author->url())?></em>
+					said on
+					<em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:
+				</h3>
 				<?=$this->markdown($comment->comment)?>
 				<?if( $comment->canEdit() ):?>
 					<footer>You can <a href="/blog/edit-comment/<?=$comment->comment_id?>">edit</a> this post...</footer>
@@ -41,6 +46,12 @@ use row\utils\Inflector;
 </article>
 
 <p><a href="#">Naar boven</a></p>
+
+<script>
+function updateFollowStatusOnLink(el, response) {
+	el.innerHTML = response;
+}
+</script>
 
 <!-- <pre>
 <? print_r($post) ?>

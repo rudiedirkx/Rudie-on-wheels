@@ -15,6 +15,9 @@ require(ROW_VENDOR_ROW_PATH.'/http/Router.php');
 require(ROW_VENDOR_ROW_PATH.'/http/Dispatcher.php');
 require(ROW_VENDOR_ROW_PATH.'/Controller.php');
 
+// global functions
+require(ROW_VENDOR_ROW_PATH.'/core/_functions.php');
+
 // init vendor class
 Vendors::init(ROW_VENDORS_PATH);
 

@@ -1,5 +1,11 @@
 
-<h1><?=$this->title('Posts')?><?if ($app->user->hasAccess('blog create posts')):?> <smaller>(<a href="<?=$this::url('blog/add_post')?>">new</a>)</smaller><?endif?></h1>
+<h1>
+	<?=$this->title('Posts')?>
+	<?if ($app->user->hasAccess('blog create posts')):?>
+		<smaller>(<a href="<?=$this::url('blog/add-post')?>">new</a>)</smaller>
+	<?endif?>
+	<smaller>(<a href="<?=$this::url('blog/csv-archive/archive.csv')?>">archive.csv</a>)</smaller>
+</h1>
 
 <p>Showing <?=count($posts)?> newest (of <?=$numAllPosts?> total) posts...</p>
 

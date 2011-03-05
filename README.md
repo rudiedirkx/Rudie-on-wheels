@@ -5,8 +5,10 @@ Rudie On Wheels
 What's this then?
 --
 
-A PHP >= 5.3 framework. Built for speed and customization. No
-silly plugins, no database structure requirements, no overhead.
+A PHP >= 5.3.3 framework. (5.3.3? Yes, to run absolutely beautifully,
+5.3.0 is not enough.) Built for speed and customization. No
+silly plugins, no components required, no database structure
+requirements, no mandatory naming conventions, **no overhead**.
 
 See TODO.md for progress, development and issues.
 

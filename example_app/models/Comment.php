@@ -34,7 +34,8 @@ class Comment extends Model {
 	}
 
 	public function url( $more = '' ) {
-		return 'blog/view/' . $this->post_id . '#comment-' . $this->comment_id;
+		return $this->post->url('#comment-' . $this->comment_id);
+//		return 'blog/view/' . $this->post_id . '#comment-' . $this->comment_id;
 	}
 
 	static public function getCommentsBetween( $a, $b ) {

@@ -1,20 +1,29 @@
 
-<table border=1>
+<style>
+table.userdetails th {
+	text-align: left;
+}
+table.userdetails tr > * {
+	padding: 4px 9px;
+}
+</style>
+
+<table class=userdetails border=1>
 	<tr>
 		<th>Name</th>
-		<th>...</th>
+		<td><?=$user->full_name?></td>
 	</tr>
 	<tr>
-		<th>Status</th>
-		<th>...</th>
+		<th>Bio</th>
+		<td><?=$user->bio ?: '&nbsp;'?></td>
 	</tr>
 	<tr>
 		<th>Access</th>
-		<th>...</th>
+		<td><?=$user->access?></td>
 	</tr>
 	<tr>
 		<th>Posts</th>
-		<th>...</th>
+		<td><?=count($user->posts)?> or <?=$user->numPosts?></td>
 	</tr>
 </table>
 

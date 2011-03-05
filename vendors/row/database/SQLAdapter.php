@@ -17,7 +17,7 @@ abstract class SQLAdapter extends Adapter {
 		foreach ( (array)$params AS $param ) {
 			$pos = strpos($conditions, $ph, $offset);
 			if ( false === $pos ) break;
-			$param = $this->escapeAndQuote($param);
+			$param = $this->escapeAndQuoteValue($param);
 			$conditions = substr_replace($conditions, $param, $pos, strlen($ph));
 			$offset = $pos + strlen($param);
 		}

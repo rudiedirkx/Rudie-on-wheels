@@ -1,8 +1,12 @@
 <?php
 
-class RowException extends Exception {} // Necessary? Put it where?
+class RowException extends Exception {}
 
-class VendorException extends RowException {}
+class NotFoundException extends \RowException {}
+
+class OutputException extends \RowException {}
+
+class VendorException extends \RowException {}
 
 class Vendors {
 

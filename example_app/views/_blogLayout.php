@@ -21,6 +21,7 @@ fieldset p.field.error span.errmsg { color:red; }
 fieldset p.field input, fieldset p.field textarea, fieldset p.field select { padding:1px; border:solid 1px #999; width:400px; }
 fieldset p.field.error input, fieldset p.field.error textarea, fieldset p.field.error select { border-color:red; }
 article { background-color:rgba(0, 0, 0, 0.04); }
+article.blogpost { margin-top: 15px; padding-top: 20px; }
 article.unpublished > h1, article.unpublished > header > h2 > a { color:red; }
 article article { margin:0; }
 article h3, article h2, article h1 { margin:0; }
@@ -53,6 +54,9 @@ body > .overlay > div > :last-child {
 <?endif?>
 
 <header id="login">
+	<?=$this::link($this::translate('Home'), 'blog')?> |
+	<?=$this::link($this::translate('About'), 'blog/page/about')?> |
+	<?=$this::link($this::translate('Help / FAQ'), 'blog/page/faq')?> |
 	<?if( $app->user->isLoggedIn() ):?>
 		Signed in as: <?=$app->user?> (<a href="/blog/logout">sign out</a>)
 	<?else:?>
@@ -63,13 +67,31 @@ body > .overlay > div > :last-child {
 <?=$content?>
 
 <script>
-if ( msgs = document.querySelector('#messages') ) {
-	msgs.addEventListener('click', function() {
-		this.parentNode.removeChild(this);
-	}, false);
+window.$ = function(q) {
+	return document.querySelector(q);
+}
+$.post = function(url, handler, data) {
+	var xhr = new XMLHttpRequest;
+	xhr.open('POST', url);
+	xhr.onreadystatechange = function(e) {
+		if ( 4 === this.readyState ) {
+			this.event = e;
+			handler.call(this, this.responseText);
+		}
+	};
+	xhr.send(data || '');
+	return false;
+}
+window.$$ = function(q) {
+	return document.querySelectorAll(q);
+}
+function doAjaxAction(el, handler) {
+	return $.post(el.href, function(t) {
+		handler(el, t);
+	});
 }
 function closeOverlay() {
-	var ov = document.querySelector('body > .overlay:last-child');
+	var ov = $('body > .overlay:last-child');
 	if ( ov ) {
 		ov.parentNode.removeChild(ov);
 	}
@@ -82,16 +104,13 @@ function openOverlay(html) {
 	document.body.appendChild(div);
 	return false;
 }
-function openInAjaxPopup(href) {
-	var xhr = new XMLHttpRequest;
-	xhr.open('POST', href);
-	xhr.onreadystatechange = function(e) {
-		if ( 4 === this.readyState ) {
-			openOverlay(this.responseText);
-		}
-	}
-	xhr.send(null);
-	return false;
+function openInAjaxPopup(url) {
+	return $.post(url, openOverlay);
+}
+if ( msgs = document.querySelector('#messages') ) {
+	msgs.addEventListener('click', function() {
+		this.parentNode.removeChild(this);
+	}, false);
 }
 </script>
 

@@ -29,7 +29,7 @@ abstract class Controller extends Object {
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
-		$this->_uri = $this->_dispatcher->requestPath;
+		$this->_uri = substr($this->_dispatcher->requestPath, 1);
 
 //		$this->_action = $dispatcher->_action; // deprecated
 //		$this->_arguments = $dispatcher->_arguments; // deprecated
@@ -79,12 +79,17 @@ abstract class Controller extends Object {
 		return $this->__components[] = new $class($this, $args);
 	}
 
-	protected function redirect( $location, $exit = true ) {
+	protected function _redirect( $location, $exit = true ) {
 		$goto = $this->_dispatcher->requestBasePath.'/'.ltrim($location, '/');
 		header('Location: '.$goto);
 		if ( $exit ) {
 			exit;
 		}
+	}
+
+	protected function _download( $filename, $contentType = 'text/plain' ) {
+		header('Content-type: '.$contentType);
+		header('Content-Disposition: attachment; filename="'.addslashes($filename).'"');
 	}
 
 	static protected function config( $key, $fallback = null ) {

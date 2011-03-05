@@ -7,7 +7,7 @@
 
 <form method=post action=<?=$app->_uri?>>
 <fieldset>
-	<legend><?if($comment->new):?>Add comment<?else:?>Edit comment # <?=$comment->comment_id?><?endif?></legend>
+	<legend><?if(!$comment):?>Add comment<?else:?>Edit comment # <?=$comment->comment_id?><?endif?></legend>
 
 	<?if($comment->new && !$app->user->isLoggedIn()):?>
 

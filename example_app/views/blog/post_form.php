@@ -1,13 +1,8 @@
 
-<pre>
-<? var_dump(error_reporting()) ?>
-<? var_dump(get_include_path()) ?>
-</pre>
-
 <form method="post">
 <fieldset>
 
-	<legend><?if($post->new):?>Add post<?else:?>Edit post # <?=$post->post_id?><?endif?></legend>
+	<legend><?if(!$post):?>Add post<?else:?>Edit post # <?=$post->post_id?><?endif?></legend>
 
 	<p class="field <?=$validator->ifError('category_id')?>">Category:<br><?=$this::select($categories, array('name' => 'category_id', 'value' => $validator->valueFor('category_id', $post->category_id)))?></p>
 

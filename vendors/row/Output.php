@@ -72,13 +72,7 @@ class Output extends Object {
 		return $file;
 	}
 
-	public function display( $tpl = true, $vars = null, $layout = null ) {
-		if ( is_array($vars) ) {
-			$this->assign($vars);
-		}
-
-		$viewLayout = is_string($layout) || false === $layout ? $layout : $this->viewLayout;
-
+	public function viewFile( $tpl ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
 			$folder = $this::$application->_dispatcher->_modulePath;
@@ -103,16 +97,30 @@ class Output extends Object {
 		else {
 			// Use $tpl literally
 		}
-
-		$this->viewFile = $this->viewsFolder.'/'.$tpl /*.$this->extension*/;
-		$this->render($viewLayout);
-
-//		if ( isset($oldViewLayout) ) {
-//			$this->viewLayout = $oldViewLayout;
-//		}
+		return $tpl;
 	}
 
-	public function render( $viewLayout ) {
+	public function viewFileExists( $file ) {
+		return file_exists($file.$this->extension);
+	}
+
+	public function display( $tpl = true, $vars = null, $layout = null ) {
+		if ( is_array($vars) ) {
+			$this->assign($vars);
+		}
+
+		$viewLayout = is_string($layout) || false === $layout ? $layout : $this->viewLayout;
+
+		$tpl = $this->viewFile($tpl);
+		$this->viewFile = $this->viewsFolder.'/'.$tpl;
+		if ( !$this->viewFileExists($this->viewFile) ) {
+			throw new \OutputException($tpl);
+		}
+
+		$this->render($viewLayout);
+	}
+
+	protected function render( $viewLayout ) {
 		// Change include_path for as short a period as possible
 		if ( false === $this->oldIncludePath ) {
 			$this->oldIncludePath = set_include_path($this->viewsFolder);
@@ -138,6 +146,7 @@ class Output extends Object {
 		// Quickly change the include_path & error_reporting back!
 		set_include_path($this->oldIncludePath);
 		error_reporting($this->oldErrorReporting);
+		$this->oldIncludePath = $this->oldErrorReporting = false;
 	}
 
 	public function title( $title = null ) {
@@ -149,6 +158,14 @@ class Output extends Object {
 
 
 
+	static public function slugify( $text, $replacement = '-' ) {
+		return \row\utils\Inflector::slugify($text, $replacement);
+	}
+
+	static public function markdown( $text ) {
+		return \markdown\Parser::parse((string)$text);
+	}
+
 	static public function nl2br( $text ) {
 		return '<p>'.nl2br((string)$text).'</p>';
 	}
@@ -159,6 +176,16 @@ class Output extends Object {
 
 	static public function javascript( $text ) {
 		return addslashes((string)$text);
+	}
+
+	static public function csv( $data, $forceScalar = true ) {
+		if ( is_scalar($data) || $forceScalar ) {
+			!is_bool($data) or $data = (int)$data;
+			$data = (string)$data;
+//var_dump($data);
+			return str_replace('"', '""', $data);
+		}
+		return '"'.implode('","', array_map(__METHOD__, (array)$data)).'"'."\r\n";
 	}
 
 	/**

@@ -31,12 +31,16 @@ class Output extends \row\Output {
 		$this->assign('application', $this::$application);
 	}// */
 
-	static public function markdown( $text ) {
-		return \markdown\MarkdownParser::parse((string)$text); // 'markdown' is a Vendor. Is that necessary?
-	}
-
 	static public function ajaxlink( $text, $path, $options = array() ) {
 		$options['onclick'] = 'return openInAjaxPopup(this.href);';
+		return static::link($text, $path, $options);
+	}
+
+	static public function ajaxActionlink( $text, $path, $options = array() ) {
+		if ( isset($options['action']) ) {
+			$options['onclick'] = 'return doAjaxAction(this, '.$options['action'].');';
+			unset($options['action']);
+		}
 		return static::link($text, $path, $options);
 	}
 
