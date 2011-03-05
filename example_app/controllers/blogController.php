@@ -74,7 +74,8 @@ class blogController extends Controller {
 			throw new NotFoundException('User # '.$id);
 		}
 
-		return $this->tpl->display(__METHOD__, get_defined_vars(), false); // Show only View, no Layout
+		$layout = !self::ajax();
+		return $this->tpl->display(__METHOD__, get_defined_vars(), $layout); // Show only View, no Layout
 	}
 
 	// A Action port to the publish function that does practically the same

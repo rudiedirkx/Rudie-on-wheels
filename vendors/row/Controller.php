@@ -99,6 +99,14 @@ abstract class Controller extends Object {
 		return $fallback;
 	}
 
+	static protected function ajax() {
+		return !empty($_SERVER['HTTP_AJAX']);
+	}
+
+	static protected function post() {
+		return isset($_SERVER['HTTP_METHOD']) && 'POST' === $_SERVER['HTTP_METHOD'];
+	}
+
 }
 
 

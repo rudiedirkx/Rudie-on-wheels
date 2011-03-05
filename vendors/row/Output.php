@@ -72,7 +72,7 @@ class Output extends Object {
 		return $file;
 	}
 
-	public function viewFile( $tpl ) {
+	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
 			$folder = $this::$application->_dispatcher->_modulePath;
@@ -104,14 +104,14 @@ class Output extends Object {
 		return file_exists($file.$this->extension);
 	}
 
-	public function display( $tpl = true, $vars = null, $layout = null ) {
+	public function display( $tpl = true, $vars = null, $layout = true ) {
 		if ( is_array($vars) ) {
 			$this->assign($vars);
 		}
 
 		$viewLayout = is_string($layout) || false === $layout ? $layout : $this->viewLayout;
 
-		$tpl = $this->viewFile($tpl);
+		$tpl = $this->viewFile($tpl, $viewLayout);
 		$this->viewFile = $this->viewsFolder.'/'.$tpl;
 		if ( !$this->viewFileExists($this->viewFile) ) {
 			throw new \OutputException($tpl);
