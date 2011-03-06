@@ -4,15 +4,10 @@ Installing the framework
 
 There's no installing the framework. There's no application.
 
-There is one requirement: a dedicated 'vhost'. The framework
-will not work if it can't be reached on /. Why? Because every
-app will have its own vhost and like this, the framework needs
-no URL configuration. And that's gooood.
-
 There is an example app
 --
 
-The example app use a database. Because it uses a database (and
+The example app uses a database. Because it uses a database (and
 all applications always will), part of the config is connecting
 to a database and exit() if that connection fails.
 

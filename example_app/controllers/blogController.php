@@ -9,6 +9,7 @@ use \NotFoundException;
 use app\models;
 use row\utils\Inflector;
 use row\auth\Session;
+use row\utils\Email;
 
 class blogController extends Controller {
 
@@ -127,6 +128,10 @@ class blogController extends Controller {
 				if ( $pid = models\Post::insert($insert) ) {
 					$post = models\Post::get($pid);
 					Session::success('Post Created. Look:');
+					// Send e-mail to $this->user's followers
+					foreach ( $this->user->followers AS $user ) {
+						Email::make($user->email, 'New post by '.$user, $user.' posted a new message on the blog. Read it at '.$post->url(array('absolute' => true)))->send();
+					}
 					$this->_redirect($post->url());
 				}
 				Session::error('Couldn\'t save... =( Try again!?');

@@ -17,6 +17,8 @@ namespace app\specs;
  * object is also available with `Model::dbObject()`.)
  */
 
+use row\utils\Email;
+
 abstract class Controller extends \row\Controller {
 
 	protected function _init() {
@@ -35,6 +37,11 @@ abstract class Controller extends \row\Controller {
 		$this->tpl = new Output($this);
 		$this->tpl->viewLayout = '_blogLayout';
 		$this->tpl->assign('app', $this);
+
+		// Prep e-mail
+		Email::$_from = 'blog@blog.blog';
+		Email::$_returnPath = 'bounces@blog.blog';
+		Email::$_sendAsHtml = false;
 
 		$this->_constructComponents();
 	}
