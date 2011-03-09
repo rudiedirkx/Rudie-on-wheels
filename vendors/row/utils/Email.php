@@ -2,8 +2,8 @@
 
 namespace row\utils;
 
-use namespace\email\Html2text;
-use namespace\email\PHPMailerLite;
+use email\Html2text;
+use email\PHPMailerLite;
 
 class Email extends \row\core\Object {
 

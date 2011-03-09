@@ -146,12 +146,24 @@ class Dispatcher extends Object {
 		if ( !$this->options->case_sensitive_paths ) {
 			$actionPath = strtolower($actionPath);
 		}
+
+		// is there a better way for this?
+		$wildcards = (array)$this->options->action_path_wildcards;
+		foreach ( (array)$this->options->action_path_wildcard_aliases AS $from => $to ) {
+			if ( isset($wildcards[$to]) ) {
+				$wildcards[$from] = $wildcards[$to];
+			}
+		}
+
 		foreach ( $actions AS $hookPath => $actionFunction ) {
 			if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
 				$hookPath = rtrim($hookPath, '/');
 			}
-			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
-			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
+
+//			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
+//			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
+			$hookPath = strtr($hookPath, $wildcards);
+
 			if ( !$this->options->case_sensitive_paths ) {
 				$hookPath = strtolower($hookPath);
 			}
