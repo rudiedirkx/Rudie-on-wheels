@@ -30,6 +30,12 @@ $router->add('/scaffolding', function() {
 // A module alias
 $router->add('/posts', array('controller' => 'app\\controllers\\blogController'));
 
+// Blog user profile
+$router->add('/blog-user/(\d+)/?', array(
+	'controller' => 'app\\controllers\\blog\\userController',
+	'action' => 'profileAction'
+));
+
 // (1) This is how simple it **can** be
 $router->add('/$', 'todo', array('redirect' => true));
 

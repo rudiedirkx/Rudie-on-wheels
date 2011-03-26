@@ -24,8 +24,8 @@ class Google {
 	public function getRequestToken() {
 		$options = array(
 			'oauth_consumer_key'		=> $this->consumer,
-			'oauth_signature_method'	=> 'RSA-SHA1',
-			'oauth_signature'			=> '',
+			'oauth_signature_method'	=> 'HMAC-SHA1',
+			'oauth_signature'			=> $this->secret,
 			'oauth_timestamp'			=> time(),
 			'oauth_nonce'				=> $this::nonce(),
 			'scope'						=> 'http://google.nl/calendar',

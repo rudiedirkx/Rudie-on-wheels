@@ -56,7 +56,7 @@ class User extends Model {
 	}
 
 	public function url() {
-		return 'blog/user/'.$this->user_id.'/'.Inflector::slugify((string)$this);
+		return 'blog-user/'.$this->user_id.'/'.Inflector::slugify((string)$this);
 	}
 
 	public function hasAccess( $zone ) {

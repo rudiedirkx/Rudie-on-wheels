@@ -2,23 +2,19 @@
 
 namespace row;
 
-use row\core\Object;
+use row\core\Options;
 
-class Component extends Object {
+class Component extends \row\core\Object {
 
 	protected $application;
 
-	final public function __construct( \row\Controller $application, $args = array() ) {
+	final public function __construct( \row\Controller $application, $options = array() ) {
 		$this->application = $application;
+		$this->options = Options::make($options);
 		$this->_fire('init');
 	}
 
 	public function _init() {
-		
-	}
-
-	public function __destruct() {
-		
 	}
 
 }

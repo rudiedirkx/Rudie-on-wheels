@@ -67,18 +67,6 @@ class blogController extends Controller {
 		exit; // No parse time
 	}
 
-	public function userAction( $id ) {
-		try {
-			$user = models\User::get($id);
-		}
-		catch ( \Exception $ex ) {
-			throw new NotFoundException('User # '.$id);
-		}
-
-		$layout = !self::ajax();
-		return $this->tpl->display(__METHOD__, get_defined_vars(), $layout); // Show only View, no Layout
-	}
-
 	// A Action port to the publish function that does practically the same
 	public function unpublish_postAction( $post ) {
 		return $this->publish_postAction($post, 0);
@@ -175,33 +163,6 @@ class blogController extends Controller {
 	public function logoutAction() {
 		$this->user->logout();
 		$this->_redirect('/blog');
-	}
-
-	// I'm allowing double logins (or "login layers"):
-	// If you're logged in, you can't reach the form, but if you pass a
-	// UID, it'll just create another layer. Our SessionUser allows that (by default).
-	// Validation (e.g. a password check) could come from a Validator but might
-	// be overkill in this case. Our blog doesn't need a password though =)
-	// Note how $this->post (typeof Options) can be used to fetch _POST data.
-	public function loginAction( $uid = null ) {
-		if ( null !== $uid ) {
-			$this->user->login(models\User::get($uid));
-		}
-		if ( $this->user->isLoggedIn() ) {
-			$this->_redirect('/blog');
-		}
-		if ( !$this->post->isEmpty() ) {
-			try {
-				$user = models\User::one(array( 'username' => (string)$this->post->username ));
-				$this->user->login($user);
-				Session::success('Alright, alright, alright, you\'re logged in...');
-				$this->_redirect($this->post->get('goto', '/blog'));
-			}
-			catch ( \Exception $ex ) {}
-			Session::error('Sorry, buddy, that\'s not your username!');
-		}
-		$messages = Session::messages();
-		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}
 
 	// See edit_post Action

@@ -2,7 +2,6 @@
 
 namespace row;
 
-use row\core\Object;
 use row\core\Options;
 
 /**
@@ -17,9 +16,9 @@ use row\core\Options;
  * some from Smarty.)
  */
 
-class Output extends Object {
+class Output extends \row\Component {
 
-	static public $application;
+	static public $_application;
 
 	public $errorReporting = 2039; // Don't show notices
 		public $oldErrorReporting = false;
@@ -33,17 +32,15 @@ class Output extends Object {
 	public $vars = array();
 	public $viewFile = '';
 
-	public function __construct( $app ) {
+	public function _init() {
 		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
-		$this::$application = $app;
+		$this::$_application = $this->application;
 
 		// The most sensible views location
 		$this->viewsFolder = ROW_APP_PATH.'/views';
 
 		// Make sure the content and title vars exist
 		$this->vars[$this::$_var_content] = $this->vars[$this::$_var_title] = '';
-
-		$this->_fire('init');
 	}
 
 	public function assign( $key, $val = null ) {
@@ -59,20 +56,20 @@ class Output extends Object {
 	}
 
 	public function templateFolderTranslation( $folder ) {
-		if ( $mcp = $this::$application->_dispatcher->options->module_class_prefix ) {
+		if ( $mcp = $this::$_application->_dispatcher->options->module_class_prefix ) {
 			$folder = substr($folder, strlen($mcp));
 		}
-		if ( $mcp = $this::$application->_dispatcher->options->module_class_postfix ) {
+		if ( $mcp = $this::$_application->_dispatcher->options->module_class_postfix ) {
 			$folder = substr($folder, 0, -1*strlen($mcp));
 		}
 		return $folder;
 	}
 
 	public function templateFileTranslation( $file ) {
-		if ( $anp = $this::$application->_dispatcher->options->action_name_prefix ) {
+		if ( $anp = $this::$_application->_dispatcher->options->action_name_prefix ) {
 			$file = substr($file, strlen($anp));
 		}
-		if ( $anp = $this::$application->_dispatcher->options->action_name_postfix ) {
+		if ( $anp = $this::$_application->_dispatcher->options->action_name_postfix ) {
 			$file = substr($file, 0, -1*strlen($anp));
 		}
 		return $file;
@@ -81,8 +78,8 @@ class Output extends Object {
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$folder = $this::$application->_dispatcher->_modulePath;
-			$file = $this::$application->_dispatcher->_action;
+			$folder = $this::$_application->_dispatcher->_modulePath;
+			$file = $this::$_application->_dispatcher->_action;
 			$tpl = $folder.'/'.$file;
 		}
 		else if ( false === $tpl ) {
@@ -136,6 +133,7 @@ class Output extends Object {
 			$this->oldErrorReporting = error_reporting($this->errorReporting);
 		}
 		// Unpack template variables
+		unset($this->vars['this']);
 		extract($this->vars);
 		// Render template AND layout
 		if ( false !== $viewLayout ) {
@@ -200,7 +198,7 @@ class Output extends Object {
 	 * Temporary (?) solution: static::$application
 	 */
 	static public function url( $path, $absolute = false ) {
-		$base = static::$application ? static::$application->_dispatcher->requestBasePath.'/' : '/';
+		$base = static::$_application ? static::$_application->_dispatcher->requestBasePath.'/' : '/';
 		return $base.$path;
 	}
 
@@ -238,12 +236,23 @@ class Output extends Object {
 	static public function translate( $text, $replace = array(), $options = array() ) {
 		$options = Options::make($options);
 		if ( $replace ) {
-			$text = strtr($text, (array)$replace);
+			$text = static::replace($text, $replace);
 		}
 		if ( $options->get('ucfirst', true) ) {
 			$text = ucfirst($text);
 		}
 		return $text;
+	}
+
+	static public function replace( $str, $replace ) {
+		$replacements = array();
+		foreach ( (array)$replace AS $k => $v ) {
+			if ( is_int($k) ) {
+				$k = '%'.$k;
+			}
+			$replacements[$k] = $v;
+		}
+		return strtr($str, $replacements);
 	}
 
 }

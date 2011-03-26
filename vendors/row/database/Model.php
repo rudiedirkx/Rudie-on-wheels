@@ -300,6 +300,7 @@ class Model extends Object {
 	public function update( $updates ) {
 		if ( !is_scalar($updates) ) {
 			$this->_fill((array)$updates);
+			$this->_fire('post_fill', array($init));
 		}
 		$conditions = $this->_pkValue(true);
 //print_r($conditions); exit;

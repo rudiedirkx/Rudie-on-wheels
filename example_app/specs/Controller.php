@@ -28,10 +28,10 @@ abstract class Controller extends \row\Controller {
 		$this->db = $GLOBALS['db'];
 
 		// Make the session user always available in every controller:
-		$this->user = SessionUser::user(); // $this->getComponent('app\specs\SessionUser');
+		$this->user = SessionUser::user();
 
 		// And the ACL
-		$this->acl = $this->getComponent('app\\specs\\ControllerACL');
+		$this->acl = new \app\specs\ControllerACL($this);
 
 		// Initialize Output/Views (used in 90% of controller actions):
 		$this->tpl = new Output($this);
@@ -42,8 +42,6 @@ abstract class Controller extends \row\Controller {
 		Email::$_from = 'blog@blog.blog';
 		Email::$_returnPath = 'bounces@blog.blog';
 		Email::$_sendAsHtml = false;
-
-		$this->_constructComponents();
 	}
 
 }

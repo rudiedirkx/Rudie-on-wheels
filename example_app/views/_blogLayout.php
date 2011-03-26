@@ -58,9 +58,9 @@ body > .overlay > div > :last-child {
 	<?=$this::link($this::translate('About'), 'blog/page/about')?> |
 	<?=$this::link($this::translate('Help / FAQ'), 'blog/page/faq')?> |
 	<?if( $app->user->isLoggedIn() ):?>
-		Signed in as: <?=$app->user?> (<a href="/blog/logout">sign out</a>)
+		Signed in as: <?=$this::ajaxLink($app->user, $app->user->user->url())?> (<?=$this::link($this::translate('sign out'), 'blog/logout')?>)
 	<?else:?>
-		You're not signed in... (<a href="/blog/login">sign in</a>)
+		You're not signed in... (<?=$this::link($this::translate('sign in', null, array('ucfirst' => false)), 'blog-user/login')?> or <?=$this::link($this::translate('request account', null, array('ucfirst' => false)), 'blog-user/request-account')?>)
 	<?endif?>
 </header>
 

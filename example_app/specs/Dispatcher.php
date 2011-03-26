@@ -35,10 +35,11 @@ class Dispatcher extends \row\http\Dispatcher {
 	 * minimal, standard exception catch.
 	 */
 	public function caught( $ex ) {
-		switch ( get_class($ex) ) {
+		$class = get_class($ex);
+		switch ( $class ) {
 			case 'NotFoundException':
 			case 'OutputException':
-				exit('[404] Not Found: '.$ex->getMessage());
+				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
 			case 'row\database\DatabaseException':
 				exit('[Model (config?)] '.$ex->getMessage().'');
 			case 'row\database\ModelException':
