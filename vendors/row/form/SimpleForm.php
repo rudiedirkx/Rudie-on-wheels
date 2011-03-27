@@ -110,7 +110,8 @@ class SimpleForm extends \row\Component {
 
 	public function renderElementWrapper( $input, $element ) {
 		$name = $element['name'];
-		return '<p class="form-element '.$element['type'].' '.$name.'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span></p>';
+		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
+		return '<p class="form-element '.$element['type'].' '.$name.'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
 	}
 
 	public function elementSeparator() {

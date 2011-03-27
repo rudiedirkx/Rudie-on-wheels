@@ -39,6 +39,15 @@ body > .overlay > div {
 body > .overlay > div > :last-child {
 	margin-bottom: 0;
 }
+form span.input,
+form span.description {
+	display: block;
+}
+form span.description {
+	font-size: 80%;
+	color: #999;
+	margin-left: 20px;
+}
 </style>
 </head>
 

@@ -43,7 +43,7 @@ class blogController extends Controller {
 
 	public function pageAction( $page = 'about' ) {
 		$tpl = 'blog/pages/'.$page;
-		return $this->tpl->display($tpl);
+		return $this->tpl->display($tpl, array(), !self::ajax());
 	}
 
 	public function csv_archiveAction( $name = 'archive.csv' ) {
