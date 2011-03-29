@@ -2,11 +2,11 @@
 
 namespace row\database\adapter;
 
-use row\database\SQLAdapter;
+use row\database\Adapter;
 use row\database\DatabaseException;
 use row\database\adapter\PDOpgSQL;
 
-class pgSQL extends SQLAdapter {
+class pgSQL extends Adapter {
 
 	/* Reflection *
 	public function _getTables() {

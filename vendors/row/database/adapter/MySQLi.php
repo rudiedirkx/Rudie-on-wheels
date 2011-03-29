@@ -87,7 +87,11 @@ class MySQLi extends MySQL {
 		return $a;
 	}
 
-	public function fetch( $query, $class = null, $justFirst = false ) {
+	public function result( $query ) {
+		return new MySQLiResult($query);
+	}
+
+/*	public function fetch( $query, $class = null, $justFirst = false ) {
 //var_dump($query);
 		$r = $this->query($query);
 		if ( !is_object($r) ) {
@@ -114,7 +118,7 @@ class MySQLi extends MySQL {
 			}
 		}
 		return $a;
-	}
+	}*/
 
 	public function query( $query ) {
 		$this->queries[] = $query;

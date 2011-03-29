@@ -2,12 +2,12 @@
 
 namespace row\database\adapter;
 
-use row\database\SQLAdapter;
+use row\database\Adapter;
 use row\database\DatabaseException;
 use row\database\adapter\PDOSQLite;
 use row\database\adapter\SQLite3;
 
-class SQLite extends SQLAdapter {
+class SQLite extends Adapter {
 
 	/* Reflection */
 	public function _getTables() {

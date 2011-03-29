@@ -2,10 +2,10 @@
 
 namespace row\database\adapter;
 
-use row\database\SQLAdapter;
+use row\database\Adapter;
 use row\database\adapter\MySQLi;
 
-class MySQL extends SQLAdapter {
+class MySQL extends Adapter {
 
 	/* Reflection */
 	public function _getTables() {
@@ -141,7 +141,11 @@ class MySQL extends SQLAdapter {
 		return $a;
 	}
 
-	public function fetch( $query, $class = null, $justFirst = false ) {
+	public function result( $query ) {
+		return new MySQLiResult($query);
+	}
+
+/*	public function fetch( $query, $class = null, $justFirst = false ) {
 		$r = $this->query($query);
 		if ( !$r ) {
 			return false;
@@ -167,7 +171,7 @@ class MySQL extends SQLAdapter {
 			}
 		}
 		return $a;
-	}
+	}*/
 
 	public function query( $query ) {
 		$q = mysql_query($query, $this->db);

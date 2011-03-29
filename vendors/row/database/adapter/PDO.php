@@ -2,10 +2,10 @@
 
 namespace row\database\adapter;
 
-use row\database\SQLAdapter;
+use row\database\Adapter;
 use row\database\DatabaseException;
 
-abstract class PDO extends SQLAdapter {
+abstract class PDO extends Adapter {
 
 	public $affected = 0;
 
