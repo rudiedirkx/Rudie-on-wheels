@@ -13,8 +13,8 @@ class SimpleForm extends \row\Component {
 	public $output = array();
 
 
-	public function input( $name ) {
-		return isset($this->input[$name]) ? $this->input[$name] : '';
+	public function input( $name, $alt = '' ) {
+		return isset($this->input[$name]) ? $this->input[$name] : $alt;
 	}
 
 	public function output( $name, $value = null ) {
