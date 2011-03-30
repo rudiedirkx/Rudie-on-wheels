@@ -2,10 +2,9 @@
 To do:
 ------
 
-1. Validator: Put some kind of ultra easy form builder in `row\form\Validator` (in `row\Form`?)... And then make the Form validatable?<br><br>
-2. E-mail: Create simple PHPMailer (?) implementation<br><br>
-8. Database: Implement `database\adapters\SQLite3`
-8. Database: Implement `database\adapters\PDOpgSQL`
+1. Form/Validation: Finish row\form\SimpleForm
+2. E-mail: Create simple PHPMailer (?) implementation
+8. Database: Implement common database engines (pgSQL, SQLite, PDOSQLite) in new format
 
 
 Debatables:

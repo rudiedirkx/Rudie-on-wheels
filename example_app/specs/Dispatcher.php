@@ -41,9 +41,9 @@ class Dispatcher extends \row\http\Dispatcher {
 			case 'OutputException':
 				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
 			case 'row\database\DatabaseException':
-				exit('[Model (config?)] '.$ex->getMessage().'');
+				exit('[Database/Query error] '.$ex->getMessage().'');
 			case 'row\database\ModelException':
-				exit('[Model (config?)] '.$ex->getMessage().'');
+				exit('[Database Model error] '.$ex->getMessage().'');
 		}
 		exit('Unknown ['.get_class($ex).'] encountered: '.$ex->getMessage().'');
 	}

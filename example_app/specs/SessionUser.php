@@ -46,7 +46,9 @@ class SessionUser extends \row\auth\SessionUser {
 			case 'check salt':
 				return isset($_GET['salt']) && $this->salt === $_GET['salt'];
 		}
-		return $this->isLoggedIn() && ( in_array(strtolower($zone), $this->user->acl) || in_array('everything', $this->user->acl) );
+		// For everything else, you have to be logged in (IN THIS CASE) to have any access
+		return $this->isLoggedIn() and ( $this->user->hasAccess(strtolower($zone)) or $this->user->hasAccess('everything') );
+//		return $this->isLoggedIn() && ( in_array(strtolower($zone), $this->user->acl) || in_array('everything', $this->user->acl) );
 	}
 
 	/**

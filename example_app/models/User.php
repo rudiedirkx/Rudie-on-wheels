@@ -11,13 +11,20 @@ class User extends Model {
 	static public $_pk = 'user_id';
 	static public $_title = 'full_name';
 	static public $_getters = array(
-		'access_zones' => array( self::GETTER_FUNCTION, true, 'getAccessZones' ),
 		'acl' => array( self::GETTER_FUNCTION, true, 'getACL' ),
 		'posts' => array( self::GETTER_ALL, true, 'app\models\Post', 'user_id', 'author_id' ),
 		'numPosts' => array( self::GETTER_FUNCTION, true, 'getNumPosts' ),
 	);
 
 	static public $_user_accesses = array(); // I save this statically, because it MIGHT happen there are more than 1 User objects per unique user =(
+
+
+	public $_pf_acl = false;
+	protected function _post_fill( $data ) {
+		if ( !is_array($this->_pf_acl) && isset($data['access']) ) {
+			$this->_pf_acl = $this->getACL();
+		}
+	}
 
 
 	public function isFollowingPost( $post ) {
@@ -60,12 +67,7 @@ class User extends Model {
 	}
 
 	public function hasAccess( $zone ) {
-		// If this user is (the same one as) the SessionUser->user, don't get this from the database, but from the session (HOW??)
-		if ( !isset(self::$_user_accesses[$id]) ) {
-			self::$_user_accesses[$id] = $this->access_zones;
-		}
-		$acl = self::$_user_accesses[$id];
-		return in_array($zone, $acl);
+		return in_array($zone, $this->acl); // $this->acl is cached because it's a ^GETTER^
 	}
 
 	public function isUnaware() {

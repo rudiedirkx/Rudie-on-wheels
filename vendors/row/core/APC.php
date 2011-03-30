@@ -17,7 +17,9 @@ class APC {
 
 	static public function put( $name, $var ) {
 		if ( function_exists('apc_store') ) {
-			apc_store(static::key($name), $var);
+			if ( static::get($name) !== $var ) {
+				apc_store(static::key($name), $var);
+			}
 		}
 	}
 

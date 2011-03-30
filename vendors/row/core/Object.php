@@ -2,7 +2,7 @@
 
 namespace row\core;
 
-class Object {
+abstract class Object {
 
 	public function _exists($k) {
 		return property_exists($this, $k);

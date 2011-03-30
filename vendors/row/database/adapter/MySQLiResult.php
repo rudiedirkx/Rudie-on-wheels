@@ -2,14 +2,14 @@
 
 namespace row\database\adapter;
 
-abstract class MySQLiResult extends \row\database\QueryResult {
+class MySQLiResult extends \row\database\QueryResult {
 
-	abstract public function singleResult() {
+	public function singleResult() {
 		return current($this->result->fetch_row());
 	}
 
-	abstract public function nextObject( $class = '\stdClass' ) {
-		return $this->result->fetch_object($class);
+	public function nextObject( $class = '\stdClass', $args = array() ) {
+		return $this->result->fetch_object($class, $args);
 	}
 
 	public function nextAssocArray() {
@@ -18,6 +18,10 @@ abstract class MySQLiResult extends \row\database\QueryResult {
 
 	public function nextNumericArray() {
 		return $this->result->fetch_row();
+	}
+
+	public function count() {
+		return $this->result->num_rows;
 	}
 
 }

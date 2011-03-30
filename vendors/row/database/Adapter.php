@@ -5,6 +5,14 @@ namespace row\database;
 use row\core\Options;
 use row\database\DatabaseException;
 
+/**
+ * An Adapter has easy and advanced access to its database:
+ *   ->fetch	Execute query and return all rows
+ *   ->count	Execute query and count natively
+ *   ->select	Simpler access (shortcut) for ->fetch
+ *   ->result	Execute query and return QueryResult object
+ */
+
 abstract class Adapter extends \row\core\Object {
 
 	/* Reflection */ // Should this be put somewhere else?
@@ -101,16 +109,19 @@ abstract class Adapter extends \row\core\Object {
 		class_exists($class) or $class = false;
 		if ( $justFirst ) {
 			if ( $class ) {
-				return $result->nextObject($class);
+				return $result->nextObject($class, array(true));
 			}
 			return $result->nextAssocArray();
 		}
 		if ( $class ) {
-			return $result->allObjects($class);
+			return $result->allObjects($class, array(true));
 		}
 		return $result->allAssocArrays();
 	}
-	abstract public function result( $query ); // typeof QueryResult
+	public function result( $query ) {
+		$class = get_class($this).'Result';
+		return $class::make($this->query($query));
+	}
 	abstract public function query( $query );
 	abstract public function execute( $query ); // Just like PDO =(
 	abstract public function error();
@@ -118,11 +129,67 @@ abstract class Adapter extends \row\core\Object {
 	abstract public function affectedRows();
 	abstract public function insertId();
 
-	abstract public function fetchFieldsAssoc( $query );
-	abstract public function fetchFieldsNumeric( $query );
-	abstract public function selectOne( $table, $field, $conditions );
-	abstract public function countRows( $query );
-	abstract public function fetchByField( $query, $field );
+
+	public function fetchFields( $query ) {
+		return $this->fetchFieldsAssoc($query);
+	}
+
+	public function fetchFieldsAssoc( $query ) {
+		$r = $this->result($query);
+		if ( !is_object($r) ) {
+			return false;
+		}
+		$a = array();
+		while ( $l = $r->nextRow() ) {
+			$a[$l[0]] = $l[1];
+		}
+		return $a;
+	}
+
+	public function fetchFieldsNumeric( $query ) {
+		$r = $this->result($query);
+		if ( !is_object($r) ) {
+			return false;
+		}
+		$a = array();
+		while ( $l = $r->nextRow() ) {
+			$a[] = $l[0];
+		}
+		return $a;
+	}
+
+	public function selectOne( $table, $field, $conditions, $params = array() ) {
+		$conditions = $this->replaceholders($conditions, $params);
+		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
+		$r = $this->result($query);
+		if ( !$r || !$r->count() ) {
+			return false;
+		}
+		return $r->singleResult();
+	}
+
+	public function countRows( $query ) {
+		$r = $this->result($query);
+		if ( !$r ) {
+			return false;
+		}
+		return $r->count();
+	}
+
+	public function fetchByField( $query, $field ) {
+		$r = $this->result($query);
+		if ( !$r ) {
+			return false;
+		}
+		$a = array();
+		while ( $l = $r->nextRecord() ) {
+			if ( !array_key_exists($field, $l) ) {
+				return $this->except('Undefined index: "'.$field.'"');
+			}
+			$a[$l[$field]] = $l;
+		}
+		return $a;
+	}
 
 	static protected $aliasDelim = '.'; // [table] "." [column]
 
@@ -136,10 +203,6 @@ abstract class Adapter extends \row\core\Object {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		return $this->fetchByField($query, $field);
-	}
-
-	public function fetchFields( $query ) {
-		return $this->fetchFieldsAssoc($query);
 	}
 
 	public function selectFields( $table, $fields, $conditions, $params = array() ) {
