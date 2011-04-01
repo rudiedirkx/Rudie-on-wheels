@@ -13,7 +13,7 @@ use row\utils\Email;
 
 class blogController extends Controller {
 
-	static public $config = array(
+	protected $_config = array(
 		'posts_on_index' => 3,
 	);
 
@@ -254,7 +254,7 @@ class blogController extends Controller {
 		// Use that function and the Model's logic to get those posts.
 		$unpub = $this->user->hasAccess('blog read unpublished');
 		$method = $unpub ? 'newest' : 'newestPublished';
-		$posts = models\Post::$method(self::config('posts_on_index'));
+		$posts = models\Post::$method($this->_config('posts_on_index'));
 
 		// Way 2
 		// Define the difference in conditions here (instead of in the Model)
@@ -265,7 +265,7 @@ class blogController extends Controller {
 		// A third way would be a combination like this:
 		 /*
 			$access = $this->user->hasAccess('blog read unpublished');
-			$posts = model\Post::postsByAccess($access, self::config('posts_on_index'));
+			$posts = model\Post::postsByAccess($access, this->_config('posts_on_index'));
 		 */
 		// That way you can check access in the Controller and have fetch logic in the Model
 

@@ -17,19 +17,14 @@ use row\auth\ControllerACL;
 abstract class Controller extends Object {
 
 	public $_dispatcher;
-//	public $_action = ''; // deprecated
-//	public $_arguments = array(); // deprecated
 
 	static protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
-	static protected $config = array();
+	protected $_config = array();
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
 		$this->_uri = substr($this->_dispatcher->requestPath, 1);
-
-//		$this->_action = $dispatcher->_action; // deprecated
-//		$this->_arguments = $dispatcher->_arguments; // deprecated
 
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
@@ -70,9 +65,9 @@ abstract class Controller extends Object {
 		header('Content-Disposition: attachment; filename="'.addslashes($filename).'"');
 	}
 
-	static protected function config( $key, $fallback = null ) {
-		if ( isset(static::$config[$key]) ) {
-			return static::$config[$key];
+	protected function _config( $key, $fallback = null ) {
+		if ( isset($this->_config[$key]) ) {
+			return $this->_config[$key];
 		}
 		return $fallback;
 	}
