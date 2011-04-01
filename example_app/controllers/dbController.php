@@ -10,13 +10,35 @@ use app\specs\Controller;
 
 class dbController extends Controller {
 
+	static protected $config = array(
+		'oele' => 'boele',
+	);
+	protected $_config = array(
+		'oele' => 'ook boele',
+	);
+
 	static protected $_actions = array(
 		'/' => 'index',
 		'/index' => 'index',
+		'/test' => 'test',
 	);
 
 	public function _pre_action() {
 		echo '<pre>'."\n";
+	}
+
+	public function test() {
+		$cfgs = $this->_configs();
+		var_dump($cfgs);
+
+		$cfgs = self::configs();
+		var_dump($cfgs);
+
+		$cfg = $this->_config('oele', false);
+		var_dump($cfg);
+
+		$cfg = self::config('oele', false);
+		var_dump($cfg);
 	}
 
 	protected function debugQuery() {

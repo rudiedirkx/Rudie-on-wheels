@@ -21,6 +21,7 @@ abstract class Controller extends Object {
 	static protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
 	protected $_config = array();
+	static protected $config = array();
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
@@ -70,6 +71,19 @@ abstract class Controller extends Object {
 			return $this->_config[$key];
 		}
 		return $fallback;
+	}
+	protected function _configs() {
+		return $this->_config;
+	}
+
+	static protected function config( $key, $fallback = null ) {
+		if ( isset(static::$config[$key]) ) {
+			return static::$config[$key];
+		}
+		return $fallback;
+	}
+	static protected function configs() {
+		return static::$config;
 	}
 
 	static protected function ajax() {

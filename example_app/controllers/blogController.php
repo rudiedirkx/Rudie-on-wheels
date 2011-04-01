@@ -13,6 +13,9 @@ use row\utils\Email;
 
 class blogController extends Controller {
 
+	static protected $config = array(
+		'posts_on_index' => 3.0,
+	);
 	protected $_config = array(
 		'posts_on_index' => 3,
 	);
@@ -254,7 +257,11 @@ class blogController extends Controller {
 		// Use that function and the Model's logic to get those posts.
 		$unpub = $this->user->hasAccess('blog read unpublished');
 		$method = $unpub ? 'newest' : 'newestPublished';
-		$posts = models\Post::$method($this->_config('posts_on_index'));
+		$poi = $this->_config('posts_on_index');
+var_dump($poi);
+		$poi = self::config('posts_on_index');
+var_dump($poi);
+		$posts = models\Post::$method($poi);
 
 		// Way 2
 		// Define the difference in conditions here (instead of in the Model)
@@ -300,6 +307,8 @@ echo '<pre>time() = '.time()."\n";
 			throw new NotFoundException('Blog post # '.$post);
 		}
 	}
+
+
 
 	// Testing Inflector methods
 	public function inflectorAction() {
