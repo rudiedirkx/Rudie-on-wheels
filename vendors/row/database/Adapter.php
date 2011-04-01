@@ -118,10 +118,12 @@ abstract class Adapter extends \row\core\Object {
 		}
 		return $result->allAssocArrays();
 	}
+
 	public function result( $query ) {
 		$class = get_class($this).'Result';
 		return $class::make($this->query($query));
 	}
+
 	abstract public function query( $query );
 	abstract public function execute( $query ); // Just like PDO =(
 	abstract public function error();
