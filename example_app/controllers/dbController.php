@@ -10,6 +10,11 @@ use app\specs\Controller;
 
 class dbController extends Controller {
 
+	static protected $_actions = array(
+		'/' => 'index',
+		'/index' => 'index',
+	);
+
 	public function _pre_action() {
 		echo '<pre>'."\n";
 	}
