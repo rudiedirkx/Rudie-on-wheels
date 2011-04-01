@@ -13,11 +13,8 @@ use row\utils\Email;
 
 class blogController extends Controller {
 
-	static protected $config = array(
+	static $config = array(
 		'posts_on_index' => 3.0,
-	);
-	protected $_config = array(
-		'posts_on_index' => 3,
 	);
 
 	protected function _init() {
@@ -257,10 +254,7 @@ class blogController extends Controller {
 		// Use that function and the Model's logic to get those posts.
 		$unpub = $this->user->hasAccess('blog read unpublished');
 		$method = $unpub ? 'newest' : 'newestPublished';
-		$poi = $this->_config('posts_on_index');
-var_dump($poi);
 		$poi = self::config('posts_on_index');
-var_dump($poi);
 		$posts = models\Post::$method($poi);
 
 		// Way 2

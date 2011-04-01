@@ -18,10 +18,9 @@ abstract class Controller extends Object {
 
 	public $_dispatcher;
 
-	static protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
+	static $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
-	protected $_config = array();
-	static protected $config = array();
+	static $config = array();
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
@@ -64,16 +63,6 @@ abstract class Controller extends Object {
 	protected function _download( $filename, $contentType = 'text/plain' ) {
 		header('Content-type: '.$contentType);
 		header('Content-Disposition: attachment; filename="'.addslashes($filename).'"');
-	}
-
-	protected function _config( $key, $fallback = null ) {
-		if ( isset($this->_config[$key]) ) {
-			return $this->_config[$key];
-		}
-		return $fallback;
-	}
-	protected function _configs() {
-		return $this->_config;
 	}
 
 	static protected function config( $key, $fallback = null ) {
