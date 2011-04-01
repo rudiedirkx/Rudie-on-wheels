@@ -25,6 +25,9 @@ class Vendors {
 		}
 		return false;
 	}
+	static public function cacheClear() {
+		return APC::clear('classes');
+	}
 	/** experimental **/
 
 	static public $defaultLoader;
