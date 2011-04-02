@@ -4,16 +4,18 @@ namespace row\database;
 
 abstract class QueryResult extends \row\core\Object {
 
-	static public function make( $result ) {
-		return false !== $result ? new static($result) : false;
+	static public function make( $result, $class = '' ) {
+		return false !== $result ? new static($result, $class) : false;
 	}
 
 
 	public $result; // typeof who cares
+	public $class = '';
 
 
-	public function __construct( $result ) {
+	public function __construct( $result, $class = '' ) {
 		$this->result = $result;
+		$this->class = $class;
 	}
 
 

@@ -7,7 +7,7 @@ use row\Output;
 
 class Controller extends \row\Controller {
 
-	static protected $_actions = array(
+	static $_actions = array(
 		'/'								=> 'tables',
 		'/table-structure/*'			=> 'table_structure',
 		'/table-data/*'					=> 'table_data',
@@ -121,7 +121,7 @@ class Controller extends \row\Controller {
 
 	public function _url( $action = '', $more = '' ) {
 		$x = explode('/', ltrim($this->_dispatcher->requestPath, '/'));
-		return '/'.$x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' );
+		return Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ));
 	}
 
 }

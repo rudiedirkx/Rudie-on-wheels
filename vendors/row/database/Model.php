@@ -72,10 +72,13 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _byQuery( $query ) {
+	static public function _byQuery( $query, $result = false ) {
 		$class = get_called_class();
-		if ( class_exists($class.'Record') /*&& is_a($class.'Record', get_called_class())*/ ) { // Is the AND .. overkill? Or necessary?
+		if ( class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
 			$class = $class.'Record';
+		}
+		if ( $result ) {
+			return static::dbObject()->result($query, $class);
 		}
 		return static::dbObject()->fetch($query, $class);
 	}
@@ -101,12 +104,12 @@ class Model extends Object {
 	 */
 	static public function _one( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->stringifyConditions($conditions);
-		$conditions = static::dbObject()->addLimit($conditions, 2);
-		$r = static::_fetch($conditions);
-		if ( !isset($r[0]) || isset($r[1]) ) {
+		$query = static::_query($conditions);
+		$r = static::_byQuery($query, true);
+		if ( 1 !== $r->count() ) {
 			throw new ModelException('Not exactly one record returned. Found '.count($r).' of '.get_called_class().'.');
 		}
-		return $r[0];
+		return $r->nextObject($r->class, array(true));
 	}
 
 	/**
@@ -114,11 +117,9 @@ class Model extends Object {
 	 */
 	static public function _first( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->stringifyConditions($conditions);
-		$conditions = static::dbObject()->addLimit($conditions, 1);
-		$r = static::_fetch($conditions);
-		if ( isset($r[0]) ) {
-			return $r[0];
-		}
+		$query = static::_query($conditions);
+		$r = static::_byQuery($query, true);
+		return $r->nextObject($r->class, array(true));
 	}
 
 	/**

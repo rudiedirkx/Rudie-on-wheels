@@ -119,9 +119,9 @@ abstract class Adapter extends \row\core\Object {
 		return $result->allAssocArrays();
 	}
 
-	public function result( $query ) {
-		$class = get_class($this).'Result';
-		return $class::make($this->query($query));
+	public function result( $query, $targetClass = '' ) {
+		$resultClass = get_class($this).'Result';
+		return $resultClass::make($this->query($query), $targetClass);
 	}
 
 	abstract public function query( $query );
