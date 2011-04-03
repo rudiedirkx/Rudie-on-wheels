@@ -80,7 +80,7 @@ abstract class Controller extends Object {
 	}
 
 	static protected function post() {
-		return isset($_SERVER['HTTP_METHOD']) && 'POST' === $_SERVER['HTTP_METHOD'];
+		return isset($_SERVER['REQUEST_METHOD']) && 'POST' === $_SERVER['REQUEST_METHOD'];
 	}
 
 }

@@ -8,9 +8,95 @@ use row\Output;
 
 class SimpleForm extends \row\Component {
 
-	public $input = array();
+	const NOT_REQUIRED = 0;
+	const MUST_EXIST = 1;
+	const NOT_EMPTY = 2;
+	const MORE_THAN_WHITESPACE = 3;
 
+	public $input = array();
+	public $errors = array();
 	public $output = array();
+
+
+	public function validate( $data ) {
+		$this->input = $data;
+
+		$this->_elements = $this->elements();
+		$validators = $errors = array();
+
+		foreach ( $this->_elements AS $name => &$element ) {
+			$element['name'] = $name;
+			$this->elementTitle($element);
+			if ( is_string($name) ) {
+				// form element
+				if ( !empty($element['required']) ) {
+					if ( !$this->validateRequired($name, $element) ) {
+						$this->errors[$name][] = $this->errorMessage('required', $element);
+					}
+				}
+			}
+			else {
+				// validator
+				$validators[] = $element;
+			}
+			unset($element);
+		}
+
+		if ( 0 == count($this->errors) ) {
+			foreach ( $validators AS $validator ) {
+				if ( empty($validator['require']) || 0 == count(array_intersect((array)$validator['require'], array_keys($this->errors))) ) {
+					echo "\n  do custom validator on [".implode(', ', (array)$validator['fields'])."] ...\n";
+					$v = $validator['validation'];
+					if ( !$v($this) ) {
+						$error = $this->errorMessage('custom', $validator);
+						foreach ( (array)$validator['fields'] AS $name ) {
+							$this->errors[$name][] = $error;
+						}
+					}
+				}
+			}
+		}
+
+		return 0 == count($this->errors);
+	}
+
+	public function validateRequired( $name, $element ) {
+		if ( !isset($this->input[$name]) ) {
+			return false;
+		}
+		$length = is_array($this->input[$name]) ? count($this->input[$name]) : strlen(trim((string)$this->input[$name]));
+		$minlength = isset($element['minlength']) ? (int)$element['minlength'] : 1;
+		return $length >= $minlength;
+	}
+
+	public function errorMessage( $type, $element ) {
+		$this->elementTitle($element);
+		$title = $element['title'];
+
+		switch ( $type ) {
+			case 'required':
+				return 'Field "'.$title.'" is required';
+			break;
+			case 'custom':
+				$fields = (array)$element['fields'];
+				foreach ( $fields AS &$name ) {
+					$name = $this->_elements[$name]['title'];
+					unset($name);
+				}
+				return isset($element['message']) ? $element['message'] : 'Custom validation failed for field(s): "'.implode('", "', $fields).'"';
+			break;
+		}
+
+		return 'Unknown type of error for field "'.$title.'".';
+	}
+
+	public function errors() {
+		$errors = array();
+		foreach ( $this->errors AS $errs ) {
+			$errors = array_merge($errors, $errs);
+		}
+		return array_unique($errors);
+	}
 
 
 	public function input( $name, $alt = '' ) {
@@ -69,30 +155,34 @@ class SimpleForm extends \row\Component {
 		$index = 0;
 		$html = '';
 		foreach ( $elements AS $name => $element ) {
-			$element['name'] = $name;
-			$element['index'] = $index++;
-			$html .= $this->renderElement($name, $element);
-			$html .= $this->elementSeparator();
+			if ( is_string($name) ) {
+				$element['name'] = $name;
+				$element['index'] = $index++;
+				$html .= $this->renderElement($name, $element);
+				$html .= $this->elementSeparator();
+			}
 		}
 		if ( $withForm ) {
 			$options = Options::make($options);
 			$method = $options->get('action', 'post');
 			$action = Output::url($this->application->_uri);
-			$html = '<form method="'.$method.'" action="'.$action.'">' .
+			$html =
+				'<form method="'.$method.'" action="'.$action.'">' .
 					$this->elementSeparator() .
 					$html.$this->renderButtons() .
 					$this->elementSeparator() .
-					'</form>';
+				'</form>';
 		}
 		return $html;
 	}
 
 	public function renderElement( $name, $element ) {
-		if ( empty($element['title']) ) {
-			$element['title'] = $this->nameToTitle($name);
-		}
+		$this->elementTitle($element);
 
 		$type = $element['type'];
+		if ( empty($type) ) {
+			return '';
+		}
 		$renderMethod = array($this, 'render'.ucfirst($type).'Element');
 		if ( !empty($element['render']) ) {
 			$renderMethod = $element['render'];
@@ -111,7 +201,7 @@ class SimpleForm extends \row\Component {
 	public function renderElementWrapper( $input, $element ) {
 		$name = $element['name'];
 		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		return '<p class="form-element '.$element['type'].' '.$name.'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
+		return '<p class="form-element '.$element['type'].' '.$name.( isset($this->errors[$name]) ? ' error' : '' ).'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
 	}
 
 	public function elementSeparator() {
@@ -119,6 +209,12 @@ class SimpleForm extends \row\Component {
 	}
 
 
+
+	public function elementTitle( &$element ) {
+		if ( empty($element['title']) ) {
+			$element['title'] = $this->nameToTitle($element['name']);
+		}
+	}
 
 	public function nameToTitle( $name ) {
 		return Inflector::spacify($name); // 'beautify'

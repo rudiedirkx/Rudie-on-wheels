@@ -10,13 +10,14 @@ class userController extends blogController {
 
 	protected function _init() {
 		parent::_init();
-
-//var_dump($this->tpl);
 	}
 
 	// 
 	public function request_accountAction() {
 		$form = new \app\forms\SimpleRequestAccountForm($this);
+		if ( self::post() ) {
+			$form->validate($_POST);
+		}
 		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}
 
