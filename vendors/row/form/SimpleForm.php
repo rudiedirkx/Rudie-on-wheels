@@ -34,6 +34,19 @@ class SimpleForm extends \row\Component {
 						$this->errors[$name][] = $this->errorMessage('required', $element);
 					}
 				}
+				if ( !empty($element['regex']) && empty($this->errors[$name]) ) {
+					$match = preg_match('/^'.$element['regex'].'$/', (string)$this->input($name, ''));
+					if ( !$match ) {
+						$this->errors[$name][] = $this->errorMessage('regex', $element);
+					}
+				}
+				if ( !empty($element['validation']) && empty($this->errors[$name]) ) {
+					$fn = $element['validation'];
+					$r = $fn($this);
+					if ( false === $r || is_string($r) ) {
+						$this->errors[$name][] = false === $r ? $this->errorMessage('custom', $element) : $r;
+					}
+				}
 			}
 			else {
 				// validator
@@ -45,7 +58,7 @@ class SimpleForm extends \row\Component {
 		if ( 0 == count($this->errors) ) {
 			foreach ( $validators AS $validator ) {
 				if ( empty($validator['require']) || 0 == count(array_intersect((array)$validator['require'], array_keys($this->errors))) ) {
-					echo "\n  do custom validator on [".implode(', ', (array)$validator['fields'])."] ...\n";
+//echo "\n  do custom validator on [".implode(', ', (array)$validator['fields'])."] ...\n";
 					$v = $validator['validation'];
 					if ( !$v($this) ) {
 						$error = $this->errorMessage('custom', $validator);
@@ -77,13 +90,16 @@ class SimpleForm extends \row\Component {
 			case 'required':
 				return 'Field "'.$title.'" is required';
 			break;
+			case 'regex':
+				return 'Field "'.$title.'" has invalid format';
+			break;
 			case 'custom':
-				$fields = (array)$element['fields'];
+				$fields = !isset($element['fields']) ? array($element['name']) : (array)$element['fields'];
 				foreach ( $fields AS &$name ) {
 					$name = $this->_elements[$name]['title'];
 					unset($name);
 				}
-				return isset($element['message']) ? $element['message'] : 'Custom validation failed for field(s): "'.implode('", "', $fields).'"';
+				return isset($element['message']) ? $element['message'] : 'Custom validation failed for: "'.implode('", "', $fields).'"';
 			break;
 		}
 
@@ -93,7 +109,7 @@ class SimpleForm extends \row\Component {
 	public function errors() {
 		$errors = array();
 		foreach ( $this->errors AS $errs ) {
-			$errors = array_merge($errors, $errs);
+			$errors = array_merge($errors, array_filter($errs));
 		}
 		return array_unique($errors);
 	}

@@ -6,7 +6,7 @@ use row\core\Options;
 
 class Component extends \row\core\Object {
 
-	protected $application;
+	public $application;
 
 	final public function __construct( \row\Controller $application, $options = array() ) {
 		$this->application = $application;

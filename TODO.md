@@ -2,9 +2,7 @@
 To do:
 ------
 
-1. Form/Validation: Finish row\form\SimpleForm
-2. E-mail: Create simple PHPMailer (?) implementation
-8. Database: Implement common database engines (pgSQL, SQLite, PDOSQLite) in new format
+2. E-mail: Create simple `MailContext` and super simple 'mailer'
 
 
 Debatables:
