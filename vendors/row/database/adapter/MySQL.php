@@ -87,6 +87,7 @@ class MySQL extends Adapter {
 	}
 
 	public function query( $query ) {
+		$this->queries[] = $query;
 		$q = mysql_query($query, $this->db);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());

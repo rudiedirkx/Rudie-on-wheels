@@ -51,20 +51,15 @@ class SQLite extends Adapter {
 	}
 
 	static public function open( $info, $do = true ) {
+
 		if ( PDOSQLite::initializable() ) {
-			$db = new PDOSQLite($info, true);
+			$db = new PDOSQLite($info, $do);
 			if ( $db->connected() ) {
 				return $db;
 			}
 		}
-/*		if ( SQLite3::initializable() ) {
-			$db = new SQLite3($info, true);
-			if ( $db->connected() ) {
-				return $db;
-			}
-		}*/
 		if ( self::initializable() ) {
-			$db = new self($info, true);
+			$db = new self($info, $do);
 			if ( $db->connected() ) {
 				return $db;
 			}
@@ -73,12 +68,15 @@ class SQLite extends Adapter {
 
 	public function connect() {
 		$connection = $this->connectionArgs;
-		$this->db = new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
-		$this->_fire('post_connect');
+		try {
+			$this->db = @new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
+			$this->_fire('post_connect');
+		}
+		catch ( \SQLiteException $ex ) {}
 	}
 
 	public function connected() {
-		return is_object($this->query('SELECT 1 FROM sqlite_master'));
+		return $this->db && is_object($this->query('SELECT 1 FROM sqlite_master'));
 	}
 
 	public function _post_connect() {
@@ -89,89 +87,8 @@ class SQLite extends Adapter {
 	}
 
 
-	public function selectOne( $table, $field, $conditions, $params = array() ) {
-		$conditions = $this->replaceholders($conditions, $params);
-		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
-		$r = $this->query($query);
-		if ( !$r || 0 >= $r->numRows() ) {
-			return false;
-		}
-		return $r->fetchSingle();
-	}
-
-	public function countRows( $query ) {
-		$r = $this->query($query);
-		if ( $r ) {
-			return $r->numRows();
-		}
-		return false;
-	}
-
-	public function fetchByField( $query, $field ) {
-		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
-		}
-		$a = array();
-		while ( $l = $r->fetch(SQLITE_ASSOC) ) {
-			$a[$l[$field]] = $l;
-		}
-		return $a;
-	}
-
-	public function fetchFieldsAssoc( $query ) {
-		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
-		}
-		$a = array();
-		while ( $l = $r->fetch(SQLITE_NUM) ) {
-			$a[$l[0]] = $l[1];
-		}
-		return $a;
-	}
-
-	public function fetchFieldsNumeric( $query ) {
-		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
-		}
-		$a = array();
-		while ( $l = $r->fetch(SQLITE_NUM) ) {
-			$a[] = $l[0];
-		}
-		return $a;
-	}
-
-	public function fetch( $query, $class = null, $justFirst = false ) {
-		$r = $this->query($query);
-		if ( !$r ) {
-			return false;
-		}
-		if ( !is_string($class) || !class_exists($class) ) {
-			$class = false;
-		}
-		if ( $justFirst ) {
-			if ( $class ) {
-				return $r->fetchObject($class, array(true));
-			}
-			return $r->fetch(SQLITE_ASSOC);
-		}
-		$a = array();
-		if ( $class ) {
-			while ( $l = $r->fetchObject($class, array(true)) ) {
-				$a[] = $l;
-			}
-		}
-		else {
-			while ( $l = $r->fetch(SQLITE_ASSOC) ) {
-				$a[] = $l;
-			}
-		}
-		return $a;
-	}
-
 	public function query( $query ) {
+		$this->queries[] = $query;
 		$q = @$this->db->query($query);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
@@ -180,6 +97,7 @@ class SQLite extends Adapter {
 	}
 
 	public function execute( $query ) {
+		$this->queries[] = $query;
 		$q = @$this->db->queryExec($query);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
@@ -209,6 +127,32 @@ class SQLite extends Adapter {
 
 	public function escapeTable( $table ) {
 		return '"'.$table.'"';
+	}
+
+}
+
+
+
+class SQLiteResult extends \row\database\QueryResult {
+
+	public function singleResult() {
+		return $this->result->fetchSingle();
+	}
+
+	public function nextObject( $class = '\stdClass', $args = array() ) {
+		return $this->result->fetchObject($class, $args);
+	}
+
+	public function nextAssocArray() {
+		return $this->result->fetch(SQLITE_ASSOC);
+	}
+
+	public function nextNumericArray() {
+		return $this->result->fetch(SQLITE_NUM);
+	}
+
+	public function count() {
+		return $this->result->numRows();
 	}
 
 }

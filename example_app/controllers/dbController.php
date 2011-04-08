@@ -33,6 +33,11 @@ class dbController extends Controller {
 
 	public function index() {
 
+		$tables = $this->db->_getTables();
+		$this->debugQuery();
+		var_dump($tables);
+		echo "\n";
+
 		$result = $this->db->result('SELECT user_id, username, password, full_name, bio, access FROM users ORDER BY RAND() LIMIT 2');
 		$this->debugQuery();
 		var_dump($result);
@@ -53,10 +58,10 @@ class dbController extends Controller {
 		var_dump($count);
 		echo "\n";
 
-		$count = $this->db->countRows('SHOW TABLES');
+/*		$count = $this->db->countRows('SHOW TABLES');
 		$this->debugQuery();
 		var_dump($count);
-		echo "\n";
+		echo "\n";*/
 
 		$objects = $this->db->fetch('SELECT * FROM users ORDER BY RAND() LIMIT 2', 'app\models\User'); // post_fill WILL be executed
 		$this->debugQuery();
