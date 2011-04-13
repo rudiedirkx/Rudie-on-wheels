@@ -9,6 +9,7 @@ class drupalController extends dbController {
 
 		// drupal bootstrap
 //		set_include_path($drupalDir.'/core/'.PATH_SEPARATOR.get_include_path());
+		chdir($drupalDir.'/core');
 		require_once $drupalDir.'/core/includes/bootstrap.inc';
 		drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
