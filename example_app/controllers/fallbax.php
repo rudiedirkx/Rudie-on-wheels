@@ -2,9 +2,9 @@
 
 namespace app\controllers;
 
-use app\specs\Controller;
+use Zend_Component_Session;
 
-class fallbax extends Controller {
+class fallbax extends \app\specs\Controller {
 
 	/* this _init exists solely for debugging purposes *
 	protected function _init() {
@@ -12,6 +12,20 @@ class fallbax extends Controller {
 //echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
 	}
 	/**/
+
+	function zend() {
+		echo "<pre>\n";
+		echo "doing Zend shizzle here...\n\n";
+
+		$zendSession = new Zend_Component_Session;
+		var_dump($zendSession);
+
+		$zendUser = $zendSession->user();
+		var_dump($zendUser);
+
+		$zendACL = $zendSession->acl();
+		var_dump($zendACL);
+	}
 
 	public function blog() {
 		echo '<p>You are here because you are on an INVALID BLOG URI...</p>';
