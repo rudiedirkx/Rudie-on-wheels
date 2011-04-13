@@ -114,6 +114,10 @@ class SimpleForm extends \row\Component {
 		return array_unique($errors);
 	}
 
+	public function error( $elementName, $error = ' error', $noError = ' no-error' ) {
+		return isset($this->errors[$elementName]) ? $error : $noError;
+	}
+
 
 	public function input( $name, $alt = '' ) {
 		return isset($this->input[$name]) ? $this->input[$name] : $alt;
@@ -232,7 +236,7 @@ class SimpleForm extends \row\Component {
 	public function renderElementWrapper( $input, $element ) {
 		$name = $element['name'];
 		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		return '<p class="form-element '.$element['type'].' '.$name.( isset($this->errors[$name]) ? ' error' : '' ).'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
+		return '<p class="form-element '.$element['type'].' '.$name.$this->error($name).'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
 	}
 
 	public function elementSeparator() {
