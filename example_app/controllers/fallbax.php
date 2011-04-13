@@ -6,12 +6,17 @@ use app\specs\Controller;
 
 class fallbax extends Controller {
 
-	/* this _init exists solely for debugging purposes *
-	protected function _init() {
-		parent::_init();
-//echo "\n<h1>:: EXECUTED ".__METHOD__." ::</h1>\n\n";
+	public function form( $form ) {
+		$class = 'app\\forms\\'.$form;
+		$form = new $class($this);
+		$content = '';
+		if ( self::post() ) {
+			$form->validate($_POST);
+			$content .= '<pre>'.print_r($form->errors(), 1).'</pre>';
+		}
+		$content .= $form->render();
+		return $this->tpl->display(false, array('content' => $content));
 	}
-	/**/
 
 	public function blog() {
 		echo '<p>You are here because you are on an INVALID BLOG URI...</p>';

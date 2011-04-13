@@ -90,7 +90,7 @@ abstract class Adapter extends \row\core\Object {
 	static public $paramPlaceholder = '?';
 	public function replaceholders( $conditions, $params ) {
 		$conditions = $this->stringifyConditions($conditions);
-		if ( !$params ) return $conditions;
+		if ( array() === $params || null === $params ) return $conditions;
 		$ph = static::$paramPlaceholder;
 //		$conditions = str_replace($ph, $this->quoteValue('%s'), $conditions);
 		$offset = 0;

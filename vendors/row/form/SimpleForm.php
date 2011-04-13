@@ -128,6 +128,21 @@ class SimpleForm extends \row\Component {
 
 
 
+	public function renderDropdownElement( $name, $element ) {
+		$value = $this->input($name, 0);
+
+		$html = '<select name="'.$name.'">';
+		foreach ( (array)$element['options'] AS $k => $v ) {
+			if ( is_a($v, '\row\database\Model') ) {
+				$k = implode(',', $v->_pkValue());
+			}
+			$html .= '<option value="'.$k.'"'.( (string)$k === $value ? ' selected' : '' ).'>'.$v.'</option>';
+		}
+		$html .= '</select>';
+
+		return $this->renderElementWrapper($html, $element);
+	}
+
 	public function renderTextElement( $name, $element ) {
 		$type = $element['type'];
 		$value = $this->input($name);

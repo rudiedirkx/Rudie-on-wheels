@@ -14,7 +14,7 @@ class userController extends blogController {
 
 	// 
 	public function request_accountAction() {
-		$form = new \app\forms\SimpleRequestAccountForm($this);
+		$form = new \app\forms\RequestAccount($this);
 		if ( self::post() ) {
 			$form->validate($_POST);
 		}

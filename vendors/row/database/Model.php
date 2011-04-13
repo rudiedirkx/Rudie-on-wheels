@@ -86,8 +86,9 @@ class Model extends Object {
 	/**
 	 * 
 	 */
-	static public function _fetch( $conditions ) {
-		$query = static::_query($conditions);
+	static public function _fetch( $conditions, $params = array() ) {
+		$conditions = static::dbObject()->replaceholders($conditions, $params);
+		$query = static::_query($conditions, $params);
 		return static::_byQuery($query);
 	}
 
@@ -96,14 +97,14 @@ class Model extends Object {
 	 */
 	static public function _all( $conditions = null, $params = array() ) {
 		$conditions or $conditions = '1';
-		return static::_fetch($conditions);
+		return static::_fetch($conditions, $params);
 	}
 
 	/**
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->stringifyConditions($conditions, $params);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		if ( 1 !== $r->count() ) {
@@ -116,7 +117,7 @@ class Model extends Object {
 	 * Returns null or the first object with the matching conditions
 	 */
 	static public function _first( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->stringifyConditions($conditions, $params);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		return $r->nextObject($r->class, array(true));
@@ -134,7 +135,7 @@ class Model extends Object {
 		$pkValues = array_combine($pkColumns, $pkValues);
 		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
 		if ( $moreConditions ) {
-			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions);
+			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions, $params);
 		}
 		return static::_one($conditions);
 	}
@@ -143,7 +144,7 @@ class Model extends Object {
 	 * 
 	 */
 	static public function _delete( $conditions, $params = array() ) {
-		if ( static::dbObject()->delete(static::$_table, $conditions) ) {
+		if ( static::dbObject()->delete(static::$_table, $conditions, $params) ) {
 			return static::dbObject()->affectedRows();
 		}
 		return false;
