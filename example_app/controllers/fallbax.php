@@ -2,9 +2,9 @@
 
 namespace app\controllers;
 
-use app\specs\Controller;
+use Zend_Component_Session;
 
-class fallbax extends Controller {
+class fallbax extends \app\specs\Controller {
 
 	public function form( $form ) {
 		$class = 'app\\forms\\'.$form;
@@ -16,6 +16,20 @@ class fallbax extends Controller {
 		}
 		$content .= $form->render();
 		return $this->tpl->display(false, array('content' => $content));
+	}
+
+	function zend() {
+		echo "<pre>\n";
+		echo "doing Zend shizzle here...\n\n";
+
+		$zendSession = new Zend_Component_Session;
+		var_dump($zendSession);
+
+		$zendUser = $zendSession->user();
+		var_dump($zendUser);
+
+		$zendACL = $zendSession->acl();
+		var_dump($zendACL);
 	}
 
 	public function blog() {

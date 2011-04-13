@@ -1,34 +1,43 @@
 <?php
 
+use row\core\APC;
+
 class RowException extends Exception {}
-
 class NotFoundException extends \RowException {}
-
 class OutputException extends \RowException {}
-
 class VendorException extends \RowException {}
 
 class Vendors {
 
-	/** experimental **/
+	// cache //
+
 	static public $cache = array();
+
 	static public function cacheLoad() {
-		static::$cache = APC::get('classes', array());
+		if ( false !== static::$cache ) {
+			static::$cache = APC::get('classes', array());
+		}
 	}
+
 	static public function cachePut( $class, $file ) {
-		static::$cache[$class] = $file;
-		APC::put('classes', static::$cache);
+		if ( false !== static::$cache ) {
+			static::$cache[$class] = $file;
+			APC::put('classes', static::$cache);
+		}
 	}
+
 	static public function cacheGet( $class ) {
 		if ( isset(static::$cache[$class]) ) {
 			return static::$cache[$class];
 		}
 		return false;
 	}
+
 	static public function cacheClear() {
 		return APC::clear('classes');
 	}
-	/** experimental **/
+
+	// loaders //
 
 	static public $defaultLoader;
 
@@ -37,7 +46,6 @@ class Vendors {
 	static public $loaders = array();
 
 	static public function init($path) {
-//var_dump(__METHOD__);
 		static::cacheLoad();
 		Vendors::$defaultLoader = function( $vendor, $class ) { // e.g.: ( "row", "utils\Options" )
 			$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
@@ -49,15 +57,13 @@ class Vendors {
 	}
 
 	static public function add( $vendor, $loader = null ) {
-//var_dump(__METHOD__);
 		if ( !is_callable($loader) ) {
 			$loader = Vendors::$defaultLoader;
 		}
-		Vendors::$loaders[$vendor] = $loader;
+		Vendors::$loaders[strtolower($vendor)] = $loader;
 	}
 
 	static public function load( $class ) {
-//var_dump(__METHOD__);
 		$file = static::cacheGet($class);
 		if ( false === $file ) {
 			$file = static::class_exists($class);
@@ -69,9 +75,8 @@ class Vendors {
 	}
 
 	static public function class_exists( $class ) {
-//var_dump(__METHOD__);
-		if ( 1 < count($path = explode('\\', $class, 2)) ) {
-			$vendor = $path[0];
+		if ( 1 < count($path = explode('\\', $class, 2)) || 1 < count($path = explode('_', $class, 2)) ) {
+			$vendor = strtolower($path[0]);
 			if ( isset(\Vendors::$loaders[$vendor]) ) {
 				$loader = Vendors::$loaders[$vendor];
 				$file = $loader($path[0], $path[1]);

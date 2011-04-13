@@ -1,5 +1,7 @@
 <?php
 
+namespace row\core;
+
 class APC {
 
 	static public function key( $name ) {
