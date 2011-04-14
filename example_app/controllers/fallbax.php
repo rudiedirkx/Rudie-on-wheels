@@ -3,8 +3,18 @@
 namespace app\controllers;
 
 use Zend_Component_Session;
+use row\utils\Image;
 
 class fallbax extends \app\specs\Controller {
+
+	public function image() {
+//echo '<pre>';
+		$image = new Image(ROW_VENDOR_ROW_PATH.'/drupal/imagecache/sample.png');
+//print_r($image);
+		$image->resize(0, 100);
+//print_r($image);
+		$image->output();
+	}
 
 	public function form( $form ) {
 		$class = 'app\\forms\\'.$form;
