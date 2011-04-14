@@ -30,6 +30,9 @@ $router->add('/scaffolding', function() {
 // A module alias
 $router->add('/posts', array('controller' => 'app\\controllers\\blogController'));
 
+// JS cache
+$router->add('/js/all.js$', array('controller' => 'app\\controllers\\fallbax', 'action' => 'allJS'));
+
 // Blog user profile
 $router->add('/blog-user/(\d+)/?', array(
 	'controller' => 'app\\controllers\\blog\\userController',

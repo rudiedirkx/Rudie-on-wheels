@@ -75,7 +75,7 @@ form span.description {
 
 <?=$content?>
 
-<script src="<?=$this::url('js/framework.js')?>"></script>
+<script src="<?=$this::url('js/all.js')?>"></script>
 <script>
 if ( msgs = document.querySelector('#messages') ) {
 	msgs.addEventListener('click', function() {

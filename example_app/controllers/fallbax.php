@@ -7,6 +7,19 @@ use row\utils\Image;
 
 class fallbax extends \app\specs\Controller {
 
+	public function allJS() {
+		// create 1 JS file from several
+		$files = array('framework', 'library-2', 'library-3');
+		$js = '';
+		foreach ( $files AS $file ) {
+			$file = ROW_APP_WEB.'/js/'.$file.'.js';
+			$js .= trim(file_get_contents($file)).";\n\n";
+		}
+		file_put_contents(ROW_APP_WEB.'/js/all.js', $js);
+		header('Content-type: text/javascript');
+		echo "/* PHP generated JS */\n\n".$js;
+	}
+
 	public function image() {
 //echo '<pre>';
 		$image = new Image(ROW_VENDOR_ROW_PATH.'/drupal/imagecache/sample.png');
