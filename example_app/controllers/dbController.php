@@ -19,7 +19,7 @@ class dbController extends Controller {
 		'/index' => 'index',
 	);
 
-	public function _pre_action() {
+	protected function _pre_action() {
 		echo '<pre>'."\n";
 	}
 
