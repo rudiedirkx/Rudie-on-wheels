@@ -12,17 +12,24 @@ class Vendors {
 	// cache //
 
 	static public $cache = array();
+	static public $cacheChanged = false;
 
 	static public function cacheLoad() {
 		if ( false !== static::$cache ) {
 			static::$cache = APC::get('classes', array());
+			register_shutdown_function(function() {
+				if ( \Vendors::$cacheChanged ) {
+					APC::put('classes', \Vendors::$cache);
+				}
+			});
 		}
 	}
 
 	static public function cachePut( $class, $file ) {
 		if ( false !== static::$cache ) {
+//var_dump(__METHOD__, $class, $file, '');
 			static::$cache[$class] = $file;
-			APC::put('classes', static::$cache);
+			static::$cacheChanged = true;
 		}
 	}
 
@@ -30,7 +37,6 @@ class Vendors {
 		if ( isset(static::$cache[$class]) ) {
 			return static::$cache[$class];
 		}
-		return false;
 	}
 
 	static public function cacheClear() {
@@ -64,14 +70,18 @@ class Vendors {
 	}
 
 	static public function load( $class ) {
-		$file = static::cacheGet($class);
-		if ( false === $file ) {
+		$file = static::cacheGet($class); // NULL, FALSE or String classFile
+//var_dump(__METHOD__, $class, $file, '');
+		if ( null === $file ) {
+			// Unknown (new reference)
 			$file = static::class_exists($class);
 			static::cachePut($class, $file);
 		}
 		if ( $file ) {
+			// Known: class file exists
 			require_once($file);
 		}
+		// Known: no class file
 	}
 
 	static public function class_exists( $class ) {
