@@ -6,12 +6,10 @@ use row\core\Options;
 use row\utils\Inflector;
 use row\Output;
 
-class SimpleForm extends \row\Component {
+abstract class SimpleForm extends \row\Component {
 
-	const NOT_REQUIRED = 0;
-	const MUST_EXIST = 1;
-	const NOT_EMPTY = 2;
-	const MORE_THAN_WHITESPACE = 3;
+	public $_elements = array(); // internal cache
+	abstract protected function elements( $defaults = null, $options = array() );
 
 	public $input = array();
 	public $errors = array();
@@ -42,9 +40,15 @@ class SimpleForm extends \row\Component {
 				}
 				if ( !empty($element['validation']) && empty($this->errors[$name]) ) {
 					$fn = $element['validation'];
-					$r = $fn($this);
-					if ( false === $r || is_string($r) ) {
-						$this->errors[$name][] = false === $r ? $this->errorMessage('custom', $element) : $r;
+					if ( is_string($fn) ) {
+						$validationFunction = 'validate'.ucfirst($fn);
+						$fn = array($this, $validationFunction);
+					}
+					if ( is_callable($fn) ) {
+						$r = call_user_func($fn, $this, $name);
+						if ( false === $r || is_string($r) ) {
+							$this->errors[$name][] = false === $r ? $this->errorMessage('custom', $element) : $r;
+						}
 					}
 				}
 			}
@@ -71,6 +75,14 @@ class SimpleForm extends \row\Component {
 		}
 
 		return 0 == count($this->errors);
+	}
+
+	public function validateEmail() {
+		
+	}
+
+	public function validateDate() {
+		return false;
 	}
 
 	public function validateRequired( $name, $element ) {
@@ -132,6 +144,38 @@ class SimpleForm extends \row\Component {
 
 
 
+	public function renderRadioElement( $name, $element ) {
+		$type = $element['type'];
+		$value = $this->input($name);
+
+		$options = array();
+		foreach ( $element['options'] AS $k => $v ) {
+			$options[] = '<label><input type="radio" name="'.$name.'" value="'.$k.'" /> '.$v.'</label>';
+		}
+		$html = implode(' ', $options);
+
+		return $this->renderElementWrapperWithTitle($html, $element);
+	}
+
+	public function renderCheckboxElement( $name, $element ) {
+		$type = $element['type'];
+		$value = $this->input($name);
+
+		$html = '<label><input type="checkbox" /> '.$element['title'].'</label>';
+
+		return $this->renderElementWrapper($html, $element);
+	}
+
+	public function renderCheckboxesElement( $name, $element ) {
+		$type = $element['type'];
+		$value = $this->input($name);
+
+		$html = '';
+
+		return $this->renderElementWrapper($html, $element);
+	}
+
+
 	public function renderDropdownElement( $name, $element ) {
 		$value = $this->input($name, 0);
 
@@ -144,7 +188,7 @@ class SimpleForm extends \row\Component {
 		}
 		$html .= '</select>';
 
-		return $this->renderElementWrapper($html, $element);
+		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
 	public function renderTextElement( $name, $element ) {
@@ -153,7 +197,7 @@ class SimpleForm extends \row\Component {
 
 		$html = '<input type="'.$type.'" name="'.$name.'" value="'.$value.'" />';
 
-		return $this->renderElementWrapper($html, $element);
+		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
 	public function renderTextareaElement( $name, $element ) {
@@ -162,7 +206,7 @@ class SimpleForm extends \row\Component {
 		$rows = $options->rows ? ' rows="'.$options->rows.'"' : '';
 		$cols = $options->cols ? ' cols="'.$options->cols.'"' : '';
 		$html = '<textarea'.$rows.$cols.' name="'.$name.'">'.$value.'</textarea>';
-		return $this->renderElementWrapper($html, $element);
+		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
 	public function renderMarkupElement( $name, $element ) {
@@ -185,18 +229,31 @@ class SimpleForm extends \row\Component {
 
 
 
+	public function &useElements() {
+		if ( !$this->_elements ) {
+			$this->_elements = $this->elements();
+		}
+		return $this->_elements;
+	}
+
 	public function render( $withForm = true, $options = array() ) {
-		$elements = $this->elements();
+		$this->_elements = $this->elements();
+
+		if ( is_string($withForm) && isset($this->_elements[$withForm]) ) {
+			return $this->renderElement($withForm, $this->_elements[$withForm]);
+		}
+
 		$index = 0;
 		$html = '';
-		foreach ( $elements AS $name => $element ) {
-			if ( is_string($name) ) {
+		foreach ( $this->_elements AS $name => $element ) {
+			if ( is_string($name) || ( isset($element['type']) && in_array($element['type'], array('markup')) ) ) {
 				$element['name'] = $name;
 				$element['index'] = $index++;
 				$html .= $this->renderElement($name, $element);
 				$html .= $this->elementSeparator();
 			}
 		}
+
 		if ( $withForm ) {
 			$options = Options::make($options);
 			$method = $options->get('action', 'post');
@@ -208,17 +265,19 @@ class SimpleForm extends \row\Component {
 					$this->elementSeparator() .
 				'</form>';
 		}
+
 		return $html;
 	}
 
 	public function renderElement( $name, $element ) {
 		$this->elementTitle($element);
 
-		$type = $element['type'];
-		if ( empty($type) ) {
+		if ( empty($element['type']) ) {
 			return '';
 		}
-		$renderMethod = array($this, 'render'.ucfirst($type).'Element');
+		$type = $element['type'];
+		$renderFunction = 'render'.ucfirst($type).'Element';
+		$renderMethod = array($this, $renderFunction);
 		if ( !empty($element['render']) ) {
 			$renderMethod = $element['render'];
 		}
@@ -233,10 +292,16 @@ class SimpleForm extends \row\Component {
 		return '<p class="form-submit"><input type=submit></p>';
 	}
 
-	public function renderElementWrapper( $input, $element ) {
+	public function renderElementWrapper( $html, $element ) {
 		$name = $element['name'];
 		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		return '<p class="form-element '.$element['type'].' '.$name.$this->error($name).'"><label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description.'</p>';
+		return '<p class="form-element '.$element['type'].' '.$name.$this->error($name).'">'.$html.'</p>';
+	}
+
+	public function renderElementWrapperWithTitle( $input, $element ) {
+		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
+		$html = '<label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description;
+		return $this->renderElementWrapper($html, $element);
 	}
 
 	public function elementSeparator() {

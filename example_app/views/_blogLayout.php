@@ -17,9 +17,21 @@ h1 smaller { font-size:16px; }
 pre { margin-left:10px; padding:5px 10px; background-color:#777;  color:#fff; font-size:16px; overflow:auto; }
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
+
+p.form-element input:not([type="checkbox"]):not([type="radio"]), p.form-element textarea, p.form-element select { padding:1px; border:solid 1px #999; width:400px; }
+form span.input,
+form span.description {
+	display: block;
+}
+form span.description {
+	font-size: 80%;
+	color: #999;
+	margin-left: 20px;
+}
 form p.error { color: red; }
-p.form-element input, p.form-element textarea, p.form-element select { padding:1px; border:solid 1px #999; width:400px; }
-form p.error input, form p.error textarea, form p.error select { border-color: red; }
+form p.error input, form p.error textarea, form p.error select, form p.form-element :invalid { border-color: red; border-width: 2px; }
+ul.form-errors { color: red; font-weight: bold; font-size: 120%; }
+
 article { background-color:rgba(0, 0, 0, 0.04); }
 article.blogpost { margin-top: 15px; padding-top: 20px; }
 article.unpublished > h1, article.unpublished > header > h2 > a { color:red; }
@@ -29,6 +41,7 @@ article.blogpostpreview { margin-bottom:30px; }
 article.comment { margin-top:30px; }
 article.comment:first-child { margin-top:10px; }
 article.comment p:last-child { margin-bottom:0; }
+
 body > .overlay { position: fixed; top:0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); }
 body > .overlay > div {
 	display: inline-block;
@@ -36,17 +49,8 @@ body > .overlay > div {
 	padding: 20px;
 	background-color: #fff;
 }
-body > .overlay > div > :last-child {
+body > .overlay > div > :last-child:not(p.close-overlay) {
 	margin-bottom: 0;
-}
-form span.input,
-form span.description {
-	display: block;
-}
-form span.description {
-	font-size: 80%;
-	color: #999;
-	margin-left: 20px;
 }
 </style>
 </head>

@@ -4,6 +4,7 @@ namespace row\core;
 
 abstract class Object {
 
+	/* this is not a good idea - `is_callable` will be completely useless *
 	static public $_methods = array();
 
 	static public function extend( $name, $function ) {
@@ -20,6 +21,7 @@ abstract class Object {
 			return call_user_func_array(self::$_methods[$class][$name], $args);
 		}
 	}
+	/**/
 
 
 	public function _exists($k) {

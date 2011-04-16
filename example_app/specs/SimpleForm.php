@@ -2,12 +2,12 @@
 
 namespace app\specs;
 
-class SimpleForm extends \row\form\SimpleForm {
+abstract class SimpleForm extends \row\form\SimpleForm {
 
 	function renderDateElement( $name, $element ) {
-		$html = '<input name="'.$name.'" value="'.$this->input($name).'" /> <img src="'.Output::url('images/calendar.png').'" onclick="alert(\'open datepicker\');" />';
+		$html = '<input name="'.$name.'" value="'.$this->input($name).'" /> <img src="'.Output::url('images/calendar.png').'" onclick="var e=this.previousSibling.previousSibling,d=prompt(\'Fill in a date with format YYYY-MM-DD\', e.value);if(d){e.value=d;}" />';
 
-		return $this->renderElementWrapper($html, $element);
+		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
 }

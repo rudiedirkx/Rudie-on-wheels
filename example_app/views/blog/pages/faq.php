@@ -14,3 +14,4 @@ question, answer {
 	</li>
 </ul>
 
+<?include('close-overlay.php')?>

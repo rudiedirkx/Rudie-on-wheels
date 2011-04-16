@@ -3,7 +3,7 @@
 
 <? $errors = $form->errors() ?>
 <?if($errors):?>
-	<ul id="messages"><li class="error"><?=implode('</li><li class="error">', $errors)?></li></ul>
+	<ul class="form-errors"><li class="error"><?=implode('</li><li class="error">', $errors)?></li></ul>
 <?endif?>
 
 <?=$form->render()?>

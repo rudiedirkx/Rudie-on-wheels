@@ -41,9 +41,9 @@ class blogController extends \app\specs\Controller {
 	}
 
 	public function pageAction( $page = 'about' ) {
-		$this::extend('oele', function($self) {
+		/*$this::extend('oele', function($self) {
 			return __METHOD__;
-		});
+		});*/
 //var_dump($this::$_methods, is_callable(array($this, 'oeleb')), $this->oele(), $this->oeleb());
 		$tpl = 'blog/pages/'.$page;
 		return $this->tpl->display($tpl, array(), !self::ajax());
