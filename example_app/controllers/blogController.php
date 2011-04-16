@@ -3,7 +3,6 @@
 namespace app\controllers;
 
 use row\core\Options;
-use app\specs\Controller;
 use app\specs\ControllerACL;
 use \NotFoundException;
 use app\models;
@@ -11,7 +10,7 @@ use row\utils\Inflector;
 use row\auth\Session;
 use row\utils\Email;
 
-class blogController extends Controller {
+class blogController extends \app\specs\Controller {
 
 	static $config = array(
 		'posts_on_index' => 3.0,
@@ -42,6 +41,10 @@ class blogController extends Controller {
 	}
 
 	public function pageAction( $page = 'about' ) {
+		$this::extend('oele', function($self) {
+			return __METHOD__;
+		});
+//var_dump($this::$_methods, is_callable(array($this, 'oeleb')), $this->oele(), $this->oeleb());
 		$tpl = 'blog/pages/'.$page;
 		return $this->tpl->display($tpl, array(), !self::ajax());
 	}

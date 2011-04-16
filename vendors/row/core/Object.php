@@ -4,6 +4,24 @@ namespace row\core;
 
 abstract class Object {
 
+	static public $_methods = array();
+
+	static public function extend( $name, $function ) {
+		$class = strtolower(get_called_class());
+		$name = strtolower($name);
+		self::$_methods[$class][$name] = $function;
+	}
+
+	public function __call( $name, $args ) {
+		$name = strtolower($name);
+		$class = strtolower(get_class($this));
+		array_unshift($args, $this);
+		if ( isset(self::$_methods[$class][$name]) ) {
+			return call_user_func_array(self::$_methods[$class][$name], $args);
+		}
+	}
+
+
 	public function _exists($k) {
 		return property_exists($this, $k);
 	}

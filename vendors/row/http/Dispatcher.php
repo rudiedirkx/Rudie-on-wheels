@@ -292,7 +292,7 @@ class Dispatcher extends Object {
 		return $actionFunction && substr($actionFunction, 0, 1) != '_' && is_callable(array($application, $actionFunction));
 	}
 
-	protected function throwNotFound() {
+	public function throwNotFound() {
 		$exceptionClass = $this->options->not_found_exception;
 		throw new $exceptionClass($this->requestPath);
 	}
