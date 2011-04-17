@@ -18,7 +18,13 @@ pre { margin-left:10px; padding:5px 10px; background-color:#777;  color:#fff; fo
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
 
-p.form-element input:not([type="checkbox"]):not([type="radio"]), p.form-element textarea, p.form-element select { padding:1px; border:solid 1px #999; width:400px; }
+p.form-element input:not([type="checkbox"]):not([type="radio"]),
+p.form-element textarea,
+p.form-element select {
+	padding: 1px;
+	border: solid 1px #999;
+	width: 400px;
+}
 form span.input,
 form span.description {
 	display: block;
@@ -28,9 +34,24 @@ form span.description {
 	color: #999;
 	margin-left: 20px;
 }
-form p.error { color: red; }
-form p.error input, form p.error textarea, form p.error select, form p.form-element :invalid { border-color: red; border-width: 2px; }
-ul.form-errors { color: red; font-weight: bold; font-size: 120%; }
+form p.checkboxes span.option {
+	display: block;
+}
+form p.error {
+	color: red;
+}
+form p.error input,
+form p.error textarea,
+form p.error select,
+form p.form-element :invalid {
+	border-color: red;
+	border-width: 2px;
+}
+ul.form-errors {
+	color: red;
+	font-weight: bold;
+	font-size: 110%;
+}
 
 article { background-color:rgba(0, 0, 0, 0.04); }
 article.blogpost { margin-top: 15px; padding-top: 20px; }
