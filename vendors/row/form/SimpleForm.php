@@ -19,10 +19,10 @@ abstract class SimpleForm extends \row\Component {
 	public function validate( $data ) {
 		$this->input = $data;
 
-		$this->_elements = $this->elements();
+		$elements =& $this->useElements();
 		$validators = $errors = array();
 
-		foreach ( $this->_elements AS $name => &$element ) {
+		foreach ( $elements AS $name => &$element ) {
 			$element['name'] = $name;
 			$this->elementTitle($element);
 			if ( is_string($name) ) {
@@ -77,12 +77,18 @@ abstract class SimpleForm extends \row\Component {
 		return 0 == count($this->errors);
 	}
 
-	public function validateEmail() {
-		
+	public function validateEmail( $form, $name ) {
+		$value = $form->input($name);
+		return false !== filter_var($value, FILTER_VALIDATE_EMAIL);
 	}
 
-	public function validateDate() {
-		return false;
+	public function validateDate( $form, $name ) {
+		$value = $form->input($name);
+		if ( 0 >= preg_match('/^(\d\d\d\d)-(\d\d?)-(\d\d?)$/', $value, $match) ) {
+			return false;
+		}
+		$date = $match[1] . '-' . str_pad((string)(int)$match[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad((string)(int)$match[3], 2, '0', STR_PAD_LEFT);
+		$this->output($name, $date);
 	}
 
 	public function validateRequired( $name, $element ) {
@@ -136,7 +142,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function output( $name, $value = null ) {
-		if ( null !== $value ) {
+		if ( 1 < func_num_args() ) {
 			return $this->output[$name] = $value;
 		}
 		return isset($this->output[$name]) ? $this->output[$name] : '';
@@ -146,11 +152,12 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderRadioElement( $name, $element ) {
 		$type = $element['type'];
-		$value = $this->input($name);
+		$checked = $this->input($name, null);
 
 		$options = array();
 		foreach ( $element['options'] AS $k => $v ) {
-			$options[] = '<label><input type="radio" name="'.$name.'" value="'.$k.'" /> '.$v.'</label>';
+			$k = (string)$k;
+			$options[] = '<label><input type="radio" name="'.$name.'" value="'.$k.'"'.( $checked === $k ? ' checked' : '' ).' /> '.$v.'</label>';
 		}
 		$html = implode(' ', $options);
 
@@ -159,20 +166,28 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderCheckboxElement( $name, $element ) {
 		$type = $element['type'];
-		$value = $this->input($name);
+		$checked = null !== $this->input($name, null) ? ' checked' : '';
 
-		$html = '<label><input type="checkbox" /> '.$element['title'].'</label>';
+		$value = isset($element['value']) ? ' value="'.Output::html($element['value']).'"' : '';
+		$html = '<label><input type="checkbox" name="'.$name.'"'.$value.$checked.' /> '.$element['title'].'</label>';
 
 		return $this->renderElementWrapper($html, $element);
 	}
 
 	public function renderCheckboxesElement( $name, $element ) {
 		$type = $element['type'];
-		$value = $this->input($name);
+		$checked = (array)$this->input($name, array());
 
-		$html = '';
+		$options = array();
+		foreach ( $element['options'] AS $k => $v ) {
+			if ( is_a($v, '\row\database\Model') ) {
+				$k = implode(',', $v->_pkValue());
+			}
+			$options[] = '<label><input type="checkbox" name="'.$name.'[]" value="'.$k.'"'.( in_array($k, $checked) ? ' checked' : '' ).' /> '.$v.'</label>';
+		}
+		$html = implode(' ', $options);
 
-		return $this->renderElementWrapper($html, $element);
+		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
 
@@ -237,7 +252,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function render( $withForm = true, $options = array() ) {
-		$this->_elements = $this->elements();
+		$elements =& $this->useElements();
 
 		if ( is_string($withForm) && isset($this->_elements[$withForm]) ) {
 			return $this->renderElement($withForm, $this->_elements[$withForm]);
@@ -245,7 +260,7 @@ abstract class SimpleForm extends \row\Component {
 
 		$index = 0;
 		$html = '';
-		foreach ( $this->_elements AS $name => $element ) {
+		foreach ( $elements AS $name => $element ) {
 			if ( is_string($name) || ( isset($element['type']) && in_array($element['type'], array('markup')) ) ) {
 				$element['name'] = $name;
 				$element['index'] = $index++;
