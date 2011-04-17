@@ -20,7 +20,7 @@ abstract class SimpleForm extends \row\Component {
 		$this->input = $data;
 
 		$elements =& $this->useElements();
-		$validators = $errors = array();
+		$validators = $output = array();
 
 		foreach ( $elements AS $name => &$element ) {
 			$element['_name'] = $name;
@@ -38,7 +38,7 @@ abstract class SimpleForm extends \row\Component {
 						$this->errors[$name][] = $this->errorMessage('regex', $element);
 					}
 				}
-				if ( !empty($element['validation']) && empty($this->errors[$name]) ) {
+				if ( !empty($element['validation']) && empty($this->errors[$name]) && !empty($element['required']) ) {
 					$fn = $element['validation'];
 					if ( is_string($fn) ) {
 						$validationFunction = 'validate'.ucfirst($fn);
@@ -51,21 +51,34 @@ abstract class SimpleForm extends \row\Component {
 						}
 					}
 				}
+				if ( isset($this->input[$name]) && !isset($this->output[$name]) ) {
+					$input = $this->input[$name];
+					$this->output($name, $input);
+					$elName = $this->elementName($element);
+					foreach ( (array)$input AS $v ) {
+						$output[] = $elName.'='.urlencode($v);
+					}
+				}
 			}
-			else {
+			else if ( isset($element['validation']) ) {
 				// validator
 				$validators[] = $element;
 			}
 			unset($element);
 		}
+//print_r($output);
+		$output = implode('&', $output);
+//var_dump($output);
+		parse_str($output, $this->output);
 
 		if ( 0 == count($this->errors) ) {
 			foreach ( $validators AS $validator ) {
 				if ( empty($validator['require']) || 0 == count(array_intersect((array)$validator['require'], array_keys($this->errors))) ) {
 //echo "\n  do custom validator on [".implode(', ', (array)$validator['fields'])."] ...\n";
 					$v = $validator['validation'];
-					if ( !$v($this) ) {
-						$error = $this->errorMessage('custom', $validator);
+					$r = $v($this);
+					if ( false === $r || is_string($r) ) {
+						$error = false === $r ? $this->errorMessage('custom', $validator) : $r;
 						foreach ( (array)$validator['fields'] AS $name ) {
 							$this->errors[$name][] = $error;
 						}
@@ -152,7 +165,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderRadioElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = isset($element['name']) ? $element['name'] : $name;
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 		$checked = $this->input($name, null);
 
 		$options = array();
@@ -167,18 +180,22 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderCheckboxElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = isset($element['name']) ? $element['name'] : $name;
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 		$checked = null !== $this->input($name, null) ? ' checked' : '';
 
 		$value = isset($element['value']) ? ' value="'.Output::html($element['value']).'"' : '';
 		$html = '<label><input type="checkbox" name="'.$elName.'"'.$value.$checked.' /> '.$element['title'].'</label></span>';
+		if ( !empty($element['description']) ) {
+			$html .= ' ';
+			$html .= '<span class="description">'.$element['description'].'</span>';
+		}
 
 		return $this->renderElementWrapper($html, $element);
 	}
 
 	public function renderCheckboxesElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = isset($element['name']) ? $element['name'] : $name.'[]';
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name.'[]';
 		$checked = (array)$this->input($name, array());
 
 		$options = array();
@@ -196,7 +213,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderDropdownElement( $name, $element ) {
 		$value = $this->input($name, 0);
-		$elName = isset($element['name']) ? $element['name'] : $name;
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 
 		$html = '<select name="'.$elName.'">';
 		foreach ( (array)$element['options'] AS $k => $v ) {
@@ -212,7 +229,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderTextElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = isset($element['name']) ? $element['name'] : $name;
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 		$value = $this->input($name);
 
 		$html = '<input type="'.$type.'" name="'.$elName.'" value="'.$value.'" />';
@@ -222,7 +239,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderTextareaElement( $name, $element ) {
 		$value = $this->input($name);
-		$elName = isset($element['name']) ? $element['name'] : $name;
+		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 
 		$options = Options::make($element);
 
@@ -315,6 +332,17 @@ abstract class SimpleForm extends \row\Component {
 		}
 
 		return $this->renderTextElement($name, $element);
+	}
+
+	public function elementName( $element ) {
+		$name = $element['_name'];
+		if ( isset($element['name']) ) {
+			$name = $element['name'];
+		}
+		else if ( isset($element['type']) && in_array($element['type'], array('checkboxes')) ) {
+			$name .= '[]';
+		}
+		return $name;
 	}
 
 	public function renderButtons() {

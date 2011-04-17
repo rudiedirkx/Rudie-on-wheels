@@ -8,7 +8,9 @@ use app\models;
 
 class userController extends blogController {
 
+	// Very usefull no?
 	protected function _init() {
+		// Beware: the parent class (blogController) defined a new action function postfix!
 		parent::_init();
 	}
 
@@ -16,7 +18,9 @@ class userController extends blogController {
 	public function request_accountAction() {
 		$form = new \app\forms\RequestAccount($this);
 		if ( self::post() ) {
-			$form->validate($_POST);
+			if ( $form->validate($_POST) ) {
+				echo "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
+			}
 		}
 		return $this->tpl->display(__METHOD__, get_defined_vars());
 	}

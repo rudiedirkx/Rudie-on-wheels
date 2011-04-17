@@ -10,3 +10,5 @@
 <pre>$_POST: <? print_r($_POST) ?></pre>
 
 <pre>$form->output: <? print_r($form->output) ?></pre>
+
+<pre>$form->errors: <? print_r($form->errors) ?></pre>

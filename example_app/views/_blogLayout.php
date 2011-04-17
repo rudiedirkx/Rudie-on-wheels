@@ -29,6 +29,14 @@ form span.input,
 form span.description {
 	display: block;
 }
+form fieldset > p.form-element {
+	margin: 6px 0;
+}
+form fieldset > p.form-element:first-child,
+form fieldset > legend + p.form-element,
+form fieldset > p.form-element:last-child {
+	margin: 0;
+}
 form span.description {
 	font-size: 80%;
 	color: #999;
@@ -44,8 +52,7 @@ form p.error input,
 form p.error textarea,
 form p.error select,
 form p.form-element :invalid {
-	border-color: red;
-	border-width: 2px;
+	border: solid 2px red !important;
 }
 ul.form-errors {
 	color: red;

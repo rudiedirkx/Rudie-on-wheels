@@ -14,7 +14,8 @@ class Component extends \row\core\Object {
 		$this->_fire('init');
 	}
 
-	public function _init() {
+	protected function _init() {
+		
 	}
 
 }
