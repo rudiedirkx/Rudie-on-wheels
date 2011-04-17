@@ -9,6 +9,12 @@ require(ROW_APP_PATH.'/specs/Dispatcher.php');
 require(ROW_VENDOR_ROW_PATH.'/Controller.php');
 require(ROW_APP_PATH.'/specs/Controller.php');
 
+require(ROW_VENDOR_ROW_PATH.'/database/QueryResult.php');
+require(ROW_VENDOR_ROW_PATH.'/database/Model.php');
+require(ROW_APP_PATH.'/specs/Model.php');
+require(ROW_VENDOR_ROW_PATH.'/auth/SessionUser.php');
+require(ROW_APP_PATH.'/specs/SessionUser.php');
+
 // init database
 require(__DIR__.'/database.php');
 
