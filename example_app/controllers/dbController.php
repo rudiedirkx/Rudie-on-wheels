@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\specs\Controller;
+use app\models\User;
 
 	class TestObject {
 		function __construct() {}
@@ -17,6 +18,7 @@ class dbController extends Controller {
 	static $_actions = array(
 		'/' => 'index',
 		'/index' => 'index',
+		'/in' => 'in',
 	);
 
 	protected function _pre_action() {
@@ -24,11 +26,17 @@ class dbController extends Controller {
 	}
 
 	protected function debugQuery() {
-		static $c = false;
+		static $c = -1;
 		if ( $c != count($this->db->queries) ) {
 			echo "\n[ sql query: \"".end($this->db->queries)."\" ]\n";
 			$c = count($this->db->queries);
 		}
+	}
+
+	public function in() {
+		$users = User::all('? AND user_id IN (?)', array(1, array(2, 3, 4)));
+		var_dump(User::dbObject()->error());
+		echo "\n".end($this->db->queries)."\n";
 	}
 
 	public function index() {

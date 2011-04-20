@@ -2,7 +2,7 @@
 
 use row\core\APC;
 
-class RowException extends Exception {}
+class RowException extends \Exception {}
 class NotFoundException extends \RowException {}
 class OutputException extends \RowException {}
 class VendorException extends \RowException {}

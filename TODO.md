@@ -3,10 +3,11 @@ To do:
 ------
 
 2. E-mail: Create simple `MailContext` and super simple 'mailer'
-1. `SimpleForm`: implement default values (`SimpleForm->render($defaultValues)`) (`SimpleForm->elementValue($name)`)
-1. `SimpleForm`: implement element `type` 'grid' / 'matrix'
-1. `SimpleForm`: implement `pre_validate` and `post_validate` events
-1. `SimpleForm`: implement `SimpleForm->context`
+1. `row\form\SimpleForm`: implement default values (`SimpleForm->render($defaultValues)`) (`SimpleForm->elementValue($name)`)
+1. `row\form\SimpleForm`: implement element `type` 'grid' / 'matrix'
+1. `row\form\SimpleForm`: implement `pre_validate` and `post_validate` events
+1. `row\form\SimpleForm`: implement `SimpleForm->context`
+3. `row\Dispatcher`: use APC to cache complete URLs (without _GET) (`array('blog/comment/4' => array('controller' => 'app\controllers\blogController', 'action' => 'comment', 'actionArgs' => array(4)))`)
 
 
 Debatables:

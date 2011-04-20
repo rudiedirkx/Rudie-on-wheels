@@ -14,6 +14,7 @@ require(ROW_VENDOR_ROW_PATH.'/core/APC.php');
 
 // init vendor class
 Vendors::init(ROW_VENDORS_PATH);
+//Vendors::$cache = false; // don't cache classes with APC
 
 // include more vendors (or not)
 require(__DIR__.'/vendors.php');
