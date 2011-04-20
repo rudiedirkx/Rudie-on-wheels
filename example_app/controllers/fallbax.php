@@ -80,14 +80,18 @@ class fallbax extends \app\specs\Controller {
 		print_r(func_get_args());
 		echo '</pre>';
 
-		\Vendors::cacheClear();
-		echo '<p>Also, I flushed the Vendors cache! You\'re welcome!</p>';
+		var_dump($this->_dispatcher->cacheClear());
+		var_dump(\Vendors::cacheClear());
+		echo '<p>Also, I flushed the Vendors cache and Dispatch cache! You\'re welcome!</p>';
 	}
 
 	public function cache() {
 		echo '<pre>';
 		\Vendors::cacheLoad();
 		print_r(\Vendors::$cache);
+
+		$this->_dispatcher->cacheLoad();
+		print_r($this->_dispatcher->cache);
 		echo '</pre>';
 	}
 

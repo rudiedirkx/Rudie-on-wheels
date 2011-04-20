@@ -22,7 +22,7 @@ class Dispatcher extends \row\http\Dispatcher {
 	/**
 	 * Just an example of extending the default options:
 	 *
-	static public function getDefaultOptions() {
+	public function getDefaultOptions() {
 		$options = parent::getDefaultOptions();
 		$options->module_delim = false; // Don't check for multi-level Controllers
 		$options->default_module = 'home'; // If you don't like "index"

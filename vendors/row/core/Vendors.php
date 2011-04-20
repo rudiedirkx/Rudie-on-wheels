@@ -15,7 +15,7 @@ class Vendors {
 	static public $cacheChanged = false;
 
 	static public function cacheLoad() {
-		if ( false !== static::$cache ) {
+		if ( array() === static::$cache ) {
 			static::$cache = APC::get('classes', array());
 			register_shutdown_function(function() {
 				if ( \Vendors::$cacheChanged ) {
@@ -71,11 +71,12 @@ class Vendors {
 
 	static public function load( $class ) {
 		$file = static::cacheGet($class); // NULL, FALSE or String classFile
-//var_dump(__METHOD__, $class, $file, '');
 		if ( null === $file ) {
 			// Unknown (new reference)
-			$file = static::class_exists($class);
-			static::cachePut($class, $file);
+			if ( $file = static::class_exists($class) ) {
+				// Only cache existing classes (safer?, smaller cache)
+				static::cachePut($class, $file);
+			}
 		}
 		if ( $file ) {
 			// Known: class file exists

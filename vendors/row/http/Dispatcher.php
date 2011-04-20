@@ -4,6 +4,7 @@ namespace row\http;
 
 use row\core\Object;
 use row\core\Options;
+use row\core\APC;
 
 class Dispatcher extends Object {
 
@@ -26,6 +27,9 @@ class Dispatcher extends Object {
 	// Arguments to be passed to the Action method (e.g. array() or array("jim"))
 	public $_actionArguments = array();
 
+	// Whether this dispatch comes from cache
+	public $fromCache = false;
+
 	// The optional Router object that contains pre-dispatch routes
 	public $router; // typeof row\http\Router
 
@@ -33,7 +37,7 @@ class Dispatcher extends Object {
 	public $options; // typeof row\core\Options
 
 	// This method is easily extended so that your personal preferences won't smudge my index.php
-	static public function getDefaultOptions() {
+	public function getDefaultOptions() {
 		return Options::make(array(
 
 			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
@@ -94,9 +98,20 @@ class Dispatcher extends Object {
 
 
 	public function __construct( $options = array() ) {
-		$defaults = static::getDefaultOptions();
+		$defaults = $this->getDefaultOptions();
 		$this->options = new Options($options, $defaults);
+
+		$this->cacheLoad();
+
 		$this->_fire('init');
+	}
+
+	protected function _init() {
+		
+	}
+
+	protected function _post_dispatch() {
+		$this->cacheCurrentDispatch();
 	}
 
 
@@ -126,7 +141,12 @@ class Dispatcher extends Object {
 
 
 	public function getApplication( $f_path ) {
-		return $this->getController($f_path);
+		$controller = $this->getController($f_path);
+		$this->application = $controller;
+		if ( !$this->fromCache ) {
+			$this->_fire('post_dispatch');
+		}
+		return $controller;
 	}
 
 
@@ -176,7 +196,73 @@ class Dispatcher extends Object {
 		}
 	}
 
+
+	/* experimental */
+	public $cache = array();
+	public $cacheChanged = false;
+
+	public function cacheLoad() {
+		if ( array() === $this->cache ) {
+			$this->cache = APC::get('dispatches', array());
+			$self = $this;
+			register_shutdown_function(function() use ($self) {
+				if ( $self->cacheChanged ) {
+					APC::put('dispatches', $self->cache);
+				}
+			});
+		}
+	}
+
+	public function cachePut( $path, $target ) {
+		if ( false !== $this->cache ) {
+			$this->cache[$path] = $target;
+			$this->cacheChanged = true;
+		}
+	}
+
+	public function cacheGet( $path ) {
+		if ( false !== $this->cache ) {
+			if ( isset($this->cache[$path]) ) {
+				return $this->cache[$path];
+			}
+		}
+	}
+
+	public function cacheClear() {
+		$this->cache = array();
+		$this->cacheChanged = false;
+		return APC::clear('dispatches');
+	}
+
+	protected function cacheCurrentDispatch() {
+		$dispatch = array(
+			'_modulePath' => $this->_modulePath,
+			'_controller' => get_class($this->application),
+			'_moduleArguments' => $this->_moduleArguments,
+			'_actionPath' => $this->_actionPath,
+			'_action' => $this->_action,
+			'_actionArguments' => $this->_actionArguments,
+		);
+		$this->cachePut($this->requestPath, $dispatch);
+	}
+	/* experimental */
+
+
 	public function getController( $path, $routes = true ) {
+
+		/* experimental */
+		if ( null !== ($target = $this->cacheGet($path)) ) {
+			foreach ( $target AS $k => $v ) {
+				$this->$k = $v;
+			}
+			if ( $application = $this->getControllerObject($this->_controller) ) {
+				$this->fromCache = true;
+				return $application;
+			}
+		}
+		/* experimental */
+
+
 		$path = ltrim($path, '/');
 
 		// 1. Evaluate path into pieces
@@ -226,7 +312,7 @@ class Dispatcher extends Object {
 			return $this->tryFallback();
 		}
 
-		return $this->application = $application;
+		return $application;
 	}
 
 	protected function moduleClassTranslation( $moduleClass ) {
