@@ -36,7 +36,7 @@ $router->add('/js/all.js$', array('controller' => 'app\\controllers\\fallbax', '
 // Blog user profile
 $router->add('/blog-user/(\d+)/?', array(
 	'controller' => 'app\\controllers\\blog\\userController',
-	'action' => 'profileAction'
+	'action' => 'profile'
 ));
 
 // (1) This is how simple it **can** be
