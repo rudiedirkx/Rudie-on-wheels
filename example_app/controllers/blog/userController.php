@@ -15,9 +15,9 @@ class userController extends blogController {
 	}
 
 	// 
-	public function request_accountAction() {
+	public function request_account() {
 		$form = new \app\forms\RequestAccount($this);
-		if ( self::post() ) {
+		if ( $this->_post() ) {
 			if ( $form->validate($_POST) ) {
 				echo "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
 			}
@@ -32,7 +32,7 @@ class userController extends blogController {
 	// Validation (e.g. a password check) could come from a Validator but might
 	// be overkill in this case. Our blog doesn't need a password though =)
 	// Note how $this->post (typeof Options) can be used to fetch _POST data.
-	public function loginAction( $uid = null ) {
+	public function login( $uid = null ) {
 		if ( null !== $uid ) {
 			$this->user->login(models\User::get($uid));
 		}
@@ -55,7 +55,7 @@ class userController extends blogController {
 
 
 	// 
-	public function profileAction( $id ) {
+	public function profile( $id ) {
 		try {
 			$user = models\User::get($id);
 		}
@@ -63,8 +63,7 @@ class userController extends blogController {
 			throw new NotFoundException('User # '.$id);
 		}
 
-		$layout = !self::ajax();
-		return $this->tpl->display(__METHOD__, get_defined_vars(), $layout); // Show only View, no Layout
+		return get_defined_vars();
 	}
 
 

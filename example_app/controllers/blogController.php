@@ -12,22 +12,20 @@ use row\utils\Email;
 
 class blogController extends \app\specs\Controller {
 
-	static $config = array(
-		'posts_on_index' => 3.0,
+	protected $config = array(
+		'posts_on_index' => 3,
 	);
 
 	protected function _init() {
 		parent::_init();
 
-		// This Controller uses "Action" as postfix for its Actions
-		$this->_dispatcher->options->action_name_postfix = 'Action';
-
-		$this->acl->add('true'); // adds required zone "true" to all Actions of this Controller
-		$this->acl->add('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post'));
-		$this->acl->add('blog create posts', 'add_post');
+		$this->aclAdd('true'); // adds required zone "true" to all Actions of this Controller
+		$this->aclAdd('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post', 'follow_post'));
+		$this->aclAdd('blog create posts', 'add_post');
 	}
 
-	public function follow_postAction( $post = 0 ) {
+
+	public function follow_post( $post = 0 ) {
 		try {
 			$post = $this->getPost((int)$post);
 		}
@@ -40,30 +38,26 @@ class blogController extends \app\specs\Controller {
 		exit(( $following ? 'stop' : 'start' ) . ' following');
 	}
 
-	public function pageAction( $page = 'about' ) {
+	public function page( $page = 'about' ) {
 		/*$this::extend('oele', function($self) {
 			return __METHOD__;
 		});*/
 //var_dump($this::$_methods, is_callable(array($this, 'oeleb')), $this->oele(), $this->oeleb());
 		$tpl = 'blog/pages/'.$page;
-		return $this->tpl->display($tpl, array(), !self::ajax());
+		return $this->tpl->display($tpl, array(), !$this->_ajax());
 	}
 
-	public function csv_archiveAction( $name = 'archive.csv' ) {
+	public function csv_archive( $name = 'archive.csv' ) {
 		$posts = models\Post::all('is_published = 1 order by post_id desc');
 		if ( !$posts ) {
 			Session::error('Archive empty =)');
 			$this->_redirect('blog');
 		}
 
-//		header('Content-type: text/plain');
 		$this->_download($name, 'text/plain');
 
-//		unset($posts[0]->_created_on);
 		echo \app\specs\Output::csv(array_keys((array)$posts[0]), false);
-
 		foreach ( $posts as $post ) {
-//			unset($post->_created_on);
 			echo \app\specs\Output::csv($post, false);
 		}
 
@@ -71,12 +65,12 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// A Action port to the publish function that does practically the same
-	public function unpublish_postAction( $post ) {
-		return $this->publish_postAction($post, 0);
+	public function unpublish_post( $post ) {
+		return $this->publish_post($post, 0);
 	}
 
 	// (un)Publish a post IF you have the right access
-	public function publish_postAction( $post, $publish = null ) {
+	public function publish_post( $post, $publish = null ) {
 		$post = $this->getPost($post);
 		is_int($publish) or $publish = 1;
 		if ( $this->user->hasAccess('blog '.( $publish ? '' : 'un' ).'publish') ) {
@@ -86,7 +80,7 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// Show 1 category. Most 'logic' in the Category Model
-	public function categoryAction( $category ) {
+	public function category( $category ) {
 		$category = models\Category::get($category);
 
 		$messages = Session::messages();
@@ -95,7 +89,7 @@ class blogController extends \app\specs\Controller {
 
 	// Show Categories list OR an alias for the category Action
 	// Using a little SQL is fine, because it's valid for all SQLAdapters
-	public function categoriesAction( $category = null ) {
+	public function categories( $category = null ) {
 		if ( null !== $category ) {
 			return $this->category($category);
 		}
@@ -109,7 +103,7 @@ class blogController extends \app\specs\Controller {
 	// The Add post form and the submit logic
 	// Form is (manually) 'built' in the template
 	// Validation from the Post Model
-	public function add_postAction() {
+	public function add_post() {
 		$validator = models\Post::validator('add');
 		if ( !empty($_POST) ) {
 			if ( $validator->validate($_POST) ) {
@@ -138,7 +132,7 @@ class blogController extends \app\specs\Controller {
 
 	// Same ass Add post, but now load a different Validator
 	// We can use the same template though. Only minor checks in the template.
-	public function edit_postAction( $post ) {
+	public function edit_post( $post ) {
 		$post = $this->getPost($post);
 		if ( !$post->canEdit() ) {
 			throw new NotFoundException('Editable post # '.$post->post_id);
@@ -163,13 +157,13 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// If not logged in, the SessionUser->logout function will just ignore the call.
-	public function logoutAction() {
+	public function logout() {
 		$this->user->logout();
-		$this->_redirect('/blog');
+		$this->_redirect('blog');
 	}
 
 	// See edit_post Action
-	public function edit_commentAction( $comment ) {
+	public function edit_comment( $comment ) {
 		$comment = models\Comment::get($comment);
 		if ( !$comment->canEdit() ) {
 			throw new NotFoundException('Editable comment # '.$comment->comment_id);
@@ -193,7 +187,7 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// See add_post Action
-	public function add_commentAction( $post ) {
+	public function add_comment( $post ) {
 		$post = $this->getPost($post);
 
 		$anonymous = $this->user->isLoggedIn() ? '' : '_anonymous';
@@ -234,12 +228,12 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// Test Action for a Route
-	public function bestAction( $num = 900 ) {
+	public function best( $num = 900 ) {
 		exit('Showing the '.$num.' best posts...');
 	}
 
 	// Most 'logic' and information comes from the Post Model
-	public function viewAction( $post ) {
+	public function view( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
 
@@ -250,14 +244,14 @@ class blogController extends \app\specs\Controller {
 
 	// Two ways to get the right posts. Access is called within the Controller, not
 	// the Model, because the Model doesn't have (as direct) access to the SessionUser.
-	public function indexAction( $page = 1 ) {
+	public function index( $page = 1 ) {
 
 		// Way 1
 		// Define which get method to use to fetch Posts by checking ACL
 		// Use that function and the Model's logic to get those posts.
 		$unpub = $this->user->hasAccess('blog read unpublished');
 		$method = $unpub ? 'newest' : 'newestPublished';
-		$poi = self::config('posts_on_index');
+		$poi = $this->_config('posts_on_index');
 		$posts = models\Post::$method($poi);
 
 		// Way 2
@@ -269,20 +263,20 @@ class blogController extends \app\specs\Controller {
 		// A third way would be a combination like this:
 		 /*
 			$access = $this->user->hasAccess('blog read unpublished');
-			$posts = model\Post::postsByAccess($access, this->_config('posts_on_index'));
+			$posts = model\Post::postsByAccess($access, $this->_config('posts_on_index'));
 		 */
 		// That way you can check access in the Controller and have fetch logic in the Model
 
 		$messages = Session::messages();
 
-		return $this->tpl->display(__METHOD__, get_defined_vars());
+		return get_defined_vars(); // view will be rendered by app\specs\Controller->_post_action
 	}
 
 	/**
 	 * Model update() test
 	 * This method is actually never called from the blog... Just playing with the super-Models.
 	 */
-	public function commentAction( $id ) {
+	public function comment( $id ) {
 echo '<pre>time() = '.time()."\n";
 		$comment = models\Comment::get($id);
 		$update = $comment->update(array('created_on' => time())); // no placeholder stuff here!
@@ -308,7 +302,7 @@ echo '<pre>time() = '.time()."\n";
 
 
 	// Testing Inflector methods
-	public function inflectorAction() {
+	public function inflector() {
 		echo "<pre><u>  camelcase:</u>\n\n";
 		echo $txt = 'Oele boele la la';
 		echo "\n";
