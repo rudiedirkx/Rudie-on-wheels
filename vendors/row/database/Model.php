@@ -201,7 +201,9 @@ class Model extends Object {
 	 */
 	public function _fill( $data ) {
 		foreach ( (array)$data AS $k => $v ) {
-			$this->$k = $v;
+			if ( $k || '0' === $k ) {
+				$this->$k = $v;
+			}
 		}
 		$this->_fire('post_fill', array((array)$data));
 	}

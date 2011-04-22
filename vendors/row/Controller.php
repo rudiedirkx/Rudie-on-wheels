@@ -39,8 +39,6 @@ abstract class Controller extends Object {
 		// overridable _POST and _GET
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
-
-		$this->user = SessionUser::user();
 	}
 
 	protected function _pre_action() {
