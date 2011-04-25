@@ -22,7 +22,6 @@ abstract class Controller extends Object {
 
 	public $post; // typeof Options
 	public $get; // typeof Options
-	public $user; // typeof SessionUser
 
 	protected $_actions = false; // Must be an Array to use "specfic" type Dispatching
 
@@ -43,7 +42,7 @@ abstract class Controller extends Object {
 
 	protected function _pre_action() {
 		// check acl
-		$this->aclCheck($this->_dispatcher->_action);
+		$this->aclCheck();
 	}
 
 	protected function _post_action() {
@@ -70,7 +69,7 @@ abstract class Controller extends Object {
 
 	// helpers
 	protected function _redirect( $location, $exit = true ) {
-		$goto = 0 === strpos($location, '/') ? $location : Output::url($location);
+		$goto = 0 === strpos($location, '/') || in_array(substr($location, 0, 6), array('http:/', 'https:')) ? $location : Output::url($location);
 		header('Location: '.$goto);
 		if ( $exit ) {
 			exit;
@@ -134,7 +133,8 @@ abstract class Controller extends Object {
 		}
 	}
 
-	public function aclCheck( $action ) {
+	public function aclCheck( $action = '' ) {
+		$action or $action = $this->_dispatcher->_action;
 		if ( isset($this->acl[$action]) ) {
 			foreach ( $this->acl[$action] AS $zone => $x ) {
 				if ( !$this->aclCheckAccess($zone) ) {

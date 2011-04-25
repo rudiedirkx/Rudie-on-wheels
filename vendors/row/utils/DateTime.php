@@ -6,6 +6,18 @@ use row\core\Object;
 
 class DateTime extends Object {
 
+	static public function date() {
+		return gmdate('Y-m-d');
+	}
+
+	static public function time() {
+		return gmdate('H:i:s');
+	}
+
+	static public function now() {
+		return gmdate('Y-m-d H:i:s');
+	}
+
 	static public $defaultDateParseFormat = 'y-m-d';
 
 	static public function isDate( $date, $format = '' ) {
