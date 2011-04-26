@@ -15,6 +15,8 @@ abstract class SimpleForm extends \row\Component {
 	public $errors = array();
 	public $output = array();
 
+	public $inlineErrors = true;
+
 
 	public function validate( $data ) {
 		$this->input = $data;
@@ -51,7 +53,7 @@ abstract class SimpleForm extends \row\Component {
 						}
 					}
 				}
-				if ( isset($this->input[$name]) && !isset($this->output[$name]) ) {
+				if ( isset($this->input[$name]) && !array_key_exists($name, $this->output) ) {
 					$input = $this->input[$name];
 					$this->output($name, $input);
 					$elName = $this->elementName($element);
@@ -182,9 +184,9 @@ abstract class SimpleForm extends \row\Component {
 		$checked = $this->input($name, null);
 
 		$options = array();
-		foreach ( $element['options'] AS $k => $v ) {
-			$k = (string)$k;
-			$options[] = '<span class="option"><label><input type="radio" name="'.$elName.'" value="'.$k.'"'.( $checked === $k ? ' checked' : '' ).' /> '.$v.'</label>';
+		foreach ( (array)$element['options'] AS $k => $v ) {
+			$k = $this->getOptionValue($k, $v);
+			$options[] = '<span class="option"><label><input type="radio" name="'.$elName.'" value="'.$k.'"'.( $checked === $k ? ' checked' : '' ).' /> '.$v.'</label></span>';
 		}
 		$html = implode(' ', $options);
 
@@ -387,8 +389,13 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElementWrapperWithTitle( $input, $element ) {
+		$name = $element['_name'];
+
 		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		$html = '<label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$description;
+		$error = $this->inlineErrors && isset($this->errors[$name]) ? '<span class="error">'.$this->errors[$name][0].'</span>' : '';
+
+		$html = '<label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$error.$description;
+
 		return $this->renderElementWrapper($html, $element);
 	}
 

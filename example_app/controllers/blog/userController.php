@@ -18,8 +18,15 @@ class userController extends blogController {
 	public function request_account() {
 		$form = new \app\forms\RequestAccount($this);
 		if ( $this->_post() ) {
-			if ( $form->validate($_POST) ) {
-				echo "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
+			$valid = $form->validate($_POST);
+			if ( $valid ) {
+				if ( $this->_ajax() ) {
+					exit('OK');
+				}
+				exit("<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n");
+			}
+			if ( $this->_ajax() ) {
+				exit('ERROR'."\n\n".print_r($form->errors(), 1));
 			}
 		}
 		return $this->tpl->display(__METHOD__, get_defined_vars());
