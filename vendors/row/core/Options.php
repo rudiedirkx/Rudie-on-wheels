@@ -6,6 +6,11 @@ use row\core\Object;
 
 class Options extends Object {
 
+	static public function one( Array &$options, $name, $alt = null ) {
+		$options = Options::make($options);
+		return $options->get($name, $alt);
+	}
+
 	static public function make( $options, Options $defaults = null ) {
 		if ( !is_a($options, 'Options') ) {
 			$options = new static((array)$options, $defaults);
@@ -32,13 +37,13 @@ class Options extends Object {
 		}
 	}
 
-	public function get( $key, $fallback = null ) {
-		return $this->_exists($key) ? $this->$key : $fallback;
+	public function get( $name, $alt = null ) {
+		return $this->_exists($name) ? $this->$name : $alt;
 	}
 
-	public function setUnset( $key, $value ) {
-		if ( !$this->_isset($key) ) {
-			$this->$key = $value;
+	public function setUnset( $name, $value ) {
+		if ( !$this->_exists($name) ) {
+			$this->$name = $value;
 		}
 	}
 

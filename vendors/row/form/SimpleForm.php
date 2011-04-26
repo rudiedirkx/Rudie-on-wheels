@@ -24,6 +24,8 @@ abstract class SimpleForm extends \row\Component {
 		$elements =& $this->useElements();
 		$validators = $output = array();
 
+		$this->_fire('pre_validate');
+
 		foreach ( $elements AS $name => &$element ) {
 			$element['_name'] = $name;
 			$this->elementTitle($element);
@@ -89,7 +91,11 @@ abstract class SimpleForm extends \row\Component {
 			}
 		}
 
-		return 0 == count($this->errors);
+		if ( 0 == count($this->errors) ) {
+			$this->_fire('post_validate');
+			return true;
+		}
+		return false;
 	}
 
 	public function validateOptions( $form, $name ) {
@@ -180,6 +186,7 @@ abstract class SimpleForm extends \row\Component {
 		$output = array();
 		foreach ( $lists AS $listName => $fields ) {
 			$output[$listName] = array();
+			is_array($fields) or $fields = explode(',', $fields);
 			foreach ( $fields AS $fieldName ) {
 				if ( array_key_exists($fieldName, $this->output) ) {
 					$output[$listName][$fieldName] = $this->output[$fieldName];

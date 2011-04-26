@@ -23,7 +23,8 @@ class userController extends blogController {
 				if ( $this->_ajax() ) {
 					exit('OK');
 				}
-				exit("<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n");
+				echo "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
+				return $this->_redirect('blog');
 			}
 			if ( $this->_ajax() ) {
 				exit('ERROR'."\n\n".print_r($form->errors(), 1));
