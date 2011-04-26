@@ -33,11 +33,12 @@ class fallbax extends \app\specs\Controller {
 		$class = 'app\\forms\\'.$form;
 		$form = new $class($this);
 		$content = '';
-		if ( self::post() ) {
+		if ( $this->_post() ) {
 			$form->validate($_POST);
 			$content .= '<pre>'.print_r($form->errors(), 1).'</pre>';
 		}
 		$content .= $form->render();
+		$content .= '<pre>'.print_r($_POST, 1).'</pre>';
 		return $this->tpl->display(false, array('content' => $content));
 	}
 

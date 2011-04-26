@@ -90,6 +90,19 @@ abstract class SimpleForm extends \row\Component {
 		return 0 == count($this->errors);
 	}
 
+	public function validateOptions( $form, $name ) {
+		$element =& $this->useElements();
+		$value = $this->input($name, '');
+
+		$options = $element['options'];
+		foreach ( $options AS $k => $v ) {
+			if ( $this->getOptionValue($k, $v) == $value ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public function validateEmail( $form, $name ) {
 		$value = $form->input($name);
 		return false !== filter_var($value, FILTER_VALIDATE_EMAIL);
@@ -212,19 +225,35 @@ abstract class SimpleForm extends \row\Component {
 
 
 	public function renderDropdownElement( $name, $element ) {
+		return $this->renderOptionsElement($name, $element);
+	}
+
+	public function renderOptionsElement( $name, $element ) {
 		$value = $this->input($name, 0);
 		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
 
 		$html = '<select name="'.$elName.'">';
+		if ( isset($element['dummy']) ) {
+			$html .= '<option value="'.$this->getDummyOptionValue($element).'">'.$element['dummy'].'</option>';
+		}
 		foreach ( (array)$element['options'] AS $k => $v ) {
-			if ( is_a($v, '\row\database\Model') ) {
-				$k = implode(',', $v->_pkValue());
-			}
+			$k = $this->getOptionValue($k, $v);
 			$html .= '<option value="'.$k.'"'.( (string)$k === $value ? ' selected' : '' ).'>'.$v.'</option>';
 		}
 		$html .= '</select>';
 
 		return $this->renderElementWrapperWithTitle($html, $element);
+	}
+
+	protected function getDummyOptionValue( $element ) {
+		return '';
+	}
+
+	protected function getOptionValue( $k, $v ) {
+		if ( is_a($v, '\row\database\Model') ) {
+			$k = implode(',', $v->_pkValue());
+		}
+		return $k;
 	}
 
 	public function renderTextElement( $name, $element ) {
@@ -285,7 +314,9 @@ abstract class SimpleForm extends \row\Component {
 	public function render( $withForm = true, $options = array() ) {
 		$elements =& $this->useElements();
 
+		// Render 1 element?
 		if ( is_string($withForm) && isset($this->_elements[$withForm]) ) {
+			// First argument is element name, so render only that element
 			return $this->renderElement($withForm, $this->_elements[$withForm]);
 		}
 
