@@ -176,6 +176,19 @@ abstract class SimpleForm extends \row\Component {
 		return isset($this->output[$name]) ? $this->output[$name] : '';
 	}
 
+	public function splitOutput( $lists ) {
+		$output = array();
+		foreach ( $lists AS $listName => $fields ) {
+			$output[$listName] = array();
+			foreach ( $fields AS $fieldName ) {
+				if ( array_key_exists($fieldName, $this->output) ) {
+					$output[$listName][$fieldName] = $this->output[$fieldName];
+				}
+			}
+		}
+		return $output;
+	}
+
 
 
 	public function renderRadioElement( $name, $element ) {

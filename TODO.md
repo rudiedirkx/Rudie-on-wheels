@@ -7,6 +7,7 @@ To do:
 1. `row\form\SimpleForm`: implement element `type` 'grid' / 'matrix'
 1. `row\form\SimpleForm`: implement `pre_validate` and `post_validate` events
 1. `row\form\SimpleForm`: implement `SimpleForm->context`
+1. `row\form\SimpleForm`: make split method to split output values into several arrays
 
 
 Debatables:
