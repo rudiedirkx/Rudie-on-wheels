@@ -7,7 +7,7 @@ use row\Output;
 
 class Controller extends \row\Controller {
 
-	static $_actions = array(
+	protected $_actions = array(
 		'/'								=> 'tables',
 		'/table-structure/*'			=> 'table_structure',
 		'/table-data/*'					=> 'table_data',

@@ -16,6 +16,7 @@ abstract class SimpleForm extends \row\Component {
 	public $output = array();
 
 	public $inlineErrors = true;
+	public $elementWrapperTag = 'div';
 
 
 	public function validate( $data ) {
@@ -25,6 +26,14 @@ abstract class SimpleForm extends \row\Component {
 		$validators = $output = array();
 
 		$this->_fire('pre_validate');
+
+		function murlencode($name, $k, $arr) {
+			$out = array();
+			foreach ( $arr AS $k2 => $v ) {
+				$out[] = $name . '['.$k.']['.$k2.']=' . urlencode((string)$v);
+			}
+			return implode('&', $out);
+		}
 
 		foreach ( $elements AS $name => &$element ) {
 			$element['_name'] = $name;
@@ -59,8 +68,8 @@ abstract class SimpleForm extends \row\Component {
 					$input = $this->input[$name];
 					$this->output($name, $input);
 					$elName = $this->elementName($element);
-					foreach ( (array)$input AS $v ) {
-						$output[] = $elName.'='.urlencode($v);
+					foreach ( (array)$input AS $k => $v ) {
+						$output[] = is_array($v) ? murlencode($elName, $k, $v) : $elName . '=' . urlencode((string)$v);
 					}
 				}
 			}
@@ -198,9 +207,80 @@ abstract class SimpleForm extends \row\Component {
 
 
 
+	public function renderGridElement( $name, $element ) {
+		$html = "\n".'<table class="grid">'."\n";
+		$html .= '	<tr>'."\n";
+		$html .= '		<th class="corner"></th>'."\n";
+		foreach ( $element['horizontal'][1] AS $k => $hLabel ) {
+			$html .= '		'.$this->renderGridHorizontalTH($element, $hLabel)."\n";
+		}
+		$html .= '	</tr>'."\n";
+		foreach ( $element['vertical'][1] AS $vKey => $vLabel ) {
+			$vKey = $this->getOptionValue($vKey, $vLabel);
+			$html .= '	<tr>'."\n";
+			$html .= '		'.$this->renderGridVerticalTH($element, $vLabel)."\n";
+			foreach ( $element['horizontal'][1] AS $hKey => $hLabel ) {
+				$hKey = $this->getOptionValue($hKey, $hLabel);
+				$sub = '?';
+				$fn = 'renderGrid'.$element['subtype'];
+				if ( is_callable($method = array($this, $fn)) ) {
+					list($xValue, $yValue) = empty($element['reverse']) ? array($vKey, $hKey) : array($hKey, $vKey);
+//					$sub = $this->$fn($name.'__'.$xValue.'[]', $yValue);
+					$sub = $this->$fn($element, $xValue, $yValue);
+				}
+				$html .= '		<td>'.$sub.'</td>'."\n";
+			}
+			$html .= '	</tr>'."\n";
+		}
+		$html .= '</table>'."\n";
+
+		return $this->renderElementWrapperWithTitle($html, $element);
+	}
+
+	protected function renderGridHorizontalTH( $element, $label ) {
+		$html = '<th class="horizontal">'.$label.'</th>';
+		return $html;
+	}
+
+	protected function renderGridVerticalTH( $element, $label ) {
+		$html = '<th class="vertical">'.$label.'</th>';
+		return $html;
+	}
+
+	protected function renderGridOptions( $element, $xValue, $yValue ) {
+		$name = $element['_name'];
+		$options = $element['options'];
+		$dummy = isset($element['dummy']) ? $element['dummy'] : '';
+		$value = isset($this->input[$name][$xValue][$yValue]) ? (array)$this->input[$name][$xValue][$yValue] : array();
+
+		$elName = $name."[$xValue][$yValue]";
+		$html = $this->renderSelect($elName, $options, $value, $dummy);
+
+		return $html;
+	}
+
+	protected function renderGridCheckbox( $element, $xValue, $yValue ) {
+		$name = $element['_name'];
+		$value = isset($this->input[$name][$xValue]) ? (array)$this->input[$name][$xValue] : array();
+		$checked = in_array($yValue, $value) ? ' checked' : '';
+
+		$html = '<input type="checkbox" name="'.$name.'['.$xValue.'][]" value="'.$yValue.'"'.$checked.' />';
+
+		return $html;
+	}
+
+/*	public function renderGridCheckboxElement( $elementName, $elementValue ) {
+		$formValue = $this->input(trim($elementName, ']['), array());
+		$checked = in_array($elementValue, $formValue) ? ' checked' : '';
+		$html = '<input type="checkbox" name="'.$elementName.'" value="'.$elementValue.'"'.$checked.' />';
+
+		return $html;
+	}*/
+
+
 	public function renderRadioElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
+		$elName = $name;
 		$checked = $this->input($name, null);
 
 		$options = array();
@@ -214,12 +294,12 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderCheckboxElement( $name, $element ) {
-		$type = $element['type'];
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
+		$elName = $name;
 		$checked = null !== $this->input($name, null) ? ' checked' : '';
-
 		$value = isset($element['value']) ? ' value="'.Output::html($element['value']).'"' : '';
-		$html = '<label><input type="checkbox" name="'.$elName.'"'.$value.$checked.' /> '.$element['title'].'</label></span>';
+
+		$input = '<label><input type="checkbox" name="'.$elName.'"'.$value.$checked.' /> '.$element['title'].'</label>';
+		$html = '<span class="input">'.$input.'</span>';
 		if ( !empty($element['description']) ) {
 			$html .= ' ';
 			$html .= '<span class="description">'.$element['description'].'</span>';
@@ -229,15 +309,12 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderCheckboxesElement( $name, $element ) {
-		$type = $element['type'];
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name.'[]';
+		$elName = $name.'[]';
 		$checked = (array)$this->input($name, array());
 
 		$options = array();
 		foreach ( $element['options'] AS $k => $v ) {
-			if ( is_a($v, '\row\database\Model') ) {
-				$k = implode(',', $v->_pkValue());
-			}
+			$k = $this->getOptionValue($k, $v);
 			$options[] = '<span class="option"><label><input type="checkbox" name="'.$elName.'" value="'.$k.'"'.( in_array($k, $checked) ? ' checked' : '' ).' /> '.$v.'</label></span>';
 		}
 		$html = implode(' ', $options);
@@ -246,28 +323,34 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 
-	public function renderDropdownElement( $name, $element ) {
-		return $this->renderOptionsElement($name, $element);
+	public function renderDropdownElement( $name, $element, $wrapper = true ) {
+		return $this->renderOptionsElement($name, $element, $wrapper);
 	}
 
-	public function renderOptionsElement( $name, $element ) {
+	public function renderOptionsElement( $name, $element, $wrapper = true ) {
 		$value = $this->input($name, 0);
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
+		$elName = $name;
 
-		$html = '<select name="'.$elName.'">';
-		if ( isset($element['dummy']) ) {
-			$html .= '<option value="'.$this->getDummyOptionValue($element).'">'.$element['dummy'].'</option>';
-		}
-		foreach ( (array)$element['options'] AS $k => $v ) {
-			$k = $this->getOptionValue($k, $v);
-			$html .= '<option value="'.$k.'"'.( (string)$k === $value ? ' selected' : '' ).'>'.$v.'</option>';
-		}
-		$html .= '</select>';
+		$dummy = isset($element['dummy']) ? $element['dummy'] : '';
+		$html = $this->renderSelect($elName, $element['options'], $value, $dummy);
 
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
-	protected function getDummyOptionValue( $element ) {
+	protected function renderSelect( $elName, $options, $value = '', $dummy = '' ) {
+		$html = '<select name="'.$elName.'">';
+		if ( $dummy ) {
+			$html .= '<option value="'.$this->getDummyOptionValue().'">'.$dummy.'</option>';
+		}
+		foreach ( (array)$options AS $k => $v ) {
+			$k = $this->getOptionValue($k, $v);
+			$html .= '<option value="'.$k.'"'.( (string)$k === $value ? ' selected' : '' ).'>'.$v.'</option>';
+		}
+		$html .= '</select>';
+		return $html;
+	}
+
+	protected function getDummyOptionValue( $element = null ) {
 		return '';
 	}
 
@@ -280,7 +363,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderTextElement( $name, $element ) {
 		$type = $element['type'];
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
+		$elName = $name;
 		$value = $this->input($name);
 
 		$html = '<input type="'.$type.'" name="'.$elName.'" value="'.$value.'" />';
@@ -290,7 +373,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderTextareaElement( $name, $element ) {
 		$value = $this->input($name);
-		$elName = /*isset($element['name']) ? $element['name'] :*/ $name;
+		$elName = $name;
 
 		$options = Options::make($element);
 
@@ -308,7 +391,7 @@ abstract class SimpleForm extends \row\Component {
 		$inside = $options->inside ?: $options->text;
 
 		if ( $inside ) {
-			return '<p class="form-element markup '.$name.'">'.$inside.'</p>';
+			return '<'.$this->elementWrapperTag.' class="form-element markup '.$name.'">'.$inside.'</'.$this->elementWrapperTag.'>';
 		}
 		else if ( $options->outside ) {
 			return $options->outside;
@@ -399,13 +482,13 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderButtons() {
-		return '<p class="form-submit"><input type=submit></p>';
+		return '<'.$this->elementWrapperTag.' class="form-submit"><input type=submit></'.$this->elementWrapperTag.'>';
 	}
 
 	public function renderElementWrapper( $html, $element ) {
 		$name = $element['_name'];
 		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		return '<p class="form-element '.$element['type'].' '.$name.$this->error($name).'">'.$html.'</p>';
+		return '<'.$this->elementWrapperTag.' class="form-element '.$element['type'].' '.$name.$this->error($name).'">'.$html.'</'.$this->elementWrapperTag.'>';
 	}
 
 	public function renderElementWrapperWithTitle( $input, $element ) {
