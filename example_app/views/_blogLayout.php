@@ -4,7 +4,6 @@
 <head>
 <title><?=$this->title()?></title>
 <link rel=stylesheet href="<?=$this::url('css/all.css')?>" />
-<script src="<?=$this::url('js/all.js')?>"></script>
 </head>
 
 <body>
@@ -31,11 +30,13 @@
 
 <?=$content?>
 
+<script src="<?=$this::url('js/all.js')?>"></script>
+<?=$this->section('javascript')?>
 <script>
 if ( msgs = document.querySelector('#messages') ) {
-	msgs.addEventListener('click', function() {
+	msgs.bind('click', function() {
 		this.parentNode.removeChild(this);
-	}, false);
+	});
 }
 </script>
 

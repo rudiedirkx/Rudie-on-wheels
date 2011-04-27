@@ -40,7 +40,7 @@ $.post = function(url, handler, data) {
 	xhr.open('POST', url);
 	xhr.setRequestHeader('Ajax', '1');
 	if ( data ) {
-		console.log(xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'));
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 	}
 	xhr.onreadystatechange = function(e) {
 		if ( 4 === this.readyState ) {

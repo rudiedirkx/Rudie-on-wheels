@@ -9,8 +9,9 @@
 
 <?=$form->render()?>
 
+<?$this->section()?>
 <script>
-$(function() {
+//$(function() {
 	$('form').bind('submit', function(e) {
 		if ( $('#ajax-it').checked ) {
 			if ( e.stopPropagation ) e.stopPropagation();
@@ -22,8 +23,9 @@ $(function() {
 			}, data);
 		}
 	});
-});
+//});
 </script>
+<?$this->section('javascript')?>
 
 <pre>$_POST: <? print_r($_POST) ?></pre>
 

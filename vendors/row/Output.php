@@ -30,6 +30,7 @@ class Output extends \row\Component {
 	public static $_var_content = 'content';
 	public static $_var_title = 'title';
 	public $vars = array();
+	public $sections = array('javascript' => array(), 'css' => array());
 	public $viewFile = '';
 
 	public function _init() {
@@ -158,6 +159,39 @@ class Output extends \row\Component {
 			$this->assign('title', $title);
 		}
 		return $this->vars['title'];
+	}
+
+	public function section( $name = null, $addition = null ) {
+		static $buffering;
+
+		if ( $name && !isset($this->sections[$name]) ) {
+			// make section exist
+			$this->sections[$name] = array();
+		}
+
+		if ( $buffering ) {
+			// stop running buffer
+			$content = ob_get_contents();
+			ob_end_clean();
+			if ( $name ) {
+				// assign buffer contents to section
+				$this->sections[$name][] = $content;
+			}
+			$buffering = false;
+			return;
+		}
+
+		if ( null === $name ) {
+			// start section
+			ob_start();
+			$buffering = true;
+			return;
+		}
+
+		if ( $name ) {
+			return implode("\n", $this->sections[$name])."\n";
+		}
+		return '';
 	}
 
 
