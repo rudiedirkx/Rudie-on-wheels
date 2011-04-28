@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Zend_Component_Session;
 use row\utils\Image;
+use app\models;
 
 class fallbax extends \app\specs\Controller {
 
@@ -21,17 +22,17 @@ class fallbax extends \app\specs\Controller {
 	}
 
 	public function image() {
-//echo '<pre>';
 		$image = new Image(ROW_VENDOR_ROW_PATH.'/drupal/imagecache/sample.png');
-//print_r($image);
 		$image->resize(0, 100);
-//print_r($image);
 		$image->output();
 	}
 
 	public function form( $form ) {
 		$class = 'app\\forms\\'.$form;
-		$form = new $class($this);
+		$form = new $class($this, array(
+			'user' => models\User::first('1 ORDER BY RAND()'),
+			'domain' => models\Domain::first('1 ORDER BY RAND()'),
+		));
 		$content = '';
 		if ( $this->_post() ) {
 			var_dump($form->validate($_POST));
@@ -39,7 +40,8 @@ class fallbax extends \app\specs\Controller {
 		}
 		$content .= $form->render();
 		$content .= '<pre>$_POST: '.print_r($_POST, 1).'</pre>';
-		$content .= '<pre>$form->output: '.print_r($form->output, 1).'</pre>';
+		$content .= '<pre>$form: '.print_r($form, 1).'</pre>';
+
 		return $this->tpl->display(false, array('content' => $content));
 	}
 

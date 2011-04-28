@@ -4,7 +4,6 @@ To do:
 
 2. E-mail: Create simple `MailContext` and super simple 'mailer'
 1. `row\form\SimpleForm`: implement default values (`SimpleForm->render($defaultValues)`) (`SimpleForm->elementValue($name)`)
-1. `row\form\SimpleForm`: implement `SimpleForm->context`
 
 
 Debatables:

@@ -251,7 +251,7 @@ abstract class SimpleForm extends \row\Component {
 		$name = $element['_name'];
 		$options = $element['options'];
 		$dummy = isset($element['dummy']) ? $element['dummy'] : '';
-		$value = isset($this->input[$name][$xValue][$yValue]) ? (array)$this->input[$name][$xValue][$yValue] : array();
+		$value = isset($this->input[$name][$xValue][$yValue]) ? $this->input[$name][$xValue][$yValue] : '';
 
 		$elName = $name."[$xValue][$yValue]";
 		$html = $this->renderSelect($elName, $options, $value, $dummy);
