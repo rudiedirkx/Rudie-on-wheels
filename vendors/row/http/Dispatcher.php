@@ -28,7 +28,7 @@ class Dispatcher extends Object {
 	public $_actionArguments = array();
 
 	// Whether this dispatch comes from cache
-	public $fromCache = false;
+	protected $fromCache = false;
 
 	// The optional Router object that contains pre-dispatch routes
 	public $router; // typeof row\http\Router
@@ -39,6 +39,9 @@ class Dispatcher extends Object {
 	// This method is easily extended so that your personal preferences won't smudge my index.php
 	public function getDefaultOptions() {
 		return Options::make(array(
+
+			// Whether or not to prefix Action methods with the HTTP method
+			'restful' => false,
 
 			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
 			// If you don't want to evaluate a multi level controller app, make this false or "".
@@ -306,10 +309,17 @@ class Dispatcher extends Object {
 				$this->_action = $this->actionFunctionTranslation($this->_action);
 			}
 		}
+		if ( $this->options->restful && isset($_SERVER['REQUEST_METHOD']) ) {
+			$pa = $this->_action;
+			$this->_action = $_SERVER['REQUEST_METHOD'].'_'.$this->_action;
+		}
 
 		// 7. 
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
-			return $this->tryFallback();
+			if ( !isset($pa) || !$this->isCallableActionFunction($application, $pa) ) {
+				return $this->tryFallback();
+			}
+			$this->_action = $pa;
 		}
 
 		return $application;

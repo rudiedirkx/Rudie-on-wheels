@@ -48,7 +48,6 @@ abstract class Controller extends \row\Controller {
 		// display view example
 		if ( is_array($this->_response) ) {
 			$this->tpl->display(
-				str_replace('-', '/', $this->_dispatcher->_modulePath).'/'.$this->_dispatcher->_action, // template
 				$this->_response, // params
 				!$this->_ajax() // layout
 			);

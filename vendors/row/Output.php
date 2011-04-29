@@ -78,11 +78,19 @@ class Output extends \row\Component {
 		return $file;
 	}
 
+	public function templateFileRESTTranslation( $file ) {
+		if ( $this->application->_dispatcher->options->restful && isset($_SERVER['REQUEST_METHOD']) && 0 === strpos($file, $_SERVER['REQUEST_METHOD'].'_') ) {
+			$file = substr($file, strlen($_SERVER['REQUEST_METHOD'])+1);
+		}
+		return $file;
+	}
+
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$folder = $this::$_application->_dispatcher->_modulePath;
+			$folder = str_replace('-', '/', $this::$_application->_dispatcher->_modulePath);
 			$file = $this::$_application->_dispatcher->_action;
+			$file = $this->templateFileRESTTranslation($file);
 			$tpl = $folder.'/'.$file;
 		}
 		else if ( false === $tpl ) {
@@ -94,8 +102,9 @@ class Output extends \row\Component {
 			// Use given view (probably passed __METHOD__)
 			$file = $view[1];
 			$file = $this->templateFileTranslation($file);
+			$file = $this->templateFileRESTTranslation($file);
 			$folder = explode('\\', $view[0]);
-			unset($folder[0], $folder[1]);
+			unset($folder[0], $folder[1]); // 0 = "app", 1 = "controllers"
 			$folder = implode('/', $folder);
 			$folder = $this->templateFolderTranslation($folder);
 			$tpl = $folder.'/'.$file;
@@ -111,6 +120,12 @@ class Output extends \row\Component {
 	}
 
 	public function display( $tpl = true, $vars = null, $layout = true ) {
+		if ( is_array($tpl) && !is_array($vars) ) {
+			$layout = $vars;
+			$vars = $tpl;
+			$tpl = true;
+		}
+
 		if ( is_array($vars) ) {
 			$this->assign($vars);
 		}

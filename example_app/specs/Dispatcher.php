@@ -19,6 +19,8 @@ namespace app\specs;
 
 class Dispatcher extends \row\http\Dispatcher {
 
+	public $cache = false;
+
 	/**
 	 * Just an example of extending the default options:
 	 *

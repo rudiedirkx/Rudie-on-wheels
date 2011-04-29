@@ -3,6 +3,7 @@
 namespace app\controllers\blog;
 
 use app\controllers\blogController;
+use row\core\Options;
 use row\auth\Session;
 use app\models;
 
@@ -10,14 +11,29 @@ class userController extends blogController {
 
 	// Very usefull no?
 	protected function _init() {
-		// Beware: the parent class (blogController) defined a new action function postfix!
 		parent::_init();
+		$this->_dispatcher->options->restful = true;
+	}
+
+	public function POST_request_account() {
+		$form = new \app\forms\RequestAccount($this);
+		$valid = $form->validate($_POST);
+		if ( $valid ) {
+			if ( $this->_ajax() ) {
+				return 'OK';
+			}
+			return "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
+		}
+		if ( $this->_ajax() ) {
+			return 'ERROR';
+		}
+		return $this->tpl->display(get_defined_vars());
 	}
 
 	// 
-	public function request_account() {
+	public function GET_request_account() {
 		$form = new \app\forms\RequestAccount($this);
-		if ( $this->_post() ) {
+/*		if ( $this->_post() ) {
 			$valid = $form->validate($_POST);
 			if ( $valid ) {
 				if ( $this->_ajax() ) {
@@ -29,8 +45,37 @@ class userController extends blogController {
 			if ( $this->_ajax() ) {
 				exit('ERROR'."\n\n".print_r($form->errors(), 1));
 			}
+		}*/
+		return $this->tpl->display(get_defined_vars());
+	}
+
+
+	public function POST_login( $uid = null ) {
+		$post = Options::make($_POST);
+		$get = Options::make($_GET);
+		try {
+			// get user object
+			$user = models\User::one(array( 'username' => (string)$post->username ));
+
+			// log user in(to SessionUser)
+			$this->user->login($user);
+
+			// message OK
+			Session::success('Alright, alright, alright, you\'re logged in...');
+
+			// back to blog
+			return $this->_redirect($post->get('goto', $get->get('goto', 'blog')));
 		}
-		return $this->tpl->display(__METHOD__, get_defined_vars());
+		catch ( \Exception $ex ) {}
+
+		// message FAIL
+		Session::error('Sorry, buddy, that\'s not your username!');
+
+		// get messages (old n new)
+		$messages = Session::messages();
+
+		// reshow login form
+		return $this->tpl->display(get_defined_vars());
 	}
 
 
@@ -39,15 +84,14 @@ class userController extends blogController {
 	// UID, it'll just create another layer. Our SessionUser allows that (by default).
 	// Validation (e.g. a password check) could come from a Validator but might
 	// be overkill in this case. Our blog doesn't need a password though =)
-	// Note how $this->post (typeof Options) can be used to fetch _POST data.
-	public function login( $uid = null ) {
+	public function GET_login( $uid = null ) {
 		if ( null !== $uid ) {
 			$this->user->login(models\User::get($uid));
 		}
 		if ( $this->user->isLoggedIn() ) {
 			$this->_redirect('/blog');
 		}
-		if ( !$this->post->isEmpty() ) {
+/*		if ( $this->_post() ) {
 			try {
 				$user = models\User::one(array( 'username' => (string)$this->post->username ));
 				$this->user->login($user);
@@ -56,14 +100,14 @@ class userController extends blogController {
 			}
 			catch ( \Exception $ex ) {}
 			Session::error('Sorry, buddy, that\'s not your username!');
-		}
+		}*/
 		$messages = Session::messages();
-		return $this->tpl->display(__METHOD__, get_defined_vars());
+		return $this->tpl->display(get_defined_vars());
 	}
 
 
 	// 
-	public function profile( $id ) {
+	public function GET_profile( $id ) {
 		try {
 			$user = models\User::get($id);
 		}
