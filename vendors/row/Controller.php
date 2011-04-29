@@ -47,6 +47,9 @@ abstract class Controller extends Object {
 
 	protected function _post_action() {
 		// display view?
+		if ( is_string($this->_response) ) {
+			exit($this->_response);
+		}
 	}
 
 

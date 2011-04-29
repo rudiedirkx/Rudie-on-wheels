@@ -20,6 +20,8 @@ class Output extends \row\Component {
 
 	static public $_application;
 
+	public $_exceptionClass = 'OutputException';
+
 	public $errorReporting = 2039; // Don't show notices
 		public $oldErrorReporting = false;
 	public $extension = '.php';
@@ -118,7 +120,8 @@ class Output extends \row\Component {
 		$tpl = $this->viewFile($tpl, $viewLayout);
 		$this->viewFile = $this->viewsFolder.'/'.$tpl;
 		if ( !$this->viewFileExists($this->viewFile) ) {
-			throw new \OutputException($tpl);
+			$class = $this->_exceptionClass;
+			throw new $class($tpl);
 		}
 
 		$this->render($viewLayout);

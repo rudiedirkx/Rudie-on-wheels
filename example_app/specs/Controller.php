@@ -54,6 +54,7 @@ abstract class Controller extends \row\Controller {
 			);
 			exit;
 		}
+		parent::_post_action();
 	}
 
 

@@ -27,6 +27,17 @@ class fallbax extends \app\specs\Controller {
 		$image->output();
 	}
 
+	public function brmember() {
+		$form = new \app\forms\BRMember($this, array('table' => true));
+		if ( $this->_post() ) {
+			if ( $form->validate($_POST) ) {
+				return 'OK';
+			}
+			return print_r($form->errors(), 1);
+		}
+		return $this->tpl->display('forms/brmember', get_defined_vars(), '_todoLayout');
+	}
+
 	public function form( $form ) {
 		$class = 'app\\forms\\'.$form;
 		$form = new $class($this, array(

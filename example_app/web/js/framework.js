@@ -1,12 +1,21 @@
 
 window.$ = function(q) {
 	if ( 'function' == typeof q ) {
+		if ( 'complete' == document.readyState ) {
+			q();
+			return;
+		}
 		window.bind('load', q);
 		return;
 	}
 	return document.querySelector(q);
 }
 
+window.$$ = function(q) {
+	return Array.prototype.slice.call(document.querySelectorAll(q), 0);
+}
+
+Array.prototype.each = Array.prototype.forEach;
 Object.prototype.bind = function(type, event) { // Object so Window inherits it too
 	this.addEventListener(type, event, false);
 };
@@ -34,8 +43,22 @@ HTMLElement.prototype.serialize = function() {
 	});
 	return v.join('&');
 };
+HTMLElement.prototype.prev = function() {
+	var s = this.previousSibling;
+	if ( s && s.nodeType != 1 ) {
+		s = s.previousSibling;
+	}
+	return s;
+};
+HTMLElement.prototype.next = function() {
+	var s = this.nextSibling;
+	if ( s && s.nodeType != 1 ) {
+		s = s.nextSibling;
+	}
+	return s;
+};
 
-$.post = function(url, handler, data) {
+window.$.post = function(url, handler, data) {
 	var xhr = new XMLHttpRequest;
 	xhr.open('POST', url);
 	xhr.setRequestHeader('Ajax', '1');
@@ -50,10 +73,6 @@ $.post = function(url, handler, data) {
 	};
 	xhr.send(data || '');
 	return false;
-}
-
-window.$$ = function(q) {
-	return document.querySelectorAll(q);
 }
 
 function doAjaxAction(el, handler) {

@@ -51,7 +51,7 @@ abstract class SimpleForm extends \row\Component {
 						$this->errors[$name][] = $this->errorMessage('regex', $element);
 					}
 				}
-				if ( !empty($element['validation']) && empty($this->errors[$name]) && !empty($element['required']) ) {
+				if ( !empty($element['validation']) && empty($this->errors[$name]) && $this->input($name) ) {
 					$fn = $element['validation'];
 					if ( is_string($fn) ) {
 						$validationFunction = 'validate'.ucfirst($fn);
@@ -108,7 +108,8 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function validateOptions( $form, $name ) {
-		$element =& $this->useElements();
+		$elements =& $this->useElements();
+		$element = $elements[$name];
 		$value = $this->input($name, '');
 
 		$options = $element['options'];
@@ -400,18 +401,18 @@ abstract class SimpleForm extends \row\Component {
 		return '';
 	}
 
-	// This method is now absolutely useless as without it the exact same thing would happen
-	public function renderPasswordElement( $name, $element ) {
-		$element['type'] = 'password';
-
-		return $this->renderTextElement($name, $element);
-	}
-
 
 
 	public function &useElements() {
 		if ( !$this->_elements ) {
-			$this->_elements = $this->elements();
+			$elements = array();
+			$index = 0;
+			foreach ( $this->elements() AS $name => $element ) {
+				$element['_name'] = $name;
+				$element['_index'] = $index++;
+				$elements[$name] = $element;
+			}
+			$this->_elements = $elements;
 		}
 		return $this->_elements;
 	}
@@ -429,8 +430,6 @@ abstract class SimpleForm extends \row\Component {
 		$html = '';
 		foreach ( $elements AS $name => $element ) {
 			if ( is_string($name) || ( isset($element['type']) && in_array($element['type'], array('markup')) ) ) {
-				$element['_name'] = $name;
-				$element['_index'] = $index++;
 				$html .= $this->renderElement($name, $element);
 				$html .= $this->elementSeparator();
 			}
@@ -487,17 +486,16 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderElementWrapper( $html, $element ) {
 		$name = $element['_name'];
-		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
 		return '<'.$this->elementWrapperTag.' class="form-element '.$element['type'].' '.$name.$this->error($name).'">'.$html.'</'.$this->elementWrapperTag.'>';
 	}
 
 	public function renderElementWrapperWithTitle( $input, $element ) {
 		$name = $element['_name'];
 
-		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
-		$error = $this->inlineErrors && isset($this->errors[$name]) ? '<span class="error">'.$this->errors[$name][0].'</span>' : '';
+		$description = empty($element['description']) ? '' : '<span class="description">'.Output::html($element['description']).'</span>';
+		$error = $this->inlineErrors && isset($this->errors[$name]) ? '<span class="error">'.Output::html($this->errors[$name][0]).'</span>' : '';
 
-		$html = '<label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$error.$description;
+		$html = '<label>'.Output::html($element['title']).'</label><span class="input">'.$input.'</span>'.$error.$description;
 
 		return $this->renderElementWrapper($html, $element);
 	}
