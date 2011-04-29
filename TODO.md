@@ -2,8 +2,14 @@
 To do:
 ------
 
+### **For 1.0**
+
 2. E-mail: Create simple `MailContext` and super simple 'mailer'
 1. `row\form\SimpleForm`: implement default values (`SimpleForm->render($defaultValues)`) (`SimpleForm->elementValue($name)`)
+
+### **For 1.1**
+
+1. Make the entire thing more `RESTful` (OMG!? Am I using it now too??)
 
 
 Debatables:
