@@ -182,7 +182,10 @@ abstract class SimpleForm extends \row\Component {
 
 
 	public function input( $name, $alt = '' ) {
-		return isset($this->input[$name]) ? $this->input[$name] : $alt;
+		$elements = $this->useElements();
+		$element = $elements[$name];
+		$default = isset($element['default']) ? $element['default'] : $alt;
+		return isset($this->input[$name]) ? $this->input[$name] : $default;
 	}
 
 	public function output( $name, $value = null ) {
@@ -492,10 +495,10 @@ abstract class SimpleForm extends \row\Component {
 	public function renderElementWrapperWithTitle( $input, $element ) {
 		$name = $element['_name'];
 
-		$description = empty($element['description']) ? '' : '<span class="description">'.Output::html($element['description']).'</span>';
-		$error = $this->inlineErrors && isset($this->errors[$name]) ? '<span class="error">'.Output::html($this->errors[$name][0]).'</span>' : '';
+		$description = empty($element['description']) ? '' : '<span class="description">'.$element['description'].'</span>';
+		$error = $this->inlineErrors && isset($this->errors[$name]) ? '<span class="error">'.$this->errors[$name][0].'</span>' : '';
 
-		$html = '<label>'.Output::html($element['title']).'</label><span class="input">'.$input.'</span>'.$error.$description;
+		$html = '<label>'.$element['title'].'</label><span class="input">'.$input.'</span>'.$error.$description;
 
 		return $this->renderElementWrapper($html, $element);
 	}
