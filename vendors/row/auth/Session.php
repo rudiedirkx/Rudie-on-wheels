@@ -24,9 +24,9 @@ class Session extends Object {
 	static public function validateEnvironment() {
 		if ( static::exists() ) {
 			// Check IP
-			if ( isset(static::$session['ip'], $_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] == static::$session['ip'] ) {
+			if ( isset(static::$session['ip'], $_SERVER['REMOTE_ADDR']) && sha1($_SERVER['REMOTE_ADDR']) == static::$session['ip'] ) {
 				// Check User Agent
-				if ( isset(static::$session['ua'], $_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == static::$session['ua'] ) {
+				if ( isset(static::$session['ua'], $_SERVER['HTTP_USER_AGENT']) && sha1($_SERVER['HTTP_USER_AGENT']) == static::$session['ua'] ) {
 //					static::$session['active'] = time(); // Let's not...
 					return true;
 				}
@@ -53,8 +53,8 @@ class Session extends Object {
 			session_start();
 			if ( !isset($_SESSION[static::$name], $_SESSION[static::$name]['ip'], $_SESSION[static::$name]['ua']) ) { // Session not started for this session
 				$_SESSION[static::$name] = array(
-					'ip' => $_SERVER['REMOTE_ADDR'],
-					'ua' => $_SERVER['HTTP_USER_AGENT'],
+					'ip' => sha1($_SERVER['REMOTE_ADDR']),
+					'ua' => sha1($_SERVER['HTTP_USER_AGENT']),
 					'start' => time(),
 					'active' => time(),
 					'messages' => array(),
