@@ -65,10 +65,14 @@ abstract class SimpleForm extends \row\Component {
 						}
 					}
 				}
-				if ( isset($this->input[$name]) && !array_key_exists($name, $this->output) ) {
-					$input = $this->input[$name];
-					$this->output($name, $input);
+				if ( isset($this->input[$name]) ) {
 					$elName = $this->elementName($element);
+					if ( array_key_exists($name, $this->output) ) {
+						$input = $this->output[$name];
+					}
+					else {
+						$input = $this->input[$name];
+					}
 					foreach ( (array)$input AS $k => $v ) {
 						$output[] = is_array($v) ? murlencode($elName, $k, $v) : $elName . '=' . urlencode((string)$v);
 					}
@@ -80,15 +84,13 @@ abstract class SimpleForm extends \row\Component {
 			}
 			unset($element);
 		}
-//print_r($output);
 		$output = implode('&', $output);
-//var_dump($output);
+		$this->output = array();
 		parse_str($output, $this->output);
 
 		if ( 0 == count($this->errors) ) {
 			foreach ( $validators AS $validator ) {
 				if ( empty($validator['require']) || 0 == count(array_intersect((array)$validator['require'], array_keys($this->errors))) ) {
-//echo "\n  do custom validator on [".implode(', ', (array)$validator['fields'])."] ...\n";
 					$v = $validator['validation'];
 					$r = $v($this);
 					if ( false === $r || is_string($r) ) {
@@ -132,7 +134,7 @@ abstract class SimpleForm extends \row\Component {
 		if ( 0 >= preg_match('/^(\d\d\d\d)-(\d\d?)-(\d\d?)$/', $value, $match) ) {
 			return false;
 		}
-		$date = $match[1] . '-' . str_pad((string)(int)$match[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad((string)(int)$match[3], 2, '0', STR_PAD_LEFT);
+		$date = $match[1] . '-' . lpad($match[2]) . '-' . lpad($match[3]);
 		$this->output($name, $date);
 	}
 
@@ -174,6 +176,10 @@ abstract class SimpleForm extends \row\Component {
 	public function validateCSV( $form, $name ) {
 		$value = trim($this->input($name, ''));
 		return 0 < preg_match('/^[a-z ]+(?:, ?[a-z ]+)*$/', $value);
+	}
+
+	public function validateNumber( $form, $name ) {
+		return is_numeric($this->input($name));
 	}
 
 
