@@ -4,7 +4,9 @@ To do:
 
 ### **For 1.0**
 
+1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
 2. E-mail: Create simple `MailContext` and super simple 'mailer'
+3. Create `internal redirect` from `Controller` eg. `$this->_internal(array('controller' => 'oele', 'action' => 'boele'))` or `$this->_internal('go/here/15')`
 
 ### **For 1.1**
 
