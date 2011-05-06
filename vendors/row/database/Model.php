@@ -104,7 +104,7 @@ class Model extends Object {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions, $params);
+		$conditions = static::dbObject()->stringifyConditions($conditions);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		if ( 1 !== $r->count() ) {
@@ -117,7 +117,7 @@ class Model extends Object {
 	 * Returns null or the first object with the matching conditions
 	 */
 	static public function _first( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions, $params);
+		$conditions = static::dbObject()->stringifyConditions($conditions);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		return $r->nextObject($r->class, array(true));
@@ -135,7 +135,7 @@ class Model extends Object {
 		$pkValues = array_combine($pkColumns, $pkValues);
 		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
 		if ( $moreConditions ) {
-			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions, $params);
+			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions);
 		}
 		return static::_one($conditions);
 	}

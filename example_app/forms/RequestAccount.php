@@ -9,7 +9,7 @@ use app\specs\Output;
 
 class RequestAccount extends \app\specs\SimpleForm {
 
-	protected function elements( $defaults = null, $options = array() ) {
+	protected function elements( $defaults = null ) {
 		return array(
 			'username' => array(
 				'type' => 'text',

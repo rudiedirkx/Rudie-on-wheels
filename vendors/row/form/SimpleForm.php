@@ -9,7 +9,7 @@ use row\Output;
 abstract class SimpleForm extends \row\Component {
 
 	public $_elements = array(); // internal cache
-	abstract protected function elements( $defaults = null, $options = array() );
+	abstract protected function elements( $defaults = null );
 
 	public $default = null;
 	public $input = array();
@@ -150,7 +150,25 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function validateUnique( $form, $name ) {
-		
+		$elements = $this->useElements();
+		$element = $elements[$name];
+
+		if ( !isset($element['unique'], $element['unique']['model'], $element['unique']['field']) ) {
+			// not enough information: autofail
+			return false;
+		}
+
+		$conditions = isset($element['unique']['conditions']) ? (array)$element['unique']['conditions'] : array();
+		$model = $element['unique']['model'];
+		$field = $element['unique']['field'];
+
+		$db = $model::dbObject();
+		$params = isset($conditions[1]) ? $conditions[1] : array();
+		$conditions = $db->replaceholders($conditions[0], $params);
+		$conditions .= ' AND '.$db->stringifyConditions(array($field => $this->input($name)));
+
+		$exists = $model::count($conditions);
+		return !$exists;
 	}
 
 
@@ -441,7 +459,7 @@ abstract class SimpleForm extends \row\Component {
 		if ( !$this->_elements ) {
 			$elements = array();
 			$index = 0;
-			foreach ( $this->elements() AS $name => $element ) {
+			foreach ( $this->elements($this->default) AS $name => $element ) {
 				$element['_name'] = $name;
 				$element['_index'] = $index++;
 				$elements[$name] = $element;

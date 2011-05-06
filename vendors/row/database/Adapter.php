@@ -53,6 +53,12 @@ abstract class Adapter extends \row\core\Object {
 	}
 
 	public function escapeAndQuoteValue( $value ) {
+		if ( null === $value ) {
+			return 'NULL';
+		}
+		if ( is_bool($value) ) {
+			return (int)$value;
+		}
 		return $this->quoteValue($this->escapeValue($value));
 	}
 

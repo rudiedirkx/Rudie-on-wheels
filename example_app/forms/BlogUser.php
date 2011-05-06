@@ -9,7 +9,8 @@ use app\specs\Output;
 
 class BlogUser extends \app\specs\SimpleForm {
 
-	protected function elements( $defaults = null, $options = array() ) {
+	protected function elements( $defaults = null ) {
+		is_a($defaults, 'row\\database\\Model') or $defaults = Options::make((array)$defaults);
 		return array(
 			'username' => array(
 				'type' => 'text',
@@ -19,7 +20,7 @@ class BlogUser extends \app\specs\SimpleForm {
 				'unique' => array(
 					'model' => 'app\\models\\User',
 					'field' => 'username',
-					'conditions' => array('is_deleted' => false),
+					'conditions' => array('is_deleted = ? AND user_id <> ?', array(false, (int)$defaults->user_id)),
 				),
 				'description' => Output::translate('Have you read our %0?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
 			),
@@ -31,7 +32,7 @@ class BlogUser extends \app\specs\SimpleForm {
 			'full_name' => array(
 				'type' => 'text',
 				'required' => true,
-				'minlength' => 6,
+				'minlength' => 3,
 			),
 			'bio' => array(
 				'type' => 'textarea',

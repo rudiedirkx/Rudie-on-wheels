@@ -18,9 +18,25 @@ class userController extends blogController {
 	}
 
 
+	public function create() {
+		$form = new BlogUser($this);
+
+		if ( $this->_post() ) {
+			$valid = $form->validate($_POST);
+			if ( $valid ) {
+				return 'OK';
+			}
+		}
+
+		return $this->tpl->display(get_defined_vars());
+	}
+
+
 	public function POST_edit( $user = null ) {
 		$user = models\User::get($user);
+
 		$form = new BlogUser($this);
+		$form->default = $user;
 
 		$valid = $form->validate($_POST);
 		if ( $valid ) {
