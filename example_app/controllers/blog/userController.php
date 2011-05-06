@@ -6,46 +6,62 @@ use app\controllers\blogController;
 use row\core\Options;
 use row\auth\Session;
 use app\models;
+use app\forms\BlogUser;
+use app\forms\RequestAccount;
 
 class userController extends blogController {
 
 	// Very usefull no?
 	protected function _init() {
 		parent::_init();
-		$this->_dispatcher->options->restful = true;
+		$this->_dispatcher->options->restful = true; // REST sucks!? Look at the annoying separation of GET and POST below
 	}
 
+
+	public function POST_edit( $user = null ) {
+		$user = models\User::get($user);
+		$form = new BlogUser($this);
+
+		$valid = $form->validate($_POST);
+		if ( $valid ) {
+			return 'OK';
+		}
+
+		return $this->tpl->display(get_defined_vars());
+	}
+
+	public function GET_edit( $user = null ) {
+		$user = models\User::get($user);
+
+		$form = new BlogUser($this);
+		$form->default = $user;
+
+		return $this->tpl->display(get_defined_vars());
+	}
+
+
 	public function POST_request_account() {
-		$form = new \app\forms\RequestAccount($this);
+		$form = new RequestAccount($this);
+
 		$valid = $form->validate($_POST);
 		if ( $valid ) {
 			if ( $this->_ajax() ) {
 				return 'OK';
 			}
+
 			return "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
 		}
+
 		if ( $this->_ajax() ) {
-			return 'ERROR';
+			return 'ERROR'."\n\n* ".implode("\n* ", $form->errors());
 		}
+
 		return $this->tpl->display(get_defined_vars());
 	}
 
 	// 
 	public function GET_request_account() {
-		$form = new \app\forms\RequestAccount($this);
-/*		if ( $this->_post() ) {
-			$valid = $form->validate($_POST);
-			if ( $valid ) {
-				if ( $this->_ajax() ) {
-					exit('OK');
-				}
-				echo "<h1>THIS FORM IS VALIDATED! And now what..?</h1>\n\n\n";
-				return $this->_redirect('blog');
-			}
-			if ( $this->_ajax() ) {
-				exit('ERROR'."\n\n".print_r($form->errors(), 1));
-			}
-		}*/
+		$form = new RequestAccount($this);
 		return $this->tpl->display(get_defined_vars());
 	}
 
@@ -77,7 +93,6 @@ class userController extends blogController {
 		// reshow login form
 		return $this->tpl->display(get_defined_vars());
 	}
-
 
 	// I'm allowing double logins (or "login layers"):
 	// If you're logged in, you can't reach the form, but if you pass a

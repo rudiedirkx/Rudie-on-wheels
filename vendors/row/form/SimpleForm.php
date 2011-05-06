@@ -11,6 +11,7 @@ abstract class SimpleForm extends \row\Component {
 	public $_elements = array(); // internal cache
 	abstract protected function elements( $defaults = null, $options = array() );
 
+	public $default = null;
 	public $input = array();
 	public $errors = array();
 	public $output = array();
@@ -41,7 +42,7 @@ abstract class SimpleForm extends \row\Component {
 			if ( is_string($name) ) {
 				// form element
 				if ( !empty($element['required']) ) {
-					if ( !$this->validateRequired($name, $element) ) {
+					if ( !$this->validateRequired($this, $name) ) {
 						$this->errors[$name][] = $this->errorMessage('required', $element);
 					}
 				}
@@ -135,14 +136,23 @@ abstract class SimpleForm extends \row\Component {
 		$this->output($name, $date);
 	}
 
-	public function validateRequired( $name, $element ) {
+	public function validateRequired( $form, $name ) {
 		if ( !isset($this->input[$name]) ) {
 			return false;
 		}
+
+		$elements = $this->useElements();
+		$element = $elements[$name];
+
 		$length = is_array($this->input[$name]) ? count($this->input[$name]) : strlen(trim((string)$this->input[$name]));
 		$minlength = isset($element['minlength']) ? (int)$element['minlength'] : 1;
 		return $length >= $minlength;
 	}
+
+	public function validateUnique( $form, $name ) {
+		
+	}
+
 
 	public function errorMessage( $type, $element ) {
 		$this->elementTitle($element);
@@ -184,8 +194,25 @@ abstract class SimpleForm extends \row\Component {
 	public function input( $name, $alt = '' ) {
 		$elements = $this->useElements();
 		$element = $elements[$name];
-		$default = isset($element['default']) ? $element['default'] : $alt;
-		return isset($this->input[$name]) ? $this->input[$name] : $default;
+
+		// check input (probably POST) data
+		if ( isset($this->input[$name]) ) {
+			return $this->input[$name];
+		}
+
+		// check default form values
+		$dv = (array)$this->default;
+		if ( isset($dv[$name]) ) {
+			return $dv[$name];
+		}
+
+		// check default element value
+		if ( isset($element['default']) ) {
+			return $element['default'];
+		}
+
+		// no input found: return alt
+		return $alt;
 	}
 
 	public function output( $name, $value = null ) {
@@ -255,7 +282,9 @@ abstract class SimpleForm extends \row\Component {
 		$name = $element['_name'];
 		$options = $element['options'];
 		$dummy = isset($element['dummy']) ? $element['dummy'] : '';
-		$value = isset($this->input[$name][$xValue][$yValue]) ? $this->input[$name][$xValue][$yValue] : '';
+
+		$input = $this->input($name, array());
+		$value = isset($input[$xValue][$yValue]) ? $input[$xValue][$yValue] : '';
 
 		$elName = $name."[$xValue][$yValue]";
 		$html = $this->renderSelect($elName, $options, $value, $dummy);
@@ -265,7 +294,9 @@ abstract class SimpleForm extends \row\Component {
 
 	protected function renderGridCheckbox( $element, $xValue, $yValue ) {
 		$name = $element['_name'];
-		$value = isset($this->input[$name][$xValue]) ? (array)$this->input[$name][$xValue] : array();
+
+		$input = $this->input($name, array());
+		$value = isset($input[$xValue]) ? (array)$input[$xValue] : array();
 		$checked = in_array($yValue, $value) ? ' checked' : '';
 
 		$html = '<input type="checkbox" name="'.$name.'['.$xValue.'][]" value="'.$yValue.'"'.$checked.' />';

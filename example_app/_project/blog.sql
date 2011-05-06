@@ -1,14 +1,28 @@
 
+--
+-- Tabelstructuur voor tabel 'categories'
+--
+
 CREATE TABLE categories (
   category_id int(10) unsigned NOT NULL AUTO_INCREMENT,
   category_name varchar(60) NOT NULL DEFAULT '',
   PRIMARY KEY (category_id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+--
+-- Gegevens worden uitgevoerd voor tabel 'categories'
+--
+
 INSERT INTO categories VALUES(1, 'Misc');
 INSERT INTO categories VALUES(2, 'Back-end dev');
 INSERT INTO categories VALUES(3, 'Front-end dev');
 INSERT INTO categories VALUES(4, 'Personal stuff');
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'comments'
+--
 
 CREATE TABLE comments (
   comment_id int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -19,6 +33,10 @@ CREATE TABLE comments (
   created_by_ip varchar(40) NOT NULL DEFAULT '',
   PRIMARY KEY (comment_id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+--
+-- Gegevens worden uitgevoerd voor tabel 'comments'
+--
 
 INSERT INTO comments VALUES(1, 3, 3, 'ik kan wel genieten van een\r\n\r\nopen regeltje\r\n\r\nhier en daar =)', 1295801104, '');
 INSERT INTO comments VALUES(10, 1, 5, 'editje editje', 1296006240, '127.0.0.1');
@@ -38,6 +56,12 @@ INSERT INTO comments VALUES(22, 4, 16, 'not logged in right now...', 1298136291,
 INSERT INTO comments VALUES(23, 4, 16, 'STILL not logged in!?!?', 1298136650, '127.0.0.1');
 INSERT INTO comments VALUES(24, 4, 16, 'Okay, fiew, that worked...', 1298136672, '127.0.0.1');
 
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'domains'
+--
+
 CREATE TABLE domains (
   domain_id int(10) unsigned NOT NULL AUTO_INCREMENT,
   domain varchar(250) NOT NULL DEFAULT '',
@@ -46,12 +70,22 @@ CREATE TABLE domains (
   UNIQUE KEY domain (domain)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+--
+-- Gegevens worden uitgevoerd voor tabel 'domains'
+--
+
 INSERT INTO domains VALUES(1, 'oele.com', '');
 INSERT INTO domains VALUES(2, 'test.com', 'bestaat waarschijnlijk wel...');
 INSERT INTO domains VALUES(3, 'example.com', 'is gebouwd om te bestaan! (huh?) gebouwd als testdomein dus: DNS, SN etc');
 INSERT INTO domains VALUES(4, 'hotblocks.nl', 'primaire domain voor Webblocks (yup, sensible)');
 INSERT INTO domains VALUES(5, 'onderstebuiten.nl', '');
 INSERT INTO domains VALUES(6, 'hoblox.nl', 'eigenlijk alleen een portal voor/naar Hotblocks 11nk5');
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'following_posts'
+--
 
 CREATE TABLE following_posts (
   user_id int(10) unsigned NOT NULL,
@@ -60,6 +94,16 @@ CREATE TABLE following_posts (
   PRIMARY KEY (user_id,post_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+--
+-- Gegevens worden uitgevoerd voor tabel 'following_posts'
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'following_users'
+--
 
 CREATE TABLE following_users (
   user_id int(10) unsigned NOT NULL,
@@ -68,12 +112,22 @@ CREATE TABLE following_users (
   PRIMARY KEY (user_id,follows_user_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+--
+-- Gegevens worden uitgevoerd voor tabel 'following_users'
+--
+
 INSERT INTO following_users VALUES(1, 2, 123455655);
 INSERT INTO following_users VALUES(7, 1, 0);
 INSERT INTO following_users VALUES(8, 1, 0);
 INSERT INTO following_users VALUES(6, 1, 0);
 INSERT INTO following_users VALUES(1, 7, 0);
 INSERT INTO following_users VALUES(99, 99, 99);
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'posts'
+--
 
 CREATE TABLE posts (
   post_id int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -86,6 +140,10 @@ CREATE TABLE posts (
   PRIMARY KEY (post_id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+--
+-- Gegevens worden uitgevoerd voor tabel 'posts'
+--
+
 INSERT INTO posts VALUES(1, 1, 1, 'testbericht', 'dit is een testbericht wihii', 1295467772, 1);
 INSERT INTO posts VALUES(2, 1, 1, 'nog ene', 'nog een testbericht', 1295454158, 0);
 INSERT INTO posts VALUES(3, 1, 1, 'Numero drei', 'een testbericht met  \r\nnieuwe regels  \r\ner\r\n\r\nin', 1295404557, 1);
@@ -94,6 +152,12 @@ INSERT INTO posts VALUES(5, 1, 3, 'Nog een via de nieuwe scaffolding toolz', 'De
 INSERT INTO posts VALUES(6, 2, 5, 'nieuwe titel ouwe', 'Dus is de de niewste?', 1296231871, 1);
 INSERT INTO posts VALUES(16, 3, 1, 'front-end...', '...is almost as cool as\r\n\r\n_back-end_\r\n\r\nwink wink', 1296964295, 1);
 
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel 'users'
+--
+
 CREATE TABLE users (
   user_id int(10) unsigned NOT NULL AUTO_INCREMENT,
   username varchar(200) NOT NULL DEFAULT '',
@@ -101,13 +165,18 @@ CREATE TABLE users (
   full_name varchar(200) NOT NULL DEFAULT '',
   bio text NOT NULL,
   access text NOT NULL,
+  is_deleted tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (user_id)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
-INSERT INTO users VALUES(1, 'root', 'aaa', 'root', '', 'everything');
-INSERT INTO users VALUES(2, 'jaap', 'aaa', 'Jaap de Koning', '', 'blog publish, blog read unpublished');
-INSERT INTO users VALUES(3, 'bert', 'aaa', 'Bert v.d. Zaagweg', 'Ik ben Bert! =)', 'blog delete hidden comments, blog unpublish');
-INSERT INTO users VALUES(4, 'janneke', 'aaa', 'Janneke Meerzeit', '', 'blog flag as spam, blog flag as inappropriate, blog hide comment');
-INSERT INTO users VALUES(5, 'o.boele', 'aaa', 'Oele Boele', 'Oele Boele is gek. Ik bedoel ik ben gek =)', 'everything');
-INSERT INTO users VALUES(6, 'sanne', 'aaa', 'Sanne Fleskens', 'Sanne zat op een school en toen een andere en daarna waarschijnlijk op nog een andere en misschien wel meer dan 1.', 'browse everything');
-INSERT INTO users VALUES(7, 'loesje', 'aaa', 'Loesje', 'Loesje, die van die drummer van de band... Met dat cheile bloesje', 'browse everything, edit but not update everything, add but not insert everything');
+--
+-- Gegevens worden uitgevoerd voor tabel 'users'
+--
+
+INSERT INTO users VALUES(1, 'root', 'aaa', 'root', '', 'everything', 0);
+INSERT INTO users VALUES(2, 'jaap', 'aaa', 'Jaap de Koning', '', 'blog publish, blog read unpublished', 0);
+INSERT INTO users VALUES(3, 'bert', 'aaa', 'Bert v.d. Zaagweg', 'Ik ben Bert! =)', 'blog delete hidden comments, blog unpublish', 0);
+INSERT INTO users VALUES(4, 'janneke', 'aaa', 'Janneke Meerzeit', '', 'blog flag as spam, blog flag as inappropriate, blog hide comment', 0);
+INSERT INTO users VALUES(5, 'o.boele', 'aaa', 'Oele Boele', 'Oele Boele is gek. Ik bedoel ik ben gek =)', 'everything', 0);
+INSERT INTO users VALUES(6, 'sanne', 'aaa', 'Sanne De Panne', 'Sanne zat op een school en toen een andere en daarna waarschijnlijk op nog een andere en misschien wel meer dan 1.', 'browse everything', 0);
+INSERT INTO users VALUES(7, 'loesje', 'aaa', 'Loesje', 'Loesje, die van die drummer van de band... Met dat cheile bloesje', 'browse everything, edit but not update everything, add but not insert everything', 0);

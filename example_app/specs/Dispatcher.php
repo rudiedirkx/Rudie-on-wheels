@@ -41,7 +41,7 @@ class Dispatcher extends \row\http\Dispatcher {
 		switch ( $class ) {
 			case 'NotFoundException':
 			case 'OutputException':
-				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
+				exit('[404] ['.$class.'] Not Found: '.$_SERVER['REQUEST_METHOD'].' '.$ex->getMessage());
 			case 'row\database\DatabaseException':
 				exit('[Database/Query error] '.$ex->getMessage().'');
 			case 'row\database\ModelException':
