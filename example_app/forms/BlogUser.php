@@ -41,6 +41,7 @@ class BlogUser extends \app\specs\SimpleForm {
 			'access' => array(
 				'type' => 'text',
 				'required' => false,
+				'validation' => 'csv',
 			),
 		);
 	}

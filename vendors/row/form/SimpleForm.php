@@ -171,6 +171,11 @@ abstract class SimpleForm extends \row\Component {
 		return !$exists;
 	}
 
+	public function validateCSV( $form, $name ) {
+		$value = trim($this->input($name, ''));
+		return 0 < preg_match('/^[a-z ]+(?:, ?[a-z ]+)*$/', $value);
+	}
+
 
 	public function errorMessage( $type, $element ) {
 		$this->elementTitle($element);
