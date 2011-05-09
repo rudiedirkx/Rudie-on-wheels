@@ -28,6 +28,13 @@ abstract class Extendable extends Object {
 
 	// Yuck!?
 	public function _callable( $method ) {
+		// native method?
+		$methods = array_map('strtolower', get_class_methods($this));
+		if ( in_array(strtolower($method), $methods) ) {
+			return true;
+		}
+
+		// mix-in?
 		foreach ( $this->__mixins AS $object ) {
 			if ( method_exists($object, $method) ) {
 				return true;
