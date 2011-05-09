@@ -544,8 +544,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElement( $name, $element ) {
-		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || \row\core\is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
-			// Unfortunately, the second is_callable always returns true, so the next line might throw a MethodException
+		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || ($fn = array($this, (string)$this->renderers[$name])) ) ) {
 			return call_user_func($fn, $name, $element, $this);
 		}
 
@@ -553,16 +552,21 @@ abstract class SimpleForm extends \row\Component {
 			return '';
 		}
 		$type = $element['type'];
-		$renderFunction = 'render'.ucfirst($type).'Element';
-		$renderMethod = array($this, $renderFunction);
-		if ( !empty($element['render']) ) {
-			$renderMethod = $element['render'];
-		}
-		if ( is_callable($renderMethod) ) {
-			return call_user_func($renderMethod, $name, $element);
+
+		if ( isset($element['render']) ) {
+			$fn = $element['render'];
+			if ( is_string($fn) ) {
+				$fn = array($this, $fn);
+			}
+			return call_user_func($fn, $name, $element, $this);
 		}
 
-		return $this->renderTextElement($name, $element);
+		$fn = 'render'.ucfirst($type).'Element';
+		if ( !$this->_callable($fn) ) {
+			$fn = 'renderTextElement';
+		}
+
+		return $this->$fn($name, $element);
 	}
 
 	public function elementName( $element ) {

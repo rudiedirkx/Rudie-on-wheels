@@ -385,7 +385,9 @@ class Dispatcher extends Object {
 	}
 
 	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
-		return in_array($actionFunction, $application->_getActionFunctions(), true);
+		$actions = array_map('strtolower', get_class_methods($application));
+//		$actions = $application->_getActionFunctions();
+		return in_array(strtolower($actionFunction), $actions);
 	}
 
 	public function throwNotFound() {

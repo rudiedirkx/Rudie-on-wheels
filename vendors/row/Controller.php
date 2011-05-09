@@ -67,7 +67,7 @@ abstract class Controller extends Object {
 			$actions = array();
 			foreach ( $methods AS $m ) {
 				if ( $m->isPublic() && '_' != substr($m->name, 0, 1) ) {
-					$actions[] = $m->name;
+					$actions[] = strtolower($m->name);
 				}
 			}
 		}
