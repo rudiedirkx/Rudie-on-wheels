@@ -2,6 +2,16 @@
 
 namespace row\core;
 
+function is_callable( $callback ) {
+	if ( is_array($callback) && isset($callback[0], $callback[1]) ) {
+		list($obj, $method) = $callback;
+		if ( is_a($obj, 'row\core\Extendable') && is_string($method) ) {
+			return $obj->_callable($method);
+		}
+	}
+	return \is_callable($callback);
+}
+
 abstract class Extendable extends Object {
 
 	static public $_mixins = array();
@@ -14,6 +24,16 @@ abstract class Extendable extends Object {
 				$this->__mixins[] = new $class($this);
 			}
 		}
+	}
+
+	// Yuck!?
+	public function _callable( $method ) {
+		foreach ( $this->__mixins AS $object ) {
+			if ( method_exists($object, $method) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function __call( $name, $args ) {

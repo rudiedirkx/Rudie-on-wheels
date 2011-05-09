@@ -32,7 +32,7 @@ abstract class Object {
 	/**/
 
 
-	public function _exists($k) {
+	public function _exists( $k ) {
 		return property_exists($this, $k);
 	}
 

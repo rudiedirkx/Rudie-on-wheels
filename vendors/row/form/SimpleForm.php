@@ -544,7 +544,8 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElement( $name, $element ) {
-		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
+		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || \row\core\is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
+			// Unfortunately, the second is_callable always returns true, so the next line might throw a MethodException
 			return call_user_func($fn, $name, $element, $this);
 		}
 

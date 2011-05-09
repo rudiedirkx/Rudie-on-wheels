@@ -9,21 +9,14 @@ use app\specs\Output;
 
 class BlogUser extends \app\specs\SimpleForm {
 
-	static $_mixins = array('app\mixins\Killer');
+	static $_mixins = array(
+		'app\mixins\Killer',
+		'app\mixins\ReusableFormRenderers',
+	);
 
 	protected function _init() {
 		parent::_init();
-		$this->renderers['access'] = 'renderElementAccess';
-	}
-
-	// Element specific rendering
-	protected function renderElementAccess( $name, $element, $form ) {
-		$html = $form->renderTextElement($name, $element, false);
-		$html = str_replace('<input ', '<input disabled ', $html);
-
-		$html = '<div><div style="display: none;">'.$html.'</div><div><a href="javascript:void(0);" onclick="this.parentNode.style.display=\'none\';this.parentNode.previousSibling.style.display=\'block\';this.parentNode.previousSibling.getElementsByTagName(\'input\')[0].removeAttribute(\'disabled\');">Click here to edit</a></div></div>';
-
-		return $form->renderElementWrapperWithTitle($html, $element);
+		$this->renderers['access'] = 'renderCSVList'; // renderCSVList is a mixin method from app\mixins\ReusableFormRenderers
 	}
 
 	protected function elements( $defaults = null ) {

@@ -39,9 +39,11 @@ class Dispatcher extends \row\http\Dispatcher {
 	public function caught( $ex ) {
 		$class = get_class($ex);
 		switch ( $class ) {
-			case 'NotFoundException':
-			case 'OutputException':
+			case 'row\http\NotFoundException':
+			case 'row\OutputException':
 				exit('[404] ['.$class.'] Not Found: '.$_SERVER['REQUEST_METHOD'].' '.$ex->getMessage());
+			case 'row\core\MethodException':
+				exit('Unknown method: '.$ex->getMessage().'');
 			case 'row\database\DatabaseException':
 				exit('[Database/Query error] '.$ex->getMessage().'');
 			case 'row\database\ModelException':
