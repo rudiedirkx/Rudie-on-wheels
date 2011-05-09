@@ -5,7 +5,8 @@ namespace row\database\adapter;
 use row\database\Adapter;
 use row\database\DatabaseException;
 use row\database\adapter\PDOSQLite;
-use row\database\adapter\SQLite3;
+use \SQLiteDatabase;
+use \SQLiteException;
 
 class SQLite extends Adapter {
 
@@ -69,10 +70,10 @@ class SQLite extends Adapter {
 	public function connect() {
 		$connection = $this->connectionArgs;
 		try {
-			$this->db = @new \SQLiteDatabase($connection->path, $connection->mode ?: 0777);
+			$this->db = @new SQLiteDatabase($connection->path, $connection->mode ?: 0777);
 			$this->_fire('post_connect');
 		}
-		catch ( \SQLiteException $ex ) {}
+		catch ( SQLiteException $ex ) {}
 	}
 
 	public function connected() {
@@ -89,19 +90,23 @@ class SQLite extends Adapter {
 
 	public function query( $query ) {
 		$this->queries[] = $query;
+
 		$q = @$this->db->query($query);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
 		}
+
 		return $q;
 	}
 
 	public function execute( $query ) {
 		$this->queries[] = $query;
+
 		$q = @$this->db->queryExec($query);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
 		}
+
 		return $q;
 	}
 

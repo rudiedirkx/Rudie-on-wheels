@@ -3,6 +3,9 @@
 namespace row\core;
 
 use row\core\APC;
+use row\core\RowException;
+
+class VendorException extends RowException {}
 
 class Vendors extends Object {
 

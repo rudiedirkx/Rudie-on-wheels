@@ -3,6 +3,7 @@
 $_start = microtime(1); // The very first thing this request
 
 use app\specs\Dispatcher; // My custom Dispatcher
+use \Exception;
 
 // Config Vendors, database, ... ?
 require(dirname(__DIR__).'/config/bootstrap.php');
@@ -44,7 +45,7 @@ try {
 	echo "\n\n".number_format(microtime(1) - $_start, 4);
 
 }
-catch ( \Exception $ex ) {
+catch ( Exception $ex ) {
 
 	// An extendable exception catch method, so you don't have to change index.php at all
 	$dispatcher->caught($ex);

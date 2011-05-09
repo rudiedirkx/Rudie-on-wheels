@@ -4,6 +4,7 @@ namespace app\specs;
 
 use row\auth\Session;
 use app\models;
+use \Exception;
 
 /**
  * This class overwrites (but uses) the framework's base SessionUser,
@@ -105,7 +106,7 @@ class SessionUser extends \row\auth\SessionUser {
 				$this->user = models\User::get($login['user_id']);
 				$this->salt = $login['salt'];
 			}
-			catch ( \Exception $ex ) {}
+			catch ( Exception $ex ) {}
 		}
 	}
 

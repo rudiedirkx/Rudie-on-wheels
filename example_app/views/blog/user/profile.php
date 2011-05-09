@@ -11,7 +11,7 @@ table.userdetails tr > * {
 <table class=userdetails border=1>
 	<tr>
 		<th>Name</th>
-		<td><?=$user->full_name?></td>
+		<td><?=$user->full_name?> (<?=$this::link('edit', 'blog-user/edit/'.$user->user_id)?>)</td>
 	</tr>
 	<tr>
 		<th>Bio</th>
@@ -27,6 +27,6 @@ table.userdetails tr > * {
 	</tr>
 </table>
 
-<?if( 'POST' == $_SERVER['REQUEST_METHOD'] ):?>
-	<p><a href="javascript:closeOverlay();void(0);">close</a></p>
+<?if( $this->application->_ajax() ):?>
+	<?include('close-overlay.php')?>
 <?endif?>

@@ -12,6 +12,8 @@ function is_callable( $callback ) {
 	return \is_callable($callback);
 }
 
+class MethodException extends RowException {}
+
 abstract class Extendable extends Object {
 
 	static public $_mixins = array();

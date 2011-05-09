@@ -77,19 +77,26 @@ article { background-color:rgba(0, 0, 0, 0.04); }
 article.blogpost { margin-top: 15px; padding-top: 20px; }
 article.unpublished > h1, article.unpublished > header > h2 > a { color:red; }
 article article { margin:0; }
-article h3, article h2, article h1 { margin:0; }
+h2:first-child, article h3, article h2, article h1 { margin:0; }
 article.blogpostpreview { margin-bottom:30px; }
 article.comment { margin-top:30px; }
 article.comment:first-child { margin-top:10px; }
 article.comment p:last-child { margin-bottom:0; }
 
-body > .overlay { position: fixed; top:0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); }
-body > .overlay > div {
+#overlays > .overlay {
+	position: fixed;
+	top:0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+#overlays > .overlay > div {
 	display: inline-block;
 	margin: 20px;
 	padding: 20px;
 	background-color: #fff;
 }
-body > .overlay > div > :last-child:not(p.close-overlay) {
+#overlays > .overlay > div > :last-child:not(p.close-overlay) {
 	margin-bottom: 0;
 }

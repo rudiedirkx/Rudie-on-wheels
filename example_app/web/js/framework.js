@@ -58,9 +58,10 @@ HTMLElement.prototype.next = function() {
 	return s;
 };
 
-window.$.post = function(url, handler, data) {
-	var xhr = new XMLHttpRequest;
-	xhr.open('POST', url);
+window.$.ajax = function(url, handler, data) {
+	var xhr = new XMLHttpRequest,
+		method = data ? 'POST' : 'GET';
+	xhr.open(method, url);
 	xhr.setRequestHeader('Ajax', '1');
 	if ( data ) {
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -76,13 +77,13 @@ window.$.post = function(url, handler, data) {
 }
 
 function doAjaxAction(el, handler) {
-	return $.post(el.href, function(t) {
+	return $.ajax(el.href, function(t) {
 		handler(el, t);
 	});
 }
 
 function closeOverlay() {
-	var ov = $('body > .overlay:last-child');
+	var ov = $('#overlays > div:last-child');
 	if ( ov ) {
 		ov.parentNode.removeChild(ov);
 	}
@@ -93,10 +94,10 @@ function openOverlay(html) {
 	var div = document.createElement('div');
 	div.className = 'overlay';
 	div.innerHTML = '<div>' + html + '</div>';
-	document.body.appendChild(div);
+	$('#overlays').appendChild(div);
 	return false;
 }
 
 function openInAjaxPopup(url) {
-	return $.post(url, openOverlay);
+	return $.ajax(url, openOverlay);
 }

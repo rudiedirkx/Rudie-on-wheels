@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use row\core\Options;
 use app\specs\ControllerACL;
-use \NotFoundException;
+use row\http\NotFoundException;
 use app\models;
 use row\utils\Inflector;
 use row\auth\Session;

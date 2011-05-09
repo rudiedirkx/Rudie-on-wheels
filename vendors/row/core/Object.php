@@ -2,11 +2,9 @@
 
 namespace row\core;
 
-class RowException extends \Exception {}
-class NotFoundException extends RowException {}
-class OutputException extends RowException {}
-class VendorException extends RowException {}
-class MethodException extends RowException {}
+use \Exception;
+
+class RowException extends Exception {}
 
 abstract class Object {
 

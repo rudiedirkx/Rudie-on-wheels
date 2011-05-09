@@ -4,6 +4,7 @@ namespace row\database\adapter;
 
 use row\database\Adapter;
 use row\database\DatabaseException;
+use \PDOException;
 
 abstract class PDO extends Adapter {
 
@@ -22,31 +23,33 @@ abstract class PDO extends Adapter {
 
 	public function query( $query ) {
 		$this->queries[] = $query;
+
 		try {
-			$q = $this->db->query($query);
-		} catch ( \PDOException $ex ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$ex->getMessage());
+			$q = @$this->db->query($query);
+			if ( !$q ) {
+				return $this->except($query.' -> '.$this->error());
 			}
-			return false;
+		} catch ( PDOException $ex ) {
+			return $this->except($query.' -> '.$ex->getMessage());
 		}
+
 		return $q;
 	}
 
 	public function execute( $query ) {
 		$this->queries[] = $query;
+
 		try {
-			$q = $this->db->exec($query);
+			$q = @$this->db->exec($query);
 			if ( !$q ) {
 				throw new DatabaseException($query.' -> '.$this->error());
 			}
-		} catch ( \PDOException $ex ) {
-			if ( $this->throwExceptions ) {
-				throw new DatabaseException($query.' -> '.$ex->getMessage());
-			}
-			return false;
+		} catch ( PDOException $ex ) {
+			return $this->except($query.' -> '.$ex->getMessage());
 		}
+
 		$this->affected = $q;
+
 		return $q;
 	}
 

@@ -3,8 +3,10 @@
 namespace row\database;
 
 use row\core\Extendable;
-use row\database\Adapter; // interface
-use row\database\ModelException; // model errors
+use row\database\Adapter; // abstract
+use row\core\RowException;
+
+class ModelException extends RowException {}
 
 class Model extends Extendable {
 
@@ -55,7 +57,7 @@ class Model extends Extendable {
 			$func = '_'.$func;
 		}
 		if ( !method_exists(get_called_class(), $func) ) {
-			throw new \row\database\ModelException('Methodo "'.$func.'" no existo!');
+			throw new ModelException('Methodo "'.$func.'" no existo!');
 		}
 		return call_user_func_array(array('static', $func), $args);
 	} // END __callStatic() */
@@ -108,7 +110,7 @@ class Model extends Extendable {
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		if ( 1 !== $r->count() ) {
-			throw new ModelException('Not exactly one record returned. Found '.count($r).' of '.get_called_class().'.');
+			throw new ModelException('Found '.$r->count().' of '.get_called_class().'.');
 		}
 		return $r->nextObject($r->class, array(true));
 	}

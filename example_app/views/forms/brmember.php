@@ -54,7 +54,7 @@ table.br input.date + img.date {
 
 <h1><?=$this->title('Test form in different format')?></h1>
 
-<form method="post" action="" onsubmit="$.post(this.action, function(t){ alert(t); }, this.serialize());return false;">
+<form method="post" action="" onsubmit="$.ajax(this.action, function(t){ alert(t); }, this.serialize());return false;">
 <table class="br">
 <thead>
 	<tr>

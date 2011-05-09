@@ -4,6 +4,7 @@ namespace row\database\adapter;
 
 use row\database\Adapter;
 use row\database\adapter\MySQLi;
+use row\database\DatabaseException;
 
 class MySQL extends Adapter {
 
@@ -64,14 +65,17 @@ class MySQL extends Adapter {
 		if ( is_bool($this->_connected) ) {
 			return $this->_connected;
 		}
+
 		if ( !is_resource($this->db) ) {
 			return $this->_connected = false;
 		}
+
 		try {
 			$r = $this->query('SHOW TABLES');
 			return $this->_connected = (false !== $r);
 		}
 		catch ( DatabaseException $ex ) {}
+
 		return $this->_connected = false;
 	}
 
@@ -88,10 +92,12 @@ class MySQL extends Adapter {
 
 	public function query( $query ) {
 		$this->queries[] = $query;
+
 		$q = mysql_query($query, $this->db);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
 		}
+
 		return $q;
 	}
 

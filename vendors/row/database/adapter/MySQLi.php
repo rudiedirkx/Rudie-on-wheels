@@ -2,9 +2,10 @@
 
 namespace row\database\adapter;
 
+use row\database\adapter\MySQL;
 use row\database\DatabaseException;
 
-class MySQLi extends \row\database\adapter\MySQL {
+class MySQLi extends MySQL {
 
 	static public function initializable() {
 		return class_exists('\mysqli');
@@ -20,24 +21,29 @@ class MySQLi extends \row\database\adapter\MySQL {
 		if ( is_bool($this->_connected) ) {
 			return $this->_connected;
 		}
+
 		if ( !is_object($this->db) || $this->db->connect_error ) {
 			return $this->_connected = false;
 		}
+
 		try {
 			$r = $this->query('SHOW TABLES');
 			return $this->_connected = (false !== $r);
 		}
 		catch ( DatabaseException $ex ) {}
+
 		return $this->_connected = false;
 	}
 
 
 	public function query( $query ) {
 		$this->queries[] = $query;
+
 		$q = @$this->db->query($query);
 		if ( !$q ) {
 			return $this->except($query.' -> '.$this->error());
 		}
+
 		return $q;
 	}
 

@@ -3,6 +3,9 @@
 namespace row;
 
 use row\core\Options;
+use row\core\RowException;
+
+class OutputException extends RowException {}
 
 /**
  * Only very basic unprerequisited functionality in the base
@@ -20,7 +23,7 @@ class Output extends \row\Component {
 
 	static public $_application;
 
-	public $_exceptionClass = 'OutputException';
+	public $_exceptionClass = 'row\OutputException';
 
 	public $errorReporting = 2039; // Don't show notices
 		public $oldErrorReporting = false;

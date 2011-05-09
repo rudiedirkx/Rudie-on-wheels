@@ -18,7 +18,7 @@
 			if ( e.preventDefault ) e.preventDefault();
 
 			var data = this.serialize();
-			$.post(this.action, function(rsp) {
+			$.ajax(this.action, function(rsp) {
 				alert(rsp);
 			}, data);
 		}

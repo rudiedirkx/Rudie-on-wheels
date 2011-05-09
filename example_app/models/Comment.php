@@ -6,6 +6,7 @@ use app\specs\Model;
 use app\specs\Validator;
 use app\specs\SessionUser;
 use row\utils\DateTime;
+use \Exception;
 
 class Comment extends Model {
 
@@ -65,7 +66,7 @@ class Comment extends Model {
 //					SessionUser::user()->login($user); // Auto-login?
 					return true;
 				}
-				catch ( \Exception $ex ) {}
+				catch ( Exception $ex ) {}
 				$validator->setError(array('username', 'password'), 'I don\'t know that username/password combination...');
 			}
 		);

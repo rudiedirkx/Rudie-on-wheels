@@ -6,6 +6,7 @@ use app\specs\Controller;
 use row\database\adapter\SQLite;
 use row\database\adapter\SQLite3;
 use row\database\adapter\PDOSQLite;
+use row\database\DatabaseException;
 
 class sqliteController extends Controller {
 
@@ -29,15 +30,18 @@ class sqliteController extends Controller {
 		try {
 			var_dump($sqlite->execute('CREATE TABLE people ( id INT, name TEXT NOT NULL DEFAULT \'\', age INT NOT NULL DEFAULT 0, PRIMARY KEY(id) )'));
 		}
-		catch ( \row\database\DatabaseException $ex ) {}
+		catch ( DatabaseException $ex ) {}
+
 		try {
 			var_dump($sqlite->execute('CREATE TABLE friends ( person_id INT, friend_id INT, PRIMARY KEY(person_id, friend_id) )'));
 		}
-		catch ( \row\database\DatabaseException $ex ) {}
+		catch ( DatabaseException $ex ) {}
+
 		print_r($tables = $sqlite->_getTables());
 		if ( !$table ) {
 			$table = $tables[array_rand($tables)];
 		}
+
 		print_r($sqlite->_getPKColumns($table));
 		print_r($sqlite->_getTableColumns($table));
 	}

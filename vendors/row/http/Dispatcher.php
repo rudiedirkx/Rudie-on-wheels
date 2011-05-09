@@ -5,6 +5,9 @@ namespace row\http;
 use row\core\Object;
 use row\core\Options;
 use row\core\APC;
+use row\core\RowException;
+
+class NotFoundException extends RowException {}
 
 class Dispatcher extends Object {
 
@@ -61,7 +64,7 @@ class Dispatcher extends Object {
 			'default_action' => 'index',
 
 			// This exception will be thrown if no valid fallback Controller Action is found and is caught in index.php
-			'not_found_exception' => '\NotFoundException',
+			'not_found_exception' => 'row\http\NotFoundException',
 
 			// With these three, you can name your Controller classes anything like. You might like "mod_blog_controller" instead of "blogController".
 			'module_class_prefix' => '',

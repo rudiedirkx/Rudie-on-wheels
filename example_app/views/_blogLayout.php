@@ -39,13 +39,20 @@ if ( msgs = document.querySelector('#messages') ) {
 		this.parentNode.removeChild(this);
 	});
 }
+document.bind('keyup', function(e) {
+	if ( 27 === e.keyCode ) {
+		closeOverlay();
+	}
+});
 </script>
 
 <pre>
-<?print_r(\row\database\Model::dbObject()->queries)?>
+	<?print_r(\row\database\Model::dbObject()->queries)?>
 </pre>
 
 </div>
+
+<div id="overlays"></div>
 </body>
 
 </html>

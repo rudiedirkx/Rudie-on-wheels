@@ -51,7 +51,6 @@ abstract class Controller extends \row\Controller {
 				$this->_response, // params
 				!$this->_ajax() // layout
 			);
-			exit;
 		}
 		parent::_post_action();
 	}

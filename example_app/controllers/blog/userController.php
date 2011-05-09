@@ -8,6 +8,7 @@ use row\auth\Session;
 use app\models;
 use app\forms\BlogUser;
 use app\forms\RequestAccount;
+use row\http\NotFoundException;
 
 class userController extends blogController {
 

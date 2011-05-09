@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\specs\Model;
 use row\utils\Inflector;
+use \Exception;
 
 class User extends Model {
 
@@ -83,7 +84,7 @@ class User extends Model {
 			$user = self::one(array('username' => $username));
 			return $user;
 		}
-		catch ( \Exception $ex ) {}
+		catch ( Exception $ex ) {}
 		return false;
 	}
 

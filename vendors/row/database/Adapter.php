@@ -3,14 +3,16 @@
 namespace row\database;
 
 use row\core\Options;
-use row\database\DatabaseException;
+use row\core\RowException;
+
+class DatabaseException extends RowException {}
 
 /**
  * An Adapter has easy and advanced access to its database:
- *   ->fetch	Execute query and return all rows
- *   ->count	Execute query and count natively
- *   ->select	Simpler access (shortcut) for ->fetch
- *   ->result	Execute query and return QueryResult object
+ *   ::fetch	Execute query and return all rows
+ *   ::count	Execute query and count natively
+ *   ::select	Simpler access (shortcut) for ->fetch
+ *   ::result	Execute query and return QueryResult object
  */
 
 abstract class Adapter extends \row\core\Object {

@@ -4,6 +4,7 @@ namespace row\auth;
 
 use row\core\Object;
 use app\models;
+use \Exception;
 
 abstract class SessionUser extends Object {
 
@@ -75,7 +76,7 @@ abstract class SessionUser extends Object {
 					$user->saveACL(); // You might wanna lazy-load this with a _GETTER (will be lazy-loaded in $this->hasAccess())
 					/**/
 				}
-				catch ( \Exception $ex ) {
+				catch ( Exception $ex ) {
 					// No $this->user, so no $this->isLoggedIn()
 				}
 			}

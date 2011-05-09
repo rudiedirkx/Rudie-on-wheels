@@ -15,6 +15,7 @@ $deletePosts = $addPosts = $deleteUsers = $addUsers = array();
 
 use app\models\User;
 use app\models\Post;
+use \Exception; // for clarity's sake
 
 echo "<pre>\n";
 
