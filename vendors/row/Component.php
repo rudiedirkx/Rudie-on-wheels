@@ -4,7 +4,7 @@ namespace row;
 
 use row\core\Options;
 
-class Component extends \row\core\Object {
+class Component extends \row\core\Extendable {
 
 	public $application;
 
@@ -12,10 +12,6 @@ class Component extends \row\core\Object {
 		$this->application = $application;
 		$this->options = Options::make($options);
 		$this->_fire('init');
-	}
-
-	protected function _init() {
-		
 	}
 
 }

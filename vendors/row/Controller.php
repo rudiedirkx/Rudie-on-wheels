@@ -57,6 +57,23 @@ abstract class Controller extends Object {
 		return $this->_actions;
 	}
 
+	public function _getActionFunctions() {
+		if ( $actions = $this->_getActionPaths() ) {
+			$actions = array_values(array_unique($actions));
+		}
+		else {
+			$refl = new \ReflectionClass($this);
+			$methods = $refl->getMethods();
+			$actions = array();
+			foreach ( $methods AS $m ) {
+				if ( $m->isPublic() && '_' != substr($m->name, 0, 1) ) {
+					$actions[] = $m->name;
+				}
+			}
+		}
+		return $actions;
+	}
+
 
 	// run entire controller
 	public function _run() {
@@ -110,17 +127,7 @@ abstract class Controller extends Object {
 	protected $acl = array();
 
 	public function aclAdd( $zones, $actions = null ) {
-		if ( !$actions ) {
-			// get all public methods (because those are actions) of the application
-			$refl = new \ReflectionClass($this);
-			$methods = $refl->getMethods();
-			$actions = array();
-			foreach ( $methods AS $m ) {
-				if ( $m->isPublic() && '_' != substr($m->name, 0, 1) ) {
-					$actions[] = $m->name;
-				}
-			}
-		}
+		$actions or $actions = $this->_getActionFunctions();
 		foreach ( (array)$zones AS $zone ) {
 			foreach ( (array)$actions AS $action ) {
 				$this->acl[$action][$zone] = true;

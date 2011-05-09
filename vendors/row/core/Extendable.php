@@ -1,22 +1,28 @@
 <?php
 
-namespace row\core\Object;
+namespace row\core;
 
-class Extendable extends Object {
+abstract class Extendable extends Object {
 
-	static public $_extensions = array();
+	static public $_mixins = array();
 
-	static public function _extend( $name, $function ) {
-		static::$_extensions[$name] = $function;
+	public $__mixins = array();
+
+	protected function _init() {
+		foreach ( $this::$_mixins AS $class ) {
+			if ( class_exists($class) ) {
+				$this->__mixins[] = new $class($this);
+			}
+		}
 	}
 
-	public function __call( $name, $arguments ) {
-		if ( isset(static::$_extensions[$name]) ) {
-			return call_user_func_array(static::$_extensions[$name], $arguments);
+	public function __call( $name, $args ) {
+		foreach ( $this->__mixins AS $object ) {
+			if ( method_exists($object, $name) ) {
+				return call_user_func_array(array($object, $name), $args);
+			}
 		}
-		else if ( is_callable(array($this, $name)) ) {
-			return call_user_func_array(array($this, $name), $arguments);
-		}
+		throw new MethodException(get_class($this).'::'.$name);
 	}
 
 }

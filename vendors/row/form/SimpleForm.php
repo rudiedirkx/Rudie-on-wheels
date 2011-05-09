@@ -18,6 +18,7 @@ abstract class SimpleForm extends \row\Component {
 
 	public $inlineErrors = true;
 	public $elementWrapperTag = 'div';
+	public $renderers = array();
 
 
 	public function validate( $data ) {
@@ -267,7 +268,7 @@ abstract class SimpleForm extends \row\Component {
 
 
 
-	public function renderGridElement( $name, $element ) {
+	public function renderGridElement( $name, $element, $wrapper = true ) {
 		$html = "\n".'<table class="grid">'."\n";
 		$html .= '	<tr>'."\n";
 		$html .= '		<th class="corner"></th>'."\n";
@@ -293,6 +294,10 @@ abstract class SimpleForm extends \row\Component {
 			$html .= '	</tr>'."\n";
 		}
 		$html .= '</table>'."\n";
+
+		if ( !$wrapper ) {
+			return $html;
+		}
 
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
@@ -342,7 +347,7 @@ abstract class SimpleForm extends \row\Component {
 	}*/
 
 
-	public function renderRadioElement( $name, $element ) {
+	public function renderRadioElement( $name, $element, $wrapper = true ) {
 		$type = $element['type'];
 		$elName = $name;
 		$checked = $this->input($name, null);
@@ -354,10 +359,14 @@ abstract class SimpleForm extends \row\Component {
 		}
 		$html = implode(' ', $options);
 
+		if ( !$wrapper ) {
+			return $html;
+		}
+
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
-	public function renderCheckboxElement( $name, $element ) {
+	public function renderCheckboxElement( $name, $element, $wrapper = true ) {
 		$elName = $name;
 		$checked = null !== $this->input($name, null) ? ' checked' : '';
 		$value = isset($element['value']) ? ' value="'.Output::html($element['value']).'"' : '';
@@ -369,10 +378,14 @@ abstract class SimpleForm extends \row\Component {
 			$html .= '<span class="description">'.$element['description'].'</span>';
 		}
 
+		if ( !$wrapper ) {
+			return $html;
+		}
+
 		return $this->renderElementWrapper($html, $element);
 	}
 
-	public function renderCheckboxesElement( $name, $element ) {
+	public function renderCheckboxesElement( $name, $element, $wrapper = true ) {
 		$elName = $name.'[]';
 		$checked = (array)$this->input($name, array());
 
@@ -382,6 +395,10 @@ abstract class SimpleForm extends \row\Component {
 			$options[] = '<span class="option"><label><input type="checkbox" name="'.$elName.'" value="'.$k.'"'.( in_array($k, $checked) ? ' checked' : '' ).' /> '.$v.'</label></span>';
 		}
 		$html = implode(' ', $options);
+
+		if ( !$wrapper ) {
+			return $html;
+		}
 
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
@@ -397,6 +414,10 @@ abstract class SimpleForm extends \row\Component {
 
 		$dummy = isset($element['dummy']) ? $element['dummy'] : '';
 		$html = $this->renderSelect($elName, $element['options'], $value, $dummy);
+
+		if ( !$wrapper ) {
+			return $html;
+		}
 
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
@@ -425,17 +446,21 @@ abstract class SimpleForm extends \row\Component {
 		return $k;
 	}
 
-	public function renderTextElement( $name, $element ) {
+	public function renderTextElement( $name, $element, $wrapper = true ) {
 		$type = $element['type'];
 		$elName = $name;
 		$value = $this->input($name);
 
 		$html = '<input type="'.$type.'" name="'.$elName.'" value="'.$value.'" />';
 
+		if ( !$wrapper ) {
+			return $html;
+		}
+
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
 
-	public function renderTextareaElement( $name, $element ) {
+	public function renderTextareaElement( $name, $element, $wrapper = true ) {
 		$value = $this->input($name);
 		$elName = $name;
 
@@ -445,6 +470,10 @@ abstract class SimpleForm extends \row\Component {
 		$cols = $options->cols ? ' cols="'.$options->cols.'"' : '';
 
 		$html = '<textarea'.$rows.$cols.' name="'.$elName.'">'.$value.'</textarea>';
+
+		if ( !$wrapper ) {
+			return $html;
+		}
 
 		return $this->renderElementWrapperWithTitle($html, $element);
 	}
@@ -473,6 +502,7 @@ abstract class SimpleForm extends \row\Component {
 			foreach ( $this->elements($this->default) AS $name => $element ) {
 				$element['_name'] = $name;
 				$element['_index'] = $index++;
+				$this->elementTitle($element);
 				$elements[$name] = $element;
 			}
 			$this->_elements = $elements;
@@ -481,7 +511,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function render( $withForm = true, $options = array() ) {
-		$elements =& $this->useElements();
+		$elements = $this->useElements();
 
 		// Render 1 element?
 		if ( is_string($withForm) && isset($this->_elements[$withForm]) ) {
@@ -514,7 +544,9 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElement( $name, $element ) {
-		$this->elementTitle($element);
+		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
+			return call_user_func($fn, $name, $element, $this);
+		}
 
 		if ( empty($element['type']) ) {
 			return '';

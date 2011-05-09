@@ -1,13 +1,10 @@
 <?php
 
+namespace row\core;
+
 use row\core\APC;
 
-class RowException extends \Exception {}
-class NotFoundException extends \RowException {}
-class OutputException extends \RowException {}
-class VendorException extends \RowException {}
-
-class Vendors {
+class Vendors extends Object {
 
 	// cache //
 
@@ -18,8 +15,8 @@ class Vendors {
 		if ( array() === static::$cache ) {
 			static::$cache = APC::get('classes', array());
 			register_shutdown_function(function() {
-				if ( \Vendors::$cacheChanged ) {
-					APC::put('classes', \Vendors::$cache);
+				if ( Vendors::$cacheChanged ) {
+					APC::put('classes', Vendors::$cache);
 				}
 			});
 		}
@@ -53,20 +50,20 @@ class Vendors {
 
 	static public function init($path) {
 		static::cacheLoad();
-		Vendors::$defaultLoader = function( $vendor, $class ) { // e.g.: ( "row", "utils\Options" )
+		static::$defaultLoader = function( $vendor, $class ) { // e.g.: ( "row", "utils\Options" )
 			$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
 			return Vendors::$vendorPath.DIRECTORY_SEPARATOR.$vendor.'/'.$path.'.php';
 		};
-		Vendors::$vendorPath = $path;
-		spl_autoload_register('Vendors::load');
+		static::$vendorPath = $path;
+		spl_autoload_register('row\core\Vendors::load');
 		static::add('row');
 	}
 
 	static public function add( $vendor, $loader = null ) {
 		if ( !is_callable($loader) ) {
-			$loader = Vendors::$defaultLoader;
+			$loader = static::$defaultLoader;
 		}
-		Vendors::$loaders[strtolower($vendor)] = $loader;
+		static::$loaders[strtolower($vendor)] = $loader;
 	}
 
 	static public function load( $class ) {
@@ -88,8 +85,8 @@ class Vendors {
 	static public function class_exists( $class ) {
 		if ( 1 < count($path = explode('\\', $class, 2)) || 1 < count($path = explode('_', $class, 2)) ) {
 			$vendor = strtolower($path[0]);
-			if ( isset(\Vendors::$loaders[$vendor]) ) {
-				$loader = Vendors::$loaders[$vendor];
+			if ( isset(static::$loaders[$vendor]) ) {
+				$loader = static::$loaders[$vendor];
 				$file = $loader($path[0], $path[1]);
 				return !file_exists($file) ? false : $file;
 			}

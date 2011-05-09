@@ -2,11 +2,11 @@
 
 namespace row\database;
 
-use row\core\Object;
+use row\core\Extendable;
 use row\database\Adapter; // interface
 use row\database\ModelException; // model errors
 
-class Model extends Object {
+class Model extends Extendable {
 
 	public function __tostring() {
 		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};

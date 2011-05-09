@@ -2,7 +2,15 @@
 
 namespace row\core;
 
+class RowException extends \Exception {}
+class NotFoundException extends RowException {}
+class OutputException extends RowException {}
+class VendorException extends RowException {}
+class MethodException extends RowException {}
+
 abstract class Object {
+
+	protected function _init() {}
 
 	/* this is not a good idea - `is_callable` will be completely useless *
 	static public $_methods = array();
@@ -30,7 +38,7 @@ abstract class Object {
 
 	public function _fire( $fn, $args = array() ) {
 		$fn = '_'.$fn;
-		if ( is_callable(array($this, $fn)) ) {
+		if ( method_exists($this, $fn) ) {
 			if ( 0 == count($args) ) {
 				return $this->$fn();
 			}

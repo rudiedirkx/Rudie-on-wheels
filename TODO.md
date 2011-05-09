@@ -7,13 +7,12 @@ To do:
 1. E-mail: Create simple `MailContext` and super simple 'mailer'
 2. Create `internal redirect` from `Controller` eg. `$this->_internal(array('controller' => 'oele', 'action' => 'boele'))` or `$this->_internal('go/here/15')`
 3. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
-4. `SimpleForm`: Implement named form element renderer (like `renderElementUsername` or as closure in `$this->renderers['username']`)
-5. `Model`/`Adapter`: `replaceholders` for full queries too? So move the replacing to further on?
+4. `Model`/`Adapter`: `replaceholders` for full queries too? So move the replacing to further on?
 
 ### For 1.1
 
-1. Implement mixins/events/filters/behaviours (like `li3` but **much** simpler (?))
-2. Make the entire thing more `RESTful` (OMG!? Am I using it now too??)<br><br>
+1. Perfect mixins
+2. Make the entire thing more `RESTful` (OMG!? Am I using it now too??)
 
 Debatables:
 -----------

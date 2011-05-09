@@ -385,7 +385,7 @@ class Dispatcher extends Object {
 	}
 
 	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
-		return $actionFunction && substr($actionFunction, 0, 1) != '_' && is_callable(array($application, $actionFunction));
+		return in_array($actionFunction, $application->_getActionFunctions(), true);
 	}
 
 	public function throwNotFound() {

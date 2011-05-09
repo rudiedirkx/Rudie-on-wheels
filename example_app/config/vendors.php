@@ -1,5 +1,7 @@
 <?php
 
+use row\core\Vendors;
+
 // Application (most importante!)
 Vendors::add('app', function($name, $class) {
 	$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
