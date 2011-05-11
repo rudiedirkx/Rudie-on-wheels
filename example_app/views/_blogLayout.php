@@ -3,7 +3,7 @@
 
 <head>
 <title><?=$this->title()?></title>
-<link rel=stylesheet href="<?=$this::url('css/all.css')?>" />
+<link rel="stylesheet" href="<?=$this::url('css/all.css')?>" />
 <?=$this->section('css')?>
 </head>
 
@@ -56,3 +56,4 @@ document.bind('keyup', function(e) {
 </body>
 
 </html>
+<? exit // this page is now valid XML =) Well... if you remove the doctype... ?>
