@@ -10,7 +10,14 @@ use app\specs\Output;
 class RequestAccount extends \app\specs\SimpleForm {
 
 	protected function elements( $defaults = null ) {
+		$this->options->oninput = 'this.op.value=this.username.value;';
 		return array(
+			array(
+				'type' => 'markup',
+				'inside' => function( $form ) {
+					return 'Username: <output name="op" xoninput="alert(this);this.value=this.form.username.value;">...</output>';
+				},
+			),
 			'username' => array(
 				'type' => 'text',
 				'required' => true,

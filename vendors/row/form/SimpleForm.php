@@ -482,12 +482,18 @@ abstract class SimpleForm extends \row\Component {
 		$options = Options::make(Options::make($element));
 
 		$inside = $options->inside ?: $options->text;
+		if ( is_callable($inside) ) {
+			$inside = $inside($this);
+		}
 
 		if ( $inside ) {
 			return '<'.$this->elementWrapperTag.' class="form-element markup '.$name.'">'.$inside.'</'.$this->elementWrapperTag.'>';
 		}
 		else if ( $options->outside ) {
-			return $options->outside;
+			$outside = is_callable($options->outside) ? call_user_func($options->outside, $this) : $options->outside;
+			if ( $outside ) {
+				return $outside;
+			}
 		}
 
 		return '';
@@ -511,6 +517,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function render( $withForm = true, $options = array() ) {
+		$this->options = $options = Options::make($options);
 		$elements = $this->useElements();
 
 		// Render 1 element?
@@ -529,11 +536,10 @@ abstract class SimpleForm extends \row\Component {
 		}
 
 		if ( $withForm ) {
-			$options = Options::make($options);
-			$method = $options->get('action', 'post');
+			$method = $options->get('method', 'post');
 			$action = Output::url($this->application->_uri);
 			$html =
-				'<form method="'.$method.'" action="'.$action.'">' .
+				'<form method="'.$method.'" action="'.$action.'"'.Output::attributes($options, array('method')).'>' .
 					$this->elementSeparator() .
 					$html.$this->renderButtons() .
 					$this->elementSeparator() .
