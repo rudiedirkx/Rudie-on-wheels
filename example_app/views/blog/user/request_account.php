@@ -1,5 +1,5 @@
 
-<h1>Request blog user account</h1>
+<h1><?=$this->title('Request blog user account')?></h1>
 
 <p><label><input type=checkbox id=ajax-it /> Ajaxify this form!</label></p>
 
