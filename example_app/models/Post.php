@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Models;
+namespace app\models;
 
 use app\specs\Model;
 use app\specs\Validator;
@@ -15,7 +15,9 @@ class Post extends Model {
 	static public $_title = 'title';
 	static public $_getters = array(
 		'author' => array( self::GETTER_ONE, true, 'app\models\User', 'author_id', 'user_id' ),
-		'comments' => array( self::GETTER_ALL, true, 'app\models\Comment', 'post_id', 'post_id' ),
+		'comments' => array( self::GETTER_ALL, true, 'app\models\Comment', 'post_id', 'post_id'/*, function($post, $comment) {
+			$comment->post = $post;
+		}*/),
 	);
 
 	static public function _validator( $name ) {

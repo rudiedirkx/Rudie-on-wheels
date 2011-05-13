@@ -49,6 +49,11 @@ class Model extends Extendable {
 	);
 
 
+	static public $_on = array();
+
+	static public $_cache = array();
+
+
 	/**
 	 * Enables calling of Post::update with defined function _update
 	 */
@@ -107,12 +112,31 @@ class Model extends Extendable {
 	 */
 	static public function _one( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->stringifyConditions($conditions);
+
+		/* experimental */
+		if ( false !== static::$_cache ) {
+			$_c = get_called_class();
+			if ( isset(static::$_cache[$_c][$conditions]) ) {
+				return static::$_cache[$_c][$conditions];
+			}
+		}
+		/* experimental */
+
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		if ( 1 !== $r->count() ) {
 			throw new ModelException('Found '.$r->count().' of '.get_called_class().'.');
 		}
-		return $r->nextObject($r->class, array(true));
+
+		$r = $r->nextObject($r->class, array(true));
+
+		/* experimental */
+		if ( false !== static::$_cache ) {
+			static::$_cache[$_c][$conditions] = $r;
+		}
+		/* experimental */
+
+		return $r;
 	}
 
 	/**
@@ -128,18 +152,23 @@ class Model extends Extendable {
 	/**
 	 * 
 	 */
-	static public function _get( $pkValues, $moreConditions = array(), $params = array() ) {
+	static public function _get( $pkValues, $moreConditions = false, $params = array() ) {
 		$pkValues = (array)$pkValues;
+
 		$pkColumns = (array)static::$_pk;
 		if ( count($pkValues) !== count($pkColumns) ) {
 			throw new ModelException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
 		}
 		$pkValues = array_combine($pkColumns, $pkValues);
+
 		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
 		if ( $moreConditions ) {
 			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions);
 		}
-		return static::_one($conditions);
+
+		$r = static::_one($conditions);
+
+		return $r;
 	}
 
 	/**
@@ -195,6 +224,13 @@ class Model extends Extendable {
 			$this->_fill($init);
 			$this->_fire('post_fill', array($init));
 		}
+
+		if ( isset($this::$_on['init']) ) {
+			foreach ( $this::$_on['init'] AS $cb ) {
+				$cb($this);
+			}
+		}
+
 		$this->_fire('init');
 	}
 
@@ -249,27 +285,51 @@ class Model extends Extendable {
 			case self::GETTER_FIRST:
 				$localColumns = (array)$getter[3];
 				$localValues = $this->_values($localColumns);
-//print_r($localValues);
-//				$localValues = array_values($localValues); // is this necessary?
 
-				$foreignTable = $class::$_table; // does this work? $class might (syntactically) as well be an object.
+				$foreignTable = $class::$_table;
 				$foreignColumns = (array)$getter[4];
-//				$foreignColumn = static::$_db->aliasPrefix($foreignTable, $foreignColumn);
-//				$foreignClause = $foreignColumn . ' = ' . ;
 
 				$conditions = array_combine($foreignColumns, $localValues);
-//print_r($conditions);
 				$conditions = static::dbObject()->stringifyConditions($conditions, 'AND', $foreignTable);
-//var_dump($conditions);
 				$retrievalMethods = array(
 					self::GETTER_ONE => '_one',
 					self::GETTER_ALL => '_all',
 					self::GETTER_FIRST => '_first',
 				);
 				$retrievalMethod = $retrievalMethods[$type];
-//var_dump($retrievalMethod);
+
+
+				/* experimental */
+				$_name = '_parent';
+				if ( isset($getter[4]) ) {
+					$cc = get_called_class();
+					foreach ( $class::$_getters AS $name => $gt ) {
+						if ( isset($gt[4]) ) {
+							if ( in_array($gt[0], array(self::GETTER_ONE, self::GETTER_FIRST)) ) {
+								if ( $gt[2] == $cc && $gt[3] == $getter[4] && $gt[4] == $getter[3] ) {
+									$_name = $name;
+									break;
+								}
+							}
+						}
+					}
+				}
+//var_dump($cc.'->'.$key, $_name);
+				$_parent = $this;
+				$class::$_on['init']['_model'] = function( $self ) use ($_parent, $_name) {
+					$self->$_name = $_parent;
+				};
+				/* experimental */
+
+
 				$r = call_user_func(array($class, $retrievalMethod), $conditions);
-//var_dump($r);
+
+
+				/* experimental */
+				unset($class::$_on['init']['_model']);
+				/* experimental */
+
+
 				if ( $cache ) {
 					$this->$key = $r;
 				}
@@ -277,7 +337,6 @@ class Model extends Extendable {
 			break;
 			case self::GETTER_FUNCTION:
 				$r = $this->$function();
-//var_dump($r);
 				if ( $cache ) {
 					$this->$key = $r;
 				}

@@ -19,7 +19,13 @@ class Comment extends Model {
 		'post' => array( self::GETTER_ONE, true, 'app\models\Post', 'post_id', 'post_id' ),
 	);
 
-	public function _post_fill( $data ) {
+	protected function _init() {
+		if ( $this->_exists('_parent') && !$this->_exists('post') ) {
+			$this->post = $this->_parent;
+		}
+	}
+
+	protected function _post_fill( $data ) {
 		if ( isset($data['created_on']) ) {
 			$this->_created_on = new DateTime($this->created_on);
 		}
