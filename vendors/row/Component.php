@@ -3,8 +3,10 @@
 namespace row;
 
 use row\core\Options;
+//use row\core\Extendable AS ComponentParent;
+use row\core\Object AS ComponentParent;
 
-class Component extends \row\core\Extendable {
+class Component extends ComponentParent {
 
 	public $application;
 

@@ -2,13 +2,15 @@
 
 namespace row\database;
 
-use row\core\Extendable;
+//use row\core\Extendable AS ModelParent;
+use row\core\Object AS ModelParent;
 use row\database\Adapter; // abstract
 use row\core\RowException;
+use row\core\Chain;
 
 class ModelException extends RowException {}
 
-class Model extends Extendable {
+class Model extends ModelParent {
 
 	public function __tostring() {
 		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};
@@ -184,21 +186,37 @@ class Model extends Extendable {
 	/**
 	 * 
 	 */
-	static public function _update( $updates, $conditions, $params = array() ) {
-		if ( static::dbObject()->update(static::$_table, $updates, $conditions, $params) ) {
-			return static::dbObject()->affectedRows();
-		}
-		return false;
+	static public function _update( $values, $conditions, $params = array() ) {
+		$chain = static::event(__FUNCTION__);
+		$chain->first(function($self, $args, $chain) {
+
+			// actual methods body //
+			if ( $self::dbObject()->update($self::$_table, $args->values, $args->conditions, $args->params) ) {
+				return $self::dbObject()->affectedRows();
+			}
+			return false;
+			// actual methods body //
+
+		});
+		return $chain(get_called_class(), options(compact('values', 'conditions', 'params')));
 	}
 
 	/**
 	 * 
 	 */
 	static public function _insert( $values ) {
-		if ( static::dbObject()->insert(static::$_table, $values) ) {
-			return (int)static::dbObject()->insertId();
-		}
-		return false;
+		$chain = static::event(__FUNCTION__);
+		$chain->first(function($self, $args, $chain) {
+
+			// actual methods body //
+			if ( $self::dbObject()->insert($self::$_table, $args->values) ) {
+				return (int)$self::dbObject()->insertId();
+			}
+			return false;
+			// actual methods body //
+
+		});
+		return $chain(get_called_class(), options(compact('values')));
 	}
 
 	/**
@@ -362,14 +380,21 @@ class Model extends Extendable {
 	/**
 	 * 
 	 */
-	public function update( $updates ) {
-		if ( !is_scalar($updates) ) {
-			$this->_fill((array)$updates);
-			$this->_fire('post_fill', array($init));
-		}
-		$conditions = $this->_pkValue(true);
-//print_r($conditions); exit;
-		return $this::_update($updates, $conditions);
+	public function update( $values ) {
+		$chain = static::event(__FUNCTION__);
+		$chain->first(function($self, $args, $chain) {
+
+			// actual methods body //
+			if ( !is_scalar($args->values) ) {
+				$self->_fill((array)$args->values);
+				$self->_fire('post_fill', array($args->values));
+			}
+			$conditions = $self->_pkValue(true);
+			return $self::_update($args->values, $conditions);
+			// actual methods body //
+
+		});
+		return $chain($this, options(compact('values')));
 	}
 
 	/**

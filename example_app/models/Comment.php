@@ -8,6 +8,11 @@ use app\specs\SessionUser;
 use row\utils\DateTime;
 use \Exception;
 
+Comment::event('insert', function( $self, $args, $chain ) {
+	$args->values['created_by_ip'] = 'WOOHOO';
+	return $chain($self, $args);
+});
+
 class Comment extends Model {
 
 	static public $_table = 'comments';

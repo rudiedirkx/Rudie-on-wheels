@@ -13,6 +13,9 @@ pre { margin-left:10px; padding:5px 10px; background-color:#777;  color:#fff; fo
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
 p, div.form-element { margin: 15px 0; }
+code { display: inline-block; padding: 1px 3px; background-color: #ccc; color: midnightblue; /*text-shadow: 0 0 1px #fff;*/ border-radius: 2px; /*box-shadow: 0 0 2px #fff;*/ }
+a { color: green; }
+a:visited { color: rgb(0, 120, 0); }
 
 div.form-element input:not([type="checkbox"]):not([type="radio"]),
 div.form-element textarea,
@@ -58,7 +61,8 @@ form span.description {
 form div.checkboxes span.option {
 	display: block;
 }
-form div.error {
+form div.error,
+p.field.error {
 	color: red;
 }
 form div.error input,
@@ -76,6 +80,7 @@ ul.form-errors {
 article { background-color:rgba(0, 0, 0, 0.04); }
 article.blogpost { margin-top: 15px; padding-top: 20px; }
 article.unpublished > h1, article.unpublished > header > h2 > a { color:red; }
+article.unpublished { border-color: red; }
 article article { margin:0; }
 h2:first-child, article h3, article h2, article h1 { margin:0; }
 article.blogpostpreview { margin-bottom:30px; }

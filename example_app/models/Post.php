@@ -7,6 +7,20 @@ use app\specs\Validator;
 use row\utils\DateTime;
 use app\specs\SessionUser;
 use row\utils\Inflector;
+use app\specs\Output;
+
+/*Post::event('_insert', function( $self, $args, $chain ) {
+	$args->values['original_slug'] = Output::slugify($args->values['title']);
+	return $chain($self, $args);
+});*/
+
+Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
+//var_dump($self, $args);
+	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
+		$args->values['original_slug'] = Output::slugify($args->values['title']);
+	}
+	return $chain($self, $args);
+});
 
 class Post extends Model {
 

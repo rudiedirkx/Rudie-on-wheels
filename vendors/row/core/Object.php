@@ -3,10 +3,33 @@
 namespace row\core;
 
 use \Exception;
+use \Closure;
 
 class RowException extends Exception {}
 
 abstract class Object {
+
+	static public $events; // typeof Chain
+
+	static public function event( $type, Closure $event = null ) {
+		if ( is_array($type) ) {
+			// several types, same event
+			foreach ( $type AS $t ) {
+				static::event($t, $event);
+			}
+			return;
+		}
+
+		if ( !isset(static::$events[$type]) ) {
+			static::$events[$type] = new Chain($type);
+		}
+
+		if ( null === $event ) {
+			return static::$events[$type];
+		}
+
+		return static::$events[$type]->add($event);
+	}
 
 	protected function _init() {}
 

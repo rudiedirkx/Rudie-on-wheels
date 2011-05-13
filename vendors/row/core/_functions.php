@@ -1,5 +1,7 @@
 <?php
 
+use row\core\Options;
+
 function gmtime() {
 	return (int)gmdate('U');
 }
@@ -14,6 +16,10 @@ function lpad( $val, $len = 2, $pad = '0' ) {
 
 function rpad( $val, $len = 2, $pad = '0' ) {
 	return str_pad((string)$val, $len, $pad, STR_PAD_RIGHT);
+}
+
+function options( $options ) {
+	return Options::make($options);
 }
 
 

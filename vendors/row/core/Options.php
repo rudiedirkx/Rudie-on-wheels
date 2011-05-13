@@ -3,8 +3,9 @@
 namespace row\core;
 
 use row\core\Object;
+use \Countable;
 
-class Options extends Object {
+class Options extends Object implements Countable {
 
 	static public function one( Array &$options, $name, $alt = null ) {
 		$options = Options::make($options);
@@ -55,6 +56,11 @@ class Options extends Object {
 
 	public function isEmpty() {
 		return 0 == count((array)$this);
+	}
+
+	// from Countable
+	public function count() {
+		return count((array)$this);
 	}
 
 }
