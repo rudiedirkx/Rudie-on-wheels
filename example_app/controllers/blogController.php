@@ -9,6 +9,7 @@ use app\models;
 use row\utils\Inflector;
 use row\auth\Session;
 use row\utils\Email;
+use row\Output;
 
 class blogController extends \app\specs\Controller {
 
@@ -110,9 +111,9 @@ class blogController extends \app\specs\Controller {
 					$post = models\Post::get($pid);
 					Session::success('Post Created. Look:');
 					// Send e-mail to $this->user's followers
-					foreach ( $this->user->followers AS $user ) {
+/*					foreach ( $this->user->user->followers AS $user ) {
 						Email::make($user->email, 'New post by '.$user, $user.' posted a new message on the blog. Read it at '.$post->url(array('absolute' => true)))->send();
-					}
+					}*/
 					$this->_redirect($post->url());
 				}
 				Session::error('Couldn\'t save... =( Try again!?');
@@ -232,6 +233,14 @@ class blogController extends \app\specs\Controller {
 	public function view( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
+
+		if ( !empty($_POST['body']) ) {
+			$post->update(array('body' => $_POST['body']));
+		}
+
+		if ( !empty($_GET['json']) ) {
+			return json_encode(Output::filter($post, array('title', 'body')));
+		}
 
 		$messages = Session::messages();
 

@@ -131,7 +131,7 @@ abstract class Adapter extends \row\core\Object {
 
 	public function result( $query, $targetClass = '' ) {
 		$resultClass = get_class($this).'Result';
-		return $resultClass::make($this->query($query), $targetClass);
+		return $resultClass::make($this->query($query), $targetClass, $this);
 	}
 
 	abstract public function query( $query );

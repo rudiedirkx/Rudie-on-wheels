@@ -55,7 +55,7 @@ abstract class PDO extends Adapter {
 
 	public function result( $query, $targetClass = '' ) {
 		$resultClass = __CLASS__.'Result';
-		return $resultClass::make($this->query($query), $targetClass);
+		return $resultClass::make($this->query($query), $targetClass, $this);
 	}
 
 	public function error() {
@@ -102,7 +102,9 @@ class PDOResult extends \row\database\QueryResult {
 	}
 
 	public function count() {
-		return $this->result->rowCount();
+		// WOW, PDO is stupid!
+		$q = preg_replace('/select\s.+?\sfrom/i', 'select count(1) AS rv from', $this->result->queryString);
+		return (int)$this->db->query($q)->fetchColumn(0);
 	}
 
 }

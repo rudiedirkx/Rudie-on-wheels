@@ -126,8 +126,9 @@ class Model extends ModelParent {
 
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
-		if ( 1 !== $r->count() ) {
-			throw new ModelException('Found '.$r->count().' of '.get_called_class().'.');
+		$c = $r->count();
+		if ( 1 !== $c ) {
+			throw new ModelException('Found '.$c.' of '.get_called_class().'.');
 		}
 
 		$r = $r->nextObject($r->class, array(true));

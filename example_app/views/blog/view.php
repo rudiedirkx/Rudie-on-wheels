@@ -22,7 +22,7 @@ use row\utils\Inflector;
 
 	<section class="article">
 		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em> in category <em><?=$this::link($post->category_name, $post->catUrl())?></em><?if($post->canEdit()):?> (<?=$this::link('edit', 'blog/edit-post/'.$post->post_id)?>)<?endif?>.</footer>
-		<?=$this->markdown($post->body)."\n"?>
+		<content><?=$this->markdown($post->body)."\n"?></content>
 	</section>
 	<a id="comments"></a>
 	<h2>Comments (<?=$this::link('add', 'blog/add-comment/'.$post->post_id)?>)</h2>
@@ -47,11 +47,26 @@ use row\utils\Inflector;
 
 <p><a href="#">Naar boven</a></p>
 
+<?$this->section()?>
 <script>
+$('content').bind('dblclick', function(e) {
+	var self = this;
+	$.ajax('<?=$post->url('?json=1')?>', function(t) {
+		var o = JSON.parse(t);
+		if ( o ) {
+			self.html('<form method=post><textarea name=body></textarea><br><input type=submit></form>');
+			self.$('textarea').value = o.body;
+		}
+		else {
+			alert("Que?\n\n" + t);
+		}
+	});
+});
 function updateFollowStatusOnLink(el, response) {
 	el.innerHTML = response;
 }
 </script>
+<?$this->section('javascript')?>
 
 <!-- <pre>
 <? print_r($post) ?>

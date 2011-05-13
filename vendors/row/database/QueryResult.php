@@ -4,8 +4,8 @@ namespace row\database;
 
 abstract class QueryResult extends \row\core\Object {
 
-	static public function make( $result, $class = '' ) {
-		return false !== $result ? new static($result, $class) : false;
+	static public function make( $result, $class = '', $db = null ) {
+		return false !== $result ? new static($result, $class, $db) : false;
 	}
 
 
@@ -13,9 +13,10 @@ abstract class QueryResult extends \row\core\Object {
 	public $class = '';
 
 
-	public function __construct( $result, $class = '' ) {
+	public function __construct( $result, $class = '', $db = null ) {
 		$this->result = $result;
 		$this->class = $class;
+		$this->db = $db;
 	}
 
 

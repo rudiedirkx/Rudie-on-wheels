@@ -237,6 +237,20 @@ class Output extends \row\Component {
 		return addslashes((string)$text);
 	}
 
+	static public function filter( $data, $keep ) {
+		$keep = (array)$keep;
+		$data = (array)$data;
+
+		$output = array();
+		foreach ( $keep AS $k ) {
+			if ( isset($data[$k]) ) {
+				$output[$k] = $data[$k];
+			}
+		}
+
+		return $output;
+	}
+
 	static public function csv( $data, $forceScalar = true ) {
 		if ( is_scalar($data) || $forceScalar ) {
 			!is_bool($data) or $data = (int)$data;

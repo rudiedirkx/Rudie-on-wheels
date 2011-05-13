@@ -10,10 +10,16 @@ window.$ = function(q) {
 	}
 	return document.querySelector(q);
 }
+HTMLElement.prototype.$ = function(q) {
+	return this.querySelector(q);
+};
 
 window.$$ = function(q) {
 	return Array.prototype.slice.call(document.querySelectorAll(q), 0);
 }
+HTMLElement.prototype.$$ = function(q) {
+	return this.querySelectorAll(q);
+};
 
 Array.prototype.each = Array.prototype.forEach;
 Object.prototype.bind = function(type, event) { // Object so Window inherits it too
@@ -56,6 +62,13 @@ HTMLElement.prototype.next = function() {
 		s = s.nextSibling;
 	}
 	return s;
+};
+HTMLElement.prototype.html = function(html) {
+	if ( html != null ) {
+		this.innerHTML = html;
+		return this;
+	}
+	return this.innerHTML;
 };
 
 window.$.ajax = function(url, handler, data) {
