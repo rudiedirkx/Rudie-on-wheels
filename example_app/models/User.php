@@ -6,7 +6,7 @@ use app\specs\Model;
 use row\utils\Inflector;
 use \Exception;
 
-class User extends Model {
+class User extends Model implements VisitableRecord {
 
 	static public $_table = 'users';
 	static public $_pk = 'user_id';
@@ -63,8 +63,8 @@ class User extends Model {
 		return \app\models\Post::count(array('author_id' => $this->user_id));
 	}
 
-	public function url() {
-		return 'blog-user/'.$this->user_id.'/'.Inflector::slugify((string)$this);
+	public function url( $more = '' ) {
+		return 'blog-user/'.$this->user_id.'/'.Inflector::slugify((string)$this) . $more;
 	}
 
 	public function hasAccess( $zone ) {

@@ -21,7 +21,7 @@ abstract class Object {
 		}
 
 		if ( !isset(static::$events[$type]) ) {
-			static::$events[$type] = new Chain($type);
+			static::$events[$type] = new Chain($type, get_called_class());
 		}
 
 		if ( null === $event ) {

@@ -7,10 +7,12 @@ use Closure;
 class Chain {
 
 	public $type = '';
+	public $class = '';
 	public $events = array();
 
-	public function __construct( $type = 'init' ) {
+	public function __construct( $type, $class ) {
 		$this->type = $type;
+		$this->class = $class;
 	}
 
 	public function start( $self, $args ) {

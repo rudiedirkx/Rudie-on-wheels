@@ -13,6 +13,13 @@ Comment::event('insert', function( $self, $args, $chain ) {
 	return $chain($self, $args);
 });
 
+Comment::event('construct', function( $self, $args, $chain ) {
+echo "\n\nEVENT 'construct'\n\n";
+	$self->created_on = new DateTime($this->created_on);
+echo "\n\nEVENT 'construct'\n\n";
+	return $chain($self, $args);
+});
+
 class Comment extends Model {
 
 	static public $_table = 'comments';
@@ -32,16 +39,17 @@ class Comment extends Model {
 
 	public function canEdit() {
 		$sessionUser = SessionUser::user();
+
 		$owner = $_SERVER['REMOTE_ADDR'] === $this->created_by_ip;
 		$owner = $sessionUser->userID() === (int)$this->author_id;
-		$inTime = 300 > time() - $this->created_on;
-		// How do I reach the session user from here? It's only registered in the $application
+
+		$inTime = 600 > time() - $this->created_on; // 10 minutes
+
 		return ( $owner && $inTime ) || $sessionUser->hasAccess('always edit comments');
 	}
 
 	public function url( $more = '' ) {
 		return $this->post->url('#comment-' . $this->comment_id);
-//		return 'blog/view/' . $this->post_id . '#comment-' . $this->comment_id;
 	}
 
 	static public function getCommentsBetween( $a, $b ) {

@@ -236,9 +236,12 @@ abstract class Adapter extends \row\core\Object {
 	}
 
 	public function count( $table, $conditions = '', $params = array() ) {
-		$conditions = $this->replaceholders($conditions, $params);
-		$sql = 'SELECT 1 FROM '.$this->escapeAndQuoteTable($table).' WHERE '.( $conditions ?: '1' );
-		return $this->countRows($sql);
+		$conditions = $this->replaceholders($conditions, $params) ?: '1';
+		$r = (int)$this->selectOne($table, 'count(1)', $conditions);
+		return $r;
+		// the following won't work for PDO, which means PDO has to do an additional `select count(1)`. PDO sucks!
+//		$sql = 'SELECT 1 FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
+//		return $this->countRows($sql);
 	}
 
 	public function replace( $table, $values ) {

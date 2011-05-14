@@ -15,7 +15,7 @@ class Category extends Model {
 	);
 
 	public function url( $more = '' ) {
-		return 'blog/category/' . $this->category_id . '/' . Inflector::slugify($this->category_name);
+		return 'blog/category/' . $this->category_id . '/' . Inflector::slugify($this->category_name) . $more;
 	}
 
 	public function numPosts() {

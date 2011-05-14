@@ -74,7 +74,7 @@ class Model extends ModelParent {
 	 * 
 	 */
 	public static function _query( $conditions ) {
-		return 'SELECT * FROM '.static::$_table.' WHERE '.$conditions;
+		return 'SELECT * FROM '.static::$_table.' WHERE '.$conditions; // .' /*'.get_called_class().'*/';
 	}
 
 
@@ -244,11 +244,13 @@ class Model extends ModelParent {
 			$this->_fire('post_fill', array($init));
 		}
 
+		/* experimental *
 		if ( isset($this::$_on['init']) ) {
 			foreach ( $this::$_on['init'] AS $cb ) {
-				$cb($this);
+//				$cb($this);
 			}
 		}
+		/* experimental */
 
 		$this->_fire('init');
 	}
@@ -335,9 +337,10 @@ class Model extends ModelParent {
 				}
 //var_dump($cc.'->'.$key, $_name);
 				$_parent = $this;
-				$class::$_on['init']['_model'] = function( $self ) use ($_parent, $_name) {
+				$eventIndex = $class::event('construct', function( $self ) use ($_parent, $_name) {
 					$self->$_name = $_parent;
-				};
+				});
+var_dump($class, $eventIndex);
 				/* experimental */
 
 
