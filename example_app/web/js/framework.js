@@ -14,8 +14,20 @@ HTMLElement.prototype.$ = function(q) {
 	return this.querySelector(q);
 };
 
+window.A = function(arr) {
+	try {
+		return Array.prototype.slice.call(arr);
+	}
+	catch (ex) {
+		for ( var r = [], L = arr.length, i = 0; i<L; i++ ) {
+			r.push(arr[i]);
+		}
+		return r;
+	}
+};
+
 window.$$ = function(q) {
-	return Array.prototype.slice.call(document.querySelectorAll(q), 0);
+	return A(document.querySelectorAll(q), 0);
 }
 HTMLElement.prototype.$$ = function(q) {
 	return this.querySelectorAll(q);
@@ -27,7 +39,7 @@ Object.prototype.bind = function(type, event) { // Object so Window inherits it 
 };
 HTMLElement.prototype.serialize = function() {
 	var v = [];
-	Array.prototype.slice.call(this.elements).forEach(function(el, i) {
+	A(this.elements).forEach(function(el, i) {
 		if ( !el.name ) {
 			return;
 		}
