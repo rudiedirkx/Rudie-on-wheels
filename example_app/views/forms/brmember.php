@@ -96,7 +96,6 @@ table.br input.date + img.date {
 </form>
 
 <?$this->section()?>
-<script>
 $(function() {
 	$$('input.date + img.date').each(function(el) {
 		el.bind('click', function() {
@@ -107,5 +106,4 @@ $(function() {
 		});
 	});
 });
-</script>
 <?$this->section('javascript')?>

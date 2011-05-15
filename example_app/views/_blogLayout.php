@@ -32,8 +32,8 @@
 <?=$content?>
 
 <script src="<?=$this::url('js/all.js')?>"></script>
-<?=$this->section('javascript')?>
 <script>
+<?=$this->section('javascript')?>
 if ( msgs = document.querySelector('#messages') ) {
 	msgs.bind('click', function() {
 		this.parentNode.removeChild(this);

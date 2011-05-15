@@ -10,7 +10,6 @@
 <?=$form->render()?>
 
 <?$this->section()?>
-<script>
 //$(function() {
 	$('form').bind('submit', function(e) {
 		if ( $('#ajax-it').checked ) {
@@ -24,7 +23,6 @@
 		}
 	});
 //});
-</script>
 <?$this->section('javascript')?>
 
 <pre>$_POST: <? print_r($_POST) ?></pre>

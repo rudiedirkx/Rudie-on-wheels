@@ -57,6 +57,10 @@ abstract class Object {
 		return property_exists($this, $k);
 	}
 
+	public function _callable( $method ) {
+		return is_callable(array($this, $method));
+	}
+
 	public function _fire( $fn, $args = array() ) {
 		$fn = '_'.$fn;
 		if ( method_exists($this, $fn) ) {

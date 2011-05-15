@@ -48,7 +48,6 @@ use row\utils\Inflector;
 <p><a href="#">Naar boven</a></p>
 
 <?$this->section()?>
-<script>
 $('content').bind('dblclick', function(e) {
 	var self = this;
 	$.ajax('<?=$post->url('?json=1')?>', function(t) {
@@ -65,7 +64,6 @@ $('content').bind('dblclick', function(e) {
 function updateFollowStatusOnLink(el, response) {
 	el.innerHTML = response;
 }
-</script>
 <?$this->section('javascript')?>
 
 <!-- <pre>

@@ -27,7 +27,9 @@ p, ul, ol, table {
 <?=$content?>
 
 <script src="<?=$this::url('js/all.js')?>"></script>
+<script>
 <?=$this->section('javascript')?>
+</script>
 </body>
 
 </html>
