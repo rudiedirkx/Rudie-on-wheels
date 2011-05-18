@@ -107,7 +107,7 @@ class PDOResult extends \row\database\QueryResult {
 
 		$q = preg_replace('/select\s.+?\sfrom/i', 'select count(1) AS rv from', $this->result->queryString);
 		$c = (int)$this->db->query($q)->fetchColumn(0);
-//		array_pop($this->db->queries);
+		array_pop($this->db->queries);
 		return $c;
 	}
 

@@ -18,11 +18,11 @@ class Chain {
 		$this->id = rand(0, 99999999);
 		$this->type = $type;
 		$this->class = $class;
-$this->verbose('new chain: '.$this, false);
+//$this->verbose('new chain: '.$this, false);
 	}
 
 	public function start( $self, $args = null ) {
-$this->verbose('starting Chain]');
+//$this->verbose('starting Chain]');
 		$this->event = -1;
 		if ( !$this->reversed ) {
 			$this->events = array_reverse($this->events);
@@ -32,14 +32,14 @@ $this->verbose('starting Chain]');
 	}
 
 	public function next( $self, Options $args = null ) {
-$this->verbose('Chain->next]');
-$this->verbose('event '.($this->event+1).' / '.count($this->events).']');
+//$this->verbose('Chain->next]');
+//$this->verbose('event '.($this->event+1).' / '.count($this->events).']');
 		$event = $this->nextEvent(); // last-in-first-out
 		if ( $event ) {
-$this->verbose("executing event [".$this->event."] ".$this->class."->".$this->type." with ".count($args)." args]");
+//$this->verbose("executing event [".$this->event."] ".$this->class."->".$this->type." with ".count($args)." args]");
 			return $event($self, $args, $this);
 		}
-$this->verbose('-- You shouldn\'t be here: '.__CLASS__.' ['.__LINE__.']');
+//$this->verbose('-- You shouldn\'t be here: '.__CLASS__.' ['.__LINE__.']');
 		// You should never be here... The framework event should have returned something...
 	}
 
@@ -47,14 +47,14 @@ $this->verbose('-- You shouldn\'t be here: '.__CLASS__.' ['.__LINE__.']');
 		return $this->next($self, $args);
 	}
 
-	public function add( Closure $event ) {
-		return $this->push($event);
+	public function add( Closure $event, $name = '' ) {
+		return array_push($this->events, array($event, $name));
 	}
 
 	public function first( Closure $event ) {
 		if ( !$this->first ) {
 			$this->first = true;
-			array_unshift($this->events, $event); // at position 0
+			array_unshift($this->events, array($event, 'native')); // at position 0
 		}
 		return $this;
 	}
@@ -62,29 +62,25 @@ $this->verbose('-- You shouldn\'t be here: '.__CLASS__.' ['.__LINE__.']');
 
 	public function nextEvent() {
 		$this->event++;
-$this->verbose('Trying to get event # '.$this->event);
+//$this->verbose('Trying to get event # '.$this->event);
 		if ( isset($this->events[$this->event]) ) {
-$this->verbose('Event exists. Chain continues');
-			return $this->events[$this->event];
+//$this->verbose('Event exists. Chain continues');
+			return $this->events[$this->event][0];
 		}
-$this->verbose('Event not found. Chain exists??');
+//$this->verbose('Event not found. Chain exists??');
 	}
 
 
-	public function pop() {
-		return array_pop($this->events);
-	}
-
-	public function shift() {
-		return array_shift($this->events);
-	}
-
-	public function unshift( Closure $event ) {
-		return array_unshift($this->events, $event);
-	}
-
-	public function push( Closure $event ) {
-		return array_push($this->events, $event);
+	public function remove( $name ) {
+		if ( $name ) {
+			foreach ( $this->events AS $i => $event ) {
+				if ( $event[1] === $name ) {
+					array_splice($this->events, $i, 1);
+					break;
+				}
+			}
+		}
+		return $this;
 	}
 
 

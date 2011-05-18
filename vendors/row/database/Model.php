@@ -55,7 +55,7 @@ abstract class Model extends ModelParent {
 
 	static public $_on = array();
 
-	static public $_cache = array();
+	static public $_cache = false;//array();
 
 
 	/**
@@ -261,7 +261,7 @@ abstract class Model extends ModelParent {
 		$chain->first(function($self, $args, $chain, $native = true) {
 
 			// actual methods body //
-			if ( is_array($args) ) {
+			if ( is_array($args->data) ) {
 				foreach ( (array)$args->data AS $k => $v ) {
 					if ( $k || '0' === (string)$k ) {
 						$self->$k = $v;
@@ -329,7 +329,7 @@ abstract class Model extends ModelParent {
 				$retrievalMethod = $retrievalMethods[$type];
 
 
-				/* experimental *
+				/* experimental */
 				$_name = '_parent';
 				if ( isset($getter[4]) ) {
 					$cc = get_called_class();
@@ -344,20 +344,30 @@ abstract class Model extends ModelParent {
 						}
 					}
 				}
-//var_dump($cc.'->'.$key, $_name);
+//var_dump($class, $cc.'->'.$key, $_name);
+
 				$_parent = $this;
-				$eventIndex = $class::event('construct', function( $self ) use ($_parent, $_name) {
+				$evName = 'tmpEvent'.rand(0, 999);
+
+				$_chain = $class::event('construct');
+//echo "\n[ ".$evName." ".count($_chain->events)." events PRE ]\n";
+				$_chain->add(function( $self, $args, $chain, $semiNative = true ) use ($_parent, $_name, $class) {
+					$r = $chain($self, $args);
 					$self->$_name = $_parent;
-				});
-var_dump($class, $eventIndex);
+					return $r;
+				}, $evName);
+//echo "\n[ ".$evName." ".count($_chain->events)." events +1 ]\n";
 				/* experimental */
 
 
+				// Get object(s)
 				$r = call_user_func(array($class, $retrievalMethod), $conditions);
 
 
-				/* experimental *
-				unset($class::$_on['init']['_model']);
+				/* experimental */
+//echo "\n[ ".$evName." ".count($_chain->events)." events SAME AS +1 ]\n";
+				$_chain->remove($evName);
+//echo "\n[ ".$evName." ".count($_chain->events)." events POST: -1 ]\n";
 				/* experimental */
 
 
@@ -398,7 +408,7 @@ var_dump($class, $eventIndex);
 		$chain->first(function($self, $args, $chain, $native = true) {
 
 			// actual methods body //
-			if ( !is_scalar($args->values) ) {
+			if ( is_array($args->values) ) {
 				$self->_fill((array)$args->values);
 			}
 			$conditions = $self->_pkValue(true);

@@ -18,9 +18,7 @@ class Post extends Model {
 	static public $_title = 'title';
 	static public $_getters = array(
 		'author' => array( self::GETTER_ONE, true, 'app\models\User', 'author_id', 'user_id' ),
-		'comments' => array( self::GETTER_ALL, true, 'app\models\Comment', 'post_id', 'post_id'/*, function($post, $comment) {
-			$comment->post = $post;
-		}*/),
+		'comments' => array( self::GETTER_ALL, true, 'app\models\Comment', 'post_id', 'post_id' ),
 	);
 
 	static public function _validator( $name ) {
@@ -103,6 +101,14 @@ class Post extends Model {
 Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
 	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
 		$args->values['original_slug'] = Output::slugify($args->values['title']);
+	}
+	return $chain($self, $args);
+});
+
+/**/
+Post::event(array('update'), function( $self, $args, $chain ) {
+	if ( isset($args->values['body']) ) {
+		$args->values['body'] .= "\n\n<small>edited on ".date('Y-m-d H:i:s')." =)</small>";
 	}
 	return $chain($self, $args);
 });

@@ -12,7 +12,7 @@ abstract class Object {
 
 	static public $chain; // typeof Chain
 
-	static public function event( $type, Closure $event = null ) {
+	static public function event( $type, Closure $event = null, $name = '' ) {
 		// add 1 Event to several types
 		if ( is_array($type) ) {
 			foreach ( $type AS $t ) {
@@ -38,7 +38,7 @@ abstract class Object {
 		}
 
 		// add 1 Event to 1 type
-		return static::$chain[$type]->add($event);
+		return static::$chain[$type]->add($event, $name);
 	}
 
 	protected function _init() {}

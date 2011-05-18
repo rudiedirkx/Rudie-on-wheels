@@ -1,22 +1,3 @@
-<?php
-
-// test
-
-echo "\n-----------------------------------------\n";
-
-$post2 = \app\models\Post::get(3);
-
-echo "\n-----------------------------------------\n";
-
-$post2->comments;
-
-echo "\n-----------------------------------------\n";
-
-$post->comments;
-
-exit;
-
-?>
 
 <?php
 use row\utils\Inflector;
