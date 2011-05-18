@@ -190,6 +190,7 @@ class Model extends ModelParent {
 	static public function _update( $values, $conditions, $params = array() ) {
 		$chain = static::event(__FUNCTION__);
 		$chain->first(function($self, $args, $chain) {
+echo "in native '_update' event\n";
 
 			// actual methods body //
 			if ( $self::dbObject()->update($self::$_table, $args->values, $args->conditions, $args->params) ) {
@@ -208,6 +209,7 @@ class Model extends ModelParent {
 	static public function _insert( $values ) {
 		$chain = static::event(__FUNCTION__);
 		$chain->first(function($self, $args, $chain) {
+echo "in native '_insert' event\n";
 
 			// actual methods body //
 			if ( $self::dbObject()->insert($self::$_table, $args->values) ) {
@@ -241,7 +243,8 @@ class Model extends ModelParent {
 		}
 
 		$chain = static::event('construct');
-		return $chain($this, options(compact('init')));
+print_r($chain);
+		return $chain($this);
 	}
 
 	/**
@@ -250,6 +253,7 @@ class Model extends ModelParent {
 	public function _fill( $data ) {
 		$chain = static::event('fill');
 		$chain->first(function($self, $args, $chain) {
+echo "in native '_fill' event\n";
 
 			// actual methods body //
 			if ( is_array($args) ) {
@@ -262,6 +266,8 @@ class Model extends ModelParent {
 			// actual methods body //
 
 		});
+print_r($chain);
+//echo '# of '.$chain->class.'->'.$chain->type.' events: '.count($chain->events)."\n";
 		return $chain($this, options(compact('data')));
 	}
 
@@ -385,13 +391,14 @@ var_dump($class, $eventIndex);
 	public function update( $values ) {
 		$chain = static::event(__FUNCTION__);
 		$chain->first(function($self, $args, $chain) {
+echo "in native 'update' event\n";
 
 			// actual methods body //
 			if ( !is_scalar($args->values) ) {
 				$self->_fill((array)$args->values);
 			}
 			$conditions = $self->_pkValue(true);
-print_r($args->values, $conditions);
+//print_r($args->values, $conditions);
 			return $self::_update($args->values, $conditions);
 			// actual methods body //
 

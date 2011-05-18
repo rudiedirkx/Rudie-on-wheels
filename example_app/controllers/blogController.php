@@ -233,6 +233,7 @@ class blogController extends \app\specs\Controller {
 	public function view( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
+		$post->_fill(array('oele' => 'boele'));
 
 		if ( !empty($_POST['body']) ) {
 			$post->update(array('body' => $_POST['body']));

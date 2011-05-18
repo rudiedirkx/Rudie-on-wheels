@@ -17,8 +17,6 @@ class User extends Model implements VisitableRecord {
 		'numPosts' => array( self::GETTER_FUNCTION, true, 'getNumPosts' ),
 	);
 
-	static public $_user_accesses = array(); // I save this statically, because it MIGHT happen there are more than 1 User objects per unique user =(
-
 
 	public $_pf_acl = false;
 	protected function _post_fill( $data ) {
@@ -30,7 +28,7 @@ class User extends Model implements VisitableRecord {
 
 	public function isFollowingPost( $post ) {
 		$db = self::dbObject();
-		// I'm not making a Model for just this!! But it **should** be in a Model, not in a Controller!
+		// I'm not making a Model for just this! But it **should** be in a Model, not in a Controller!
 		return 0 < $db->count('following_posts', 'user_id = ? AND post_id = ?', array($this->user_id, $post->post_id));
 	}
 
@@ -102,5 +100,10 @@ class User extends Model implements VisitableRecord {
 	}
 
 }
+
+User::event('construct', function($self, $args, $chain) {
+	echo "\n\nin User->construct event\n\n";
+	return $chain($self, $args);
+});
 
 

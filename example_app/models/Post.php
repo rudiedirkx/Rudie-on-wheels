@@ -9,21 +9,6 @@ use app\specs\SessionUser;
 use row\utils\Inflector;
 use app\specs\Output;
 
-Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
-	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
-		$args->values['original_slug'] = Output::slugify($args->values['title']);
-	}
-	return $chain($self, $args);
-});
-
-Post::event('fill', function($self, $args, $chain) {
-	$self->is_published = (bool)$self->is_published;
-
-	if ( isset($args->data['created_on']) || !$self->_created_on ) {
-		$self->_created_on = new DateTime($self->created_on);
-	}
-});
-
 class Post extends Model {
 
 	static public $_table = 'posts';
@@ -111,5 +96,21 @@ class Post extends Model {
 	}
 
 }
+
+Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
+	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
+		$args->values['original_slug'] = Output::slugify($args->values['title']);
+	}
+	return $chain($self, $args);
+});
+
+Post::event('fill', function($self, $args, $chain) {
+echo "FILL args: "; print_r(func_get_args());
+	$self->is_published = (bool)$self->is_published;
+
+	if ( isset($args->data['created_on']) || !$self->_created_on ) {
+		$self->_created_on = new DateTime($self->created_on);
+	}
+});
 
 

@@ -12,22 +12,25 @@ abstract class Object {
 	static public $events; // typeof Chain
 
 	static public function event( $type, Closure $event = null ) {
+		// add 1 Event to several types
 		if ( is_array($type) ) {
-			// several types, same event
 			foreach ( $type AS $t ) {
 				static::event($t, $event);
 			}
 			return;
 		}
 
+		// create new Chain for this type
 		if ( !isset(static::$events[$type]) ) {
 			static::$events[$type] = new Chain($type, get_called_class());
 		}
 
+		// return Chain
 		if ( null === $event ) {
 			return static::$events[$type];
 		}
 
+		// add 1 Event to 1 type
 		return static::$events[$type]->add($event);
 	}
 

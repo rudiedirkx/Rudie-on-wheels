@@ -6,22 +6,22 @@ use Closure;
 
 class Chain {
 
-	public $type = '';
 	public $class = '';
-	public $events = array();
+	public $type = '';
 	public $event = -1;
+	public $first = false;
+	public $events = array();
 
 	public function __construct( $type, $class ) {
 		$this->type = $type;
 		$this->class = $class;
 	}
 
-	public function start( $self, $args ) {
-echo $this->class.' -> '.$this->type.': '; print_r($this->events);
+	public function start( $self, $args = null ) {
 		return $this->next($self, $args, $this);
 	}
 
-	public function next( $self, Options $args ) {
+	public function next( $self, Options $args = null ) {
 		$event = $this->pop(); // last-in-first-out
 		if ( $event ) {
 			return $event($self, $args, $this);
@@ -29,7 +29,7 @@ echo $this->class.' -> '.$this->type.': '; print_r($this->events);
 		// You should never be here... The framework event should have returned something...
 	}
 
-	public function __invoke( $self, $args ) {
+	public function __invoke( $self, $args = null ) {
 		return $this->start($self, $args);
 	}
 
@@ -38,7 +38,10 @@ echo $this->class.' -> '.$this->type.': '; print_r($this->events);
 	}
 
 	public function first( Closure $event ) {
-		return $this->unshift($event);
+		if ( !$this->first ) {
+			$this->first = true;
+			return $this->unshift($event);
+		}
 	}
 
 
