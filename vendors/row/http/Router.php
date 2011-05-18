@@ -48,6 +48,7 @@ class Router extends Object {
 		}
 		if ( 0 < preg_match('#'.$from.'#', $path, $match) ) {
 			$to = $route->to;
+//print_r($to);
 			if ( null === $to ) {
 				$to = $match;
 			}
@@ -73,6 +74,7 @@ class Router extends Object {
 				else if ( 1 < count($match) ) {
 					$to['actionArguments'] = array_slice($match, 1);
 				}
+//print_r($to);
 				return $to;
 			}
 		}

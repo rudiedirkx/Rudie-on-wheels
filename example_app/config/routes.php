@@ -27,11 +27,22 @@ $router->add('/scaffolding', function() {
 	return array('controller' => 'row\\applets\\scaffolding\\Controller');
 });
 
+// Blog post by slugged title
+$router->add('/news/([a-z0-9\-]+)$', array(
+	'controller' => 'app\\controllers\\blogController',
+	'action' => 'viewByTitle'
+));
+
 // A module alias
-$router->add('/posts', array('controller' => 'app\\controllers\\blogController'));
+$router->add('/posts', array(
+	'controller' => 'app\\controllers\\blogController'
+));
 
 // JS cache
-$router->add('/js/all.js$', array('controller' => 'app\\controllers\\fallbax', 'action' => 'allJS'));
+$router->add('/js/all.js$', array(
+	'controller' => 'app\\controllers\\fallbax',
+	'action' => 'allJS'
+));
 
 // Blog user profile
 $router->add('/blog-user/(\d+)/?', array(

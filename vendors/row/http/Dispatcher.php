@@ -279,9 +279,11 @@ class Dispatcher extends Object {
 			if ( $to = $this->router->resolve($path) ) {
 				// 3. 
 				if ( is_array($to) ) {
+//print_r($to);
 					foreach ( $to AS $k => $v ) {
 						$this->{'_'.$k} = $v;
 					}
+//print_r($this);
 					$dontEvalActionHooks = isset($to['action']);
 				}
 				else if ( is_string($to) ) {
@@ -295,7 +297,7 @@ class Dispatcher extends Object {
 			$this->_controller = $this->getControllerClassName($this->_modulePath);
 		}
 		else if ( !is_int(strpos($this->_controller, '\\')) ) {
-			$this->_controller = $this->getControllerClassName($this->_modulePath);
+			$this->_controller = $this->getControllerClassName($this->_controller);
 		}
 
 		// 5. 

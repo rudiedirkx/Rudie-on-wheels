@@ -12,7 +12,7 @@
 <?foreach( $posts as $post ):?>
 
 	<article class="blogpostpreview <?=!$post->is_published ? 'unpublished' : ''?>">
-		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->created_on//->format('Y-m-d H:i:s')?></em>.</footer>
+		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em>.</footer>
 		<header><h2><a href="<?=$post->url()?>"><?=$post->title?></a></h2></header>
 		<?=$this::markdown($post->body)."\n"?>
 		<footer>In <?=$this::link($post->category_name, $post->catUrl())?> | <a href="<?=$post->url('#comments')?>"><?=count($post->comments)?> comments</a></footer>

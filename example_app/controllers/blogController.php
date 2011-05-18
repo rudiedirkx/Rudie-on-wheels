@@ -229,10 +229,15 @@ class blogController extends \app\specs\Controller {
 		exit('Showing the '.$num.' best posts...');
 	}
 
+	public function viewByTitle( $post ) {
+		$post = models\Post::one(array('original_slug' => $post));
+		return $this->view($post);
+	}
+
 	// Most 'logic' and information comes from the Post Model
 	public function view( $post ) {
 
-		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
+		is_object($post) or $post = $this->getPost((int)$post); // might throw a NotFound, which is caught outside the application
 //		$post->_fill(array('oele' => 'boele'));
 
 		if ( !empty($_POST['body']) ) {

@@ -48,13 +48,15 @@ class Chain {
 	}
 
 	public function add( Closure $event, $name = '' ) {
-		return array_push($this->events, array($event, $name));
+		$name or $name = 'custom'.rand(0, 9999);
+		array_push($this->events, array($name, $event));
+		return $name;
 	}
 
 	public function first( Closure $event ) {
 		if ( !$this->first ) {
 			$this->first = true;
-			array_unshift($this->events, array($event, 'native')); // at position 0
+			array_unshift($this->events, array('native', $event)); // at position 0
 		}
 		return $this;
 	}
@@ -65,7 +67,7 @@ class Chain {
 //$this->verbose('Trying to get event # '.$this->event);
 		if ( isset($this->events[$this->event]) ) {
 //$this->verbose('Event exists. Chain continues');
-			return $this->events[$this->event][0];
+			return $this->events[$this->event][1];
 		}
 //$this->verbose('Event not found. Chain exists??');
 	}
@@ -74,7 +76,7 @@ class Chain {
 	public function remove( $name ) {
 		if ( $name ) {
 			foreach ( $this->events AS $i => $event ) {
-				if ( $event[1] === $name ) {
+				if ( $event[0] === $name ) {
 					array_splice($this->events, $i, 1);
 					break;
 				}
