@@ -8,6 +8,8 @@ use \Exception;
 
 class User extends Model implements VisitableRecord {
 
+	static public $chain;
+
 	static public $_table = 'users';
 	static public $_pk = 'user_id';
 	static public $_title = 'full_name';
@@ -100,10 +102,5 @@ class User extends Model implements VisitableRecord {
 	}
 
 }
-
-User::event('construct', function($self, $args, $chain) {
-	echo "\n\nin User->construct event\n\n";
-	return $chain($self, $args);
-});
 
 

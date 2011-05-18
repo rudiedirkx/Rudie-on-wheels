@@ -10,7 +10,9 @@ use row\core\Chain;
 
 class ModelException extends RowException {}
 
-class Model extends ModelParent {
+abstract class Model extends ModelParent {
+
+	static public $chain;
 
 	public function __tostring() {
 		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};
@@ -189,8 +191,7 @@ class Model extends ModelParent {
 	 */
 	static public function _update( $values, $conditions, $params = array() ) {
 		$chain = static::event(__FUNCTION__);
-		$chain->first(function($self, $args, $chain) {
-echo "in native '_update' event\n";
+		$chain->first(function($self, $args, $chain, $native = true) {
 
 			// actual methods body //
 			if ( $self::dbObject()->update($self::$_table, $args->values, $args->conditions, $args->params) ) {
@@ -200,7 +201,7 @@ echo "in native '_update' event\n";
 			// actual methods body //
 
 		});
-		return $chain(get_called_class(), options(compact('values', 'conditions', 'params')));
+		return $chain->start(get_called_class(), options(compact('values', 'conditions', 'params')));
 	}
 
 	/**
@@ -208,18 +209,17 @@ echo "in native '_update' event\n";
 	 */
 	static public function _insert( $values ) {
 		$chain = static::event(__FUNCTION__);
-		$chain->first(function($self, $args, $chain) {
-echo "in native '_insert' event\n";
+		$chain->first(function($self, $args, $chain, $native = true) {
 
-			// actual methods body //
+			// actual method body //
 			if ( $self::dbObject()->insert($self::$_table, $args->values) ) {
 				return (int)$self::dbObject()->insertId();
 			}
 			return false;
-			// actual methods body //
+			// actual method body //
 
 		});
-		return $chain(get_called_class(), options(compact('values')));
+		return $chain->start(get_called_class(), options(compact('values')));
 	}
 
 	/**
@@ -238,13 +238,19 @@ echo "in native '_insert' event\n";
 	 * 
 	 */
 	public function __construct( $init = false ) {
-		if ( true === $init || is_array($init) ) {
-			$this->_fill($init);
-		}
-
 		$chain = static::event('construct');
-print_r($chain);
-		return $chain($this);
+		$chain->first(function($self, $args, $chain) {
+
+			// actual method body //
+			if ( true === $args->init || is_array($args->init) ) {
+				$self->_fill($args->init);
+			}
+			// actual method body //
+
+			// no chain->next
+			// no return (cos it's __construct)
+		});
+		return $chain->start($this, options(compact('init')));
 	}
 
 	/**
@@ -252,8 +258,7 @@ print_r($chain);
 	 */
 	public function _fill( $data ) {
 		$chain = static::event('fill');
-		$chain->first(function($self, $args, $chain) {
-echo "in native '_fill' event\n";
+		$chain->first(function($self, $args, $chain, $native = true) {
 
 			// actual methods body //
 			if ( is_array($args) ) {
@@ -262,13 +267,13 @@ echo "in native '_fill' event\n";
 						$self->$k = $v;
 					}
 				}
+				return true;
 			}
+			return false;
 			// actual methods body //
 
 		});
-print_r($chain);
-//echo '# of '.$chain->class.'->'.$chain->type.' events: '.count($chain->events)."\n";
-		return $chain($this, options(compact('data')));
+		return $chain->start($this, options(compact('data')));
 	}
 
 
@@ -351,7 +356,7 @@ var_dump($class, $eventIndex);
 				$r = call_user_func(array($class, $retrievalMethod), $conditions);
 
 
-				/* experimental */
+				/* experimental *
 				unset($class::$_on['init']['_model']);
 				/* experimental */
 
@@ -390,20 +395,18 @@ var_dump($class, $eventIndex);
 	 */
 	public function update( $values ) {
 		$chain = static::event(__FUNCTION__);
-		$chain->first(function($self, $args, $chain) {
-echo "in native 'update' event\n";
+		$chain->first(function($self, $args, $chain, $native = true) {
 
 			// actual methods body //
 			if ( !is_scalar($args->values) ) {
 				$self->_fill((array)$args->values);
 			}
 			$conditions = $self->_pkValue(true);
-//print_r($args->values, $conditions);
 			return $self::_update($args->values, $conditions);
 			// actual methods body //
 
 		});
-		return $chain($this, options(compact('values')));
+		return $chain->start($this, options(compact('values')));
 	}
 
 	/**

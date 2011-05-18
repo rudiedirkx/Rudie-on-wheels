@@ -6,10 +6,11 @@ use \Exception;
 use \Closure;
 
 class RowException extends Exception {}
+class ChainException extends RowException {}
 
 abstract class Object {
 
-	static public $events; // typeof Chain
+	static public $chain; // typeof Chain
 
 	static public function event( $type, Closure $event = null ) {
 		// add 1 Event to several types
@@ -21,17 +22,23 @@ abstract class Object {
 		}
 
 		// create new Chain for this type
-		if ( !isset(static::$events[$type]) ) {
-			static::$events[$type] = new Chain($type, get_called_class());
+		if ( !isset(static::$chain[$type]) ) {
+			static::$chain[$type] = new Chain($type, get_called_class());
+		}
+		// check Chain's base class
+		else {
+			if ( get_called_class() !== static::$chain[$type]->class ) {
+				throw new ChainException("Class '".get_called_class()."' wasn't configured (correctly) for Events");
+			}
 		}
 
 		// return Chain
 		if ( null === $event ) {
-			return static::$events[$type];
+			return static::$chain[$type];
 		}
 
 		// add 1 Event to 1 type
-		return static::$events[$type]->add($event);
+		return static::$chain[$type]->add($event);
 	}
 
 	protected function _init() {}

@@ -233,7 +233,7 @@ class blogController extends \app\specs\Controller {
 	public function view( $post ) {
 
 		$post = $this->getPost($post); // might throw a NotFound, which is caught outside the application
-		$post->_fill(array('oele' => 'boele'));
+//		$post->_fill(array('oele' => 'boele'));
 
 		if ( !empty($_POST['body']) ) {
 			$post->update(array('body' => $_POST['body']));
@@ -301,7 +301,7 @@ echo '<pre>time() = '.time()."\n";
 //			$post = models\Post::get($post);
 			return $post;
 		}
-		catch ( \Exception $ex ) {
+		catch ( \row\database\ModelException $ex ) {
 			throw new NotFoundException('Blog post # '.$post);
 		}
 	}

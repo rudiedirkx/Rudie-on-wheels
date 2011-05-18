@@ -11,6 +11,8 @@ use app\specs\Output;
 
 class Post extends Model {
 
+	static public $chain;
+
 	static public $_table = 'posts';
 	static public $_pk = 'post_id';
 	static public $_title = 'title';
@@ -97,6 +99,7 @@ class Post extends Model {
 
 }
 
+/**/
 Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
 	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
 		$args->values['original_slug'] = Output::slugify($args->values['title']);
@@ -104,13 +107,15 @@ Post::event(array('update', '_update', '_insert'), function( $self, $args, $chai
 	return $chain($self, $args);
 });
 
+/**/
 Post::event('fill', function($self, $args, $chain) {
-echo "FILL args: "; print_r(func_get_args());
 	$self->is_published = (bool)$self->is_published;
 
 	if ( isset($args->data['created_on']) || !$self->_created_on ) {
 		$self->_created_on = new DateTime($self->created_on);
 	}
+	return $chain($self, $args);
 });
+/**/
 
 

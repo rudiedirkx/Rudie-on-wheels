@@ -10,6 +10,8 @@ use \Exception;
 
 class Comment extends Model {
 
+	static public $chain;
+
 	static public $_table = 'comments';
 
 	static public $_pk = 'comment_id';
@@ -93,16 +95,19 @@ class Comment extends Model {
 
 }
 
+/**/
 Comment::event('insert', function( $self, $args, $chain ) {
 	$args->values['created_by_ip'] = 'WOOHOO';
 	return $chain($self, $args);
 });
 
+/**/
 Comment::event('fill', function( $self, $args, $chain ) {
 	if ( isset($args->data['created_on']) || !$self->_created_on ) {
 		$self->_created_on = new DateTime($self->created_on);
 	}
 	return $chain($self, $args);
 });
+/**/
 
 
