@@ -13,6 +13,7 @@ class SQLite extends Adapter {
 	/* Reflection */
 	public function _getTables() {
 		$tables = $this->selectFieldsNumeric('sqlite_master', 'name', array('type' => 'table'));
+		usort($tables, 'strcasecmp');
 		return $tables;
 	}
 

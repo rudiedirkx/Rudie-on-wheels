@@ -14,6 +14,7 @@ class MySQL extends Adapter {
 		$tables = array_map(function($r) {
 			return reset($r);
 		}, $tables);
+		usort($tables, 'strcasecmp');
 		return $tables;
 	}
 
