@@ -58,7 +58,7 @@ $('content').bind('dblclick', function(e) {
 		var o = JSON.parse(t);
 		if ( o ) {
 			self.oldInnerHTML = self.html();
-			self.html('<form method=post onsubmit="return $.ajax(this.action, function(t){ $(\'content\').html(t); }, this.serialize());"><textarea name=body></textarea><br><input type=submit> <a href="javascript:void(0);" onclick="this.parent(\'content\').html(function(obj){ return obj.oldInnerHTML; });">cancel</a></form>');
+			self.html('<form method=post onsubmit="return $.ajax(this.action, function(t){ $(\'content\').html(t).oldInnerHTML=false; }, this.serialize());"><textarea name=body></textarea><br><input type=submit> <a href="javascript:void(0);" onclick="this.parent(\'content\').html(function(obj){ return obj.oldInnerHTML; }).oldInnerHTML=false;">cancel</a></form>');
 			self.one('textarea').value = o.body;
 		}
 		else {
