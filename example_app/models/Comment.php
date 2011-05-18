@@ -13,10 +13,10 @@ Comment::event('insert', function( $self, $args, $chain ) {
 	return $chain($self, $args);
 });
 
-Comment::event('construct', function( $self, $args, $chain ) {
-echo "\n\nEVENT 'construct'\n\n";
-	$self->created_on = new DateTime($this->created_on);
-echo "\n\nEVENT 'construct'\n\n";
+Comment::event('fill', function( $self, $args, $chain ) {
+	if ( isset($args->data['created_on']) || !$self->_created_on ) {
+		$self->_created_on = new DateTime($self->created_on);
+	}
 	return $chain($self, $args);
 });
 
@@ -31,11 +31,11 @@ class Comment extends Model {
 		'post' => array( self::GETTER_ONE, true, 'app\models\Post', 'post_id', 'post_id' ),
 	);
 
-	protected function _post_fill( $data ) {
+/*	protected function _post_fill( $data ) {
 		if ( isset($data['created_on']) ) {
 			$this->_created_on = new DateTime($this->created_on);
 		}
-	}
+	}*/
 
 	public function canEdit() {
 		$sessionUser = SessionUser::user();

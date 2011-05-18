@@ -236,6 +236,7 @@ class blogController extends \app\specs\Controller {
 
 		if ( !empty($_POST['body']) ) {
 			$post->update(array('body' => $_POST['body']));
+			return Output::markdown($post->body);
 		}
 
 		if ( !empty($_GET['json']) ) {

@@ -1,20 +1,24 @@
 
-window.$ = function(q) {
+$ = function(q) {
 	if ( 'function' == typeof q ) {
 		if ( 'complete' == document.readyState ) {
 			q();
 			return;
 		}
-		window.bind('load', q);
+		this.bind('load', q);
 		return;
 	}
 	return document.querySelector(q);
 }
-HTMLElement.prototype.$ = function(q) {
+document.$ = $;
+HTMLElement.prototype.one = function(q) {
+	if ( 'string' != typeof q ) {
+		return q;
+	}
 	return this.querySelector(q);
 };
 
-window.A = function(arr) {
+A = function(arr) {
 	try {
 		return Array.prototype.slice.call(arr);
 	}
@@ -26,11 +30,21 @@ window.A = function(arr) {
 	}
 };
 
-window.$$ = function(q) {
+Array.prototype.contains = function(el) {
+	for ( var L=this.length, i=0; i<L; i++ ) {
+		if ( el == this[i] ) {
+			return true;
+		}
+	}
+	return false;
+};
+
+$$ = function(q) {
 	return A(document.querySelectorAll(q), 0);
 }
-HTMLElement.prototype.$$ = function(q) {
-	return this.querySelectorAll(q);
+document.$$ = $$;
+HTMLElement.prototype.all = function(q) {
+	return A(this.querySelectorAll(q));
 };
 
 Array.prototype.each = Array.prototype.forEach;
@@ -77,13 +91,34 @@ HTMLElement.prototype.next = function() {
 };
 HTMLElement.prototype.html = function(html) {
 	if ( html != null ) {
+		if ( 'function' == typeof html ) {
+			html = html(this);
+		}
 		this.innerHTML = html;
 		return this;
 	}
 	return this.innerHTML;
 };
 
-window.$.ajax = function(url, handler, data) {
+HTMLElement.prototype.is = function(q) {
+	return this.parentNode.all(q).contains(this);
+};
+HTMLElement.prototype.parent = function(q) {
+	if ( !q ) {
+		return this.parentNode;
+	}
+	var p = this.parentNode;
+	try {
+		while ( p && !p.is(q) ) {
+			p = p.parentNode;
+		}
+		return p;
+	}
+	catch (ex) {}
+	return false;
+};
+
+$.ajax = function(url, handler, data) {
 	var xhr = new XMLHttpRequest,
 		method = data ? 'POST' : 'GET';
 	xhr.open(method, url);

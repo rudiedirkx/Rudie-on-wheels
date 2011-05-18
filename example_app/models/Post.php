@@ -9,17 +9,19 @@ use app\specs\SessionUser;
 use row\utils\Inflector;
 use app\specs\Output;
 
-/*Post::event('_insert', function( $self, $args, $chain ) {
-	$args->values['original_slug'] = Output::slugify($args->values['title']);
-	return $chain($self, $args);
-});*/
-
 Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
-//var_dump($self, $args);
 	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
 		$args->values['original_slug'] = Output::slugify($args->values['title']);
 	}
 	return $chain($self, $args);
+});
+
+Post::event('fill', function($self, $args, $chain) {
+	$self->is_published = (bool)$self->is_published;
+
+	if ( isset($args->data['created_on']) || !$self->_created_on ) {
+		$self->_created_on = new DateTime($self->created_on);
+	}
 });
 
 class Post extends Model {
@@ -68,14 +70,14 @@ class Post extends Model {
 		return $sessionUser->userID() === (int)$this->author_id || $sessionUser->hasAccess('blog edit posts');
 	}
 
-	public function _post_fill( $data ) {
+/*	protected function _post_fill( $data ) {
 		if ( isset($data['is_published']) ) {
 			$this->is_published = (bool)$this->is_published; // because a Bool is prettier than a '0' or '1'
 		}
 		if ( isset($data['created_on']) ) {
 			$this->_created_on = new DateTime($this->created_on);
 		}
-	}
+	}*/
 
 
 	public function url( $more = '' ) {

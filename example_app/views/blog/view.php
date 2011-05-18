@@ -50,11 +50,15 @@ use row\utils\Inflector;
 <?$this->section()?>
 $('content').bind('dblclick', function(e) {
 	var self = this;
+	if ( self.oldInnerHTML ) {
+		return;
+	}
 	$.ajax('<?=$post->url('?json=1')?>', function(t) {
 		var o = JSON.parse(t);
 		if ( o ) {
-			self.html('<form method=post><textarea name=body></textarea><br><input type=submit></form>');
-			self.$('textarea').value = o.body;
+			self.oldInnerHTML = self.html();
+			self.html('<form method=post onsubmit="return $.ajax(this.action, function(t){ $(\'content\').html(t); }, this.serialize());"><textarea name=body></textarea><br><input type=submit> <a href="javascript:void(0);" onclick="this.parent(\'content\').html(function(obj){ return obj.oldInnerHTML; });">cancel</a></form>');
+			self.one('textarea').value = o.body;
 		}
 		else {
 			alert("Que?\n\n" + t);

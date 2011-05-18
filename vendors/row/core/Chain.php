@@ -9,6 +9,7 @@ class Chain {
 	public $type = '';
 	public $class = '';
 	public $events = array();
+	public $event = -1;
 
 	public function __construct( $type, $class ) {
 		$this->type = $type;
@@ -16,6 +17,7 @@ class Chain {
 	}
 
 	public function start( $self, $args ) {
+echo $this->class.' -> '.$this->type.': '; print_r($this->events);
 		return $this->next($self, $args, $this);
 	}
 
@@ -28,7 +30,7 @@ class Chain {
 	}
 
 	public function __invoke( $self, $args ) {
-		return $this->next($self, $args);
+		return $this->start($self, $args);
 	}
 
 	public function add( Closure $event ) {
@@ -41,7 +43,9 @@ class Chain {
 
 
 	public function pop() {
-		return array_pop($this->events);
+		if ( isset($this->events[++$this->event]) ) {
+			return $this->events[$this->event];
+		}
 	}
 
 	public function shift() {

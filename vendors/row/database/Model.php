@@ -236,35 +236,33 @@ class Model extends ModelParent {
 	 * 
 	 */
 	public function __construct( $init = false ) {
-		if ( true === $init ) { // Inited by database\Adapter
-			$this->_fire('post_fill', array((array)$this));
-		}
-		else if ( is_array($init) ) { // Inited manually with data
+		if ( true === $init || is_array($init) ) {
 			$this->_fill($init);
-			$this->_fire('post_fill', array($init));
 		}
 
-		/* experimental *
-		if ( isset($this::$_on['init']) ) {
-			foreach ( $this::$_on['init'] AS $cb ) {
-//				$cb($this);
-			}
-		}
-		/* experimental */
-
-		$this->_fire('init');
+		$chain = static::event('construct');
+		return $chain($this, options(compact('init')));
 	}
 
 	/**
 	 * 
 	 */
 	public function _fill( $data ) {
-		foreach ( (array)$data AS $k => $v ) {
-			if ( $k || '0' === $k ) {
-				$this->$k = $v;
+		$chain = static::event('fill');
+		$chain->first(function($self, $args, $chain) {
+
+			// actual methods body //
+			if ( is_array($args) ) {
+				foreach ( (array)$args->data AS $k => $v ) {
+					if ( $k || '0' === (string)$k ) {
+						$self->$k = $v;
+					}
+				}
 			}
-		}
-		$this->_fire('post_fill', array((array)$data));
+			// actual methods body //
+
+		});
+		return $chain($this, options(compact('data')));
 	}
 
 
@@ -320,7 +318,7 @@ class Model extends ModelParent {
 				$retrievalMethod = $retrievalMethods[$type];
 
 
-				/* experimental */
+				/* experimental *
 				$_name = '_parent';
 				if ( isset($getter[4]) ) {
 					$cc = get_called_class();
@@ -391,9 +389,9 @@ var_dump($class, $eventIndex);
 			// actual methods body //
 			if ( !is_scalar($args->values) ) {
 				$self->_fill((array)$args->values);
-				$self->_fire('post_fill', array($args->values));
 			}
 			$conditions = $self->_pkValue(true);
+print_r($args->values, $conditions);
 			return $self::_update($args->values, $conditions);
 			// actual methods body //
 
