@@ -41,6 +41,15 @@ abstract class Object {
 		return static::$chain[$type]->add($event, $name);
 	}
 
+	public function _chain( $type, Closure $event = null, array $args = array() ) {
+		$event or $event = function() {};
+
+		$chain = static::event($type);
+		$chain->first($event);
+
+		return $chain->start($this, options($args));
+	}
+
 	protected function _init() {}
 
 	public function _exists( $k ) {

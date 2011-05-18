@@ -404,26 +404,30 @@ abstract class Model extends ModelParent {
 	 * 
 	 */
 	public function update( $values ) {
-		$chain = static::event(__FUNCTION__);
-		$chain->first(function($self, $args, $chain, $native = true) {
+		return $this->_chain(__FUNCTION__, function($self, $args, $chain, $native = true) {
 
-			// actual methods body //
+			// actual method body //
 			if ( is_array($args->values) ) {
 				$self->_fill((array)$args->values);
 			}
 			$conditions = $self->_pkValue(true);
 			return $self::_update($args->values, $conditions);
-			// actual methods body //
+			// actual method body //
 
-		});
-		return $chain->start($this, options(compact('values')));
+		}, compact('values'));
 	}
 
 	/**
 	 * 
 	 */
 	public function delete() {
-		return $this::_delete($this->_pkValue(true));
+		return $this->_chain(__FUNCTION__, function($self, $args, $chain, $native = true) {
+
+			// actual method body //
+			return $self::_delete($self->_pkValue(true));
+			// actual method body //
+
+		});
 	}
 
 

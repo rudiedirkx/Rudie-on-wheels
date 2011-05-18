@@ -98,7 +98,7 @@ class Post extends Model {
 }
 
 /**/
-Post::event(array('update', '_update', '_insert'), function( $self, $args, $chain ) {
+Post::event(array(/*'update', '_update',*/ '_insert'), function( $self, $args, $chain ) {
 	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
 		$args->values['original_slug'] = Output::slugify($args->values['title']);
 	}
@@ -108,7 +108,7 @@ Post::event(array('update', '_update', '_insert'), function( $self, $args, $chai
 /**/
 Post::event(array('update'), function( $self, $args, $chain ) {
 	if ( isset($args->values['body']) ) {
-		$args->values['body'] .= "\n\n<small>edited on ".date('Y-m-d H:i:s')." =)</small>";
+		$args->values['body'] .= "\n\n<small>edited on ".gmdate('Y-m-d H:i:s')." =)</small>";
 	}
 	return $chain($self, $args);
 });
