@@ -6,7 +6,7 @@ use app\specs\Model;
 
 class Domain extends Model {
 
-	static public $chain;
+	static public $events;
 
 	static public $_table = 'domains';
 	static public $_pk = 'domain_id';

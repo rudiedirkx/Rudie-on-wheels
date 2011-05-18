@@ -7,6 +7,8 @@ use row\core\Options;
 
 class Router extends Object {
 
+	static public $events;
+
 	public $routes = array();
 
 	public $dispatcher;

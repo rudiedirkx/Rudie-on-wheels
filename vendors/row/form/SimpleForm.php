@@ -8,6 +8,8 @@ use row\Output;
 
 abstract class SimpleForm extends \row\Component {
 
+	static public $events;
+
 	public $_elements = array(); // internal cache
 	abstract protected function elements( $defaults = null );
 

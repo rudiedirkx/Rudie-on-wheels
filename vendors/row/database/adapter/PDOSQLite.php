@@ -6,6 +6,8 @@ use row\database\adapter\PDO;
 
 class PDOSQLite extends PDO {
 
+	static public $events;
+
 	/* Reflection */
 	public function _getTables() {
 		$tables = $this->selectFieldsNumeric('sqlite_master', 'name', array('type' => 'table'));

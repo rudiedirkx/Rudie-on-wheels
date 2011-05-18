@@ -4,8 +4,11 @@ namespace row\utils;
 
 use email\Html2text;
 use email\PHPMailerLite;
+use row\core\Options;
 
 class Email extends \row\core\Object {
+
+	static public $events;
 
 	/* non-static */
 
@@ -22,30 +25,32 @@ class Email extends \row\core\Object {
 	public $returnPath = '';
 
 	public function __construct( $to, $subject, $body, $options = array() ) {
-		is_a($options, 'row\core\Options') or $options = \row\core\Options::make($options);
-		$this->options = $options;
+		$this->_fire('construct', function($self, $args, $chain) {
+			extract((array)$args);
 
-		$this->to = $to;
-		$this->subject = $subject;
+			$options = Options::make($options);
+			$this->options = $options;
 
-		$sendAsHtml = $options->get('sendAsHtml', static::$_sendAsHtml);
-		$sendAsText = $options->get('sendAsText', static::$_sendAsText);
-		if ( $sendAsHtml && $sendAsText ) {
-			$this->html = $body;
-			$this->text = Html2text::quick($html);
-		}
-		else if ( $sendAsHtml ) {
-			$this->html = $body;
-		}
-		else if ( $sendAsText ) {
-			$this->text = $body;
-		}
+			$this->to = $to;
+			$this->subject = $subject;
 
-		$this->from = (array)( $options->from ?: static::$_from );
-		$this->replyTo = (array)( $options->replyTo ?: static::$_replyTo ?: $from );
-		$this->returnPath = (array)( $options->returnPath ?: static::$_returnPath ?: $replyTo );
+			$sendAsHtml = $options->get('sendAsHtml', static::$_sendAsHtml);
+			$sendAsText = $options->get('sendAsText', static::$_sendAsText);
+			if ( $sendAsHtml && $sendAsText ) {
+				$this->html = $body;
+				$this->text = Html2text::quick($html);
+			}
+			else if ( $sendAsHtml ) {
+				$this->html = $body;
+			}
+			else if ( $sendAsText ) {
+				$this->text = $body;
+			}
 
-		$this->_fire('init');
+			$this->from = (array)( $options->from ?: static::$_from );
+			$this->replyTo = (array)( $options->replyTo ?: static::$_replyTo ?: $from );
+			$this->returnPath = (array)( $options->returnPath ?: static::$_returnPath ?: $replyTo );
+		}, compact('to', 'subject', 'body', 'options'));
 	}
 
 	public function send() {

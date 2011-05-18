@@ -21,6 +21,8 @@ class OutputException extends RowException {}
 
 class Output extends \row\Component {
 
+	static public $events;
+
 	static public $_application;
 
 	public $_exceptionClass = 'row\OutputException';
@@ -38,15 +40,19 @@ class Output extends \row\Component {
 	public $sections = array('javascript' => array(), 'css' => array());
 	public $viewFile = '';
 
-	public function _init() {
-		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
-		$this::$_application = $this->application;
+	public function __construct( $app, $options = array() ) {
+		parent::__construct($app, $options);
 
-		// The most sensible views location
-		$this->viewsFolder = ROW_APP_PATH.'/views';
+		$this->_fire('construct', function($self, $args, $chain) {
+			// This is the only way to make the static Output methods aware of the Application & Dispatcher?
+			$self::$_application = $self->application;
 
-		// Make sure the content and title vars exist
-		$this->vars[$this::$_var_content] = $this->vars[$this::$_var_title] = '';
+			// The most sensible views location
+			$self->viewsFolder = ROW_APP_PATH.'/views';
+
+			// Make sure the content and title vars exist
+			$self->vars[$self::$_var_content] = $self->vars[$self::$_var_title] = '';
+		});
 	}
 
 	public function assign( $key, $val = null ) {

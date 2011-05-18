@@ -22,7 +22,7 @@ use row\utils\Inflector;
 	</h1>
 
 	<section class="article">
-		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->created_on//->format('Y-m-d H:i:s')?></em> in category <em><?=$this::link($post->category_name, $post->catUrl())?></em><?if($post->canEdit()):?> (<?=$this::link('edit', 'blog/edit-post/'.$post->post_id)?>)<?endif?>.</footer>
+		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em> in category <em><?=$this::link($post->category_name, $post->catUrl())?></em><?if($post->canEdit()):?> (<?=$this::link('edit', 'blog/edit-post/'.$post->post_id)?>)<?endif?>.</footer>
 		<content><?=$this->markdown($post->body)."\n"?></content>
 	</section>
 	<a id="comments"></a>
@@ -34,7 +34,7 @@ use row\utils\Inflector;
 					<?=$this::link('# '.($n+1), $comment->url(), array('id' => 'comment-'.$comment->comment_id))?>
 					<em><?=$this::ajaxLink($comment->author->full_name, $comment->author->url())?></em>
 					said on
-					<em><?=$comment->created_on//->format('Y-m-d H:i:s')?></em>:
+					<em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:
 				</h3>
 				<?=$this->markdown($comment->comment)?>
 				<?if( $comment->canEdit() ):?>

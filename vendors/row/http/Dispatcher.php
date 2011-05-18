@@ -11,6 +11,8 @@ class NotFoundException extends RowException {}
 
 class Dispatcher extends Object {
 
+	static public $events;
+
 	// The path to the Action (e.g. "/" or "/blog/categories" or "/blogs-12-admin/users/jim")
 	public $requestPath = false;
 	// The path up to the application (e.g.: "" or "/admin")
@@ -104,16 +106,12 @@ class Dispatcher extends Object {
 
 
 	public function __construct( $options = array() ) {
-		$defaults = $this->getDefaultOptions();
-		$this->options = new Options($options, $defaults);
+		$this->_fire('construct', function($self, $args, $chain) {
+			$defaults = $self->getDefaultOptions();
+			$self->options = new Options($args->options, $defaults);
 
-		$this->cacheLoad();
-
-		$this->_fire('init');
-	}
-
-	protected function _init() {
-		
+			$self->cacheLoad();
+		}, compact('options'));
 	}
 
 	protected function _post_dispatch() {
@@ -382,7 +380,7 @@ class Dispatcher extends Object {
 		$namespacedModuleClass = $this->getControllerClassName($module);
 		if ( class_exists($namespacedModuleClass) ) {
 			$application = new $namespacedModuleClass($this);
-			$application->_fire('init');
+			$application->_fire('construct');
 			return $application;
 		}
 	}

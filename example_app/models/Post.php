@@ -11,7 +11,7 @@ use app\specs\Output;
 
 class Post extends Model {
 
-	static public $chain;
+	static public $events;
 
 	static public $_table = 'posts';
 	static public $_pk = 'post_id';
