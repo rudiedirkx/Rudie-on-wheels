@@ -2,7 +2,7 @@
 html, body { margin:0; padding:0; }
 html { height: 100%; overflow-y: scroll; }
 body { min-height: 100%; }
-body > .body { padding: 30px; }
+body > .body { padding: 30px; max-width: 1200px; margin: 0 auto; }
 #messages { cursor:pointer; margin:0; padding:15px 0; width:100%; position:fixed; top:0; left:0; background-color:rgba(160, 160, 160, 0.9); font-size:18px; text-shadow:1px 1px 1px #777; }
 #messages > li { padding:5px 20px; }
 #messages > li.error { color:red; }

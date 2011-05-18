@@ -1,4 +1,3 @@
-
 <?php
 use row\utils\Inflector;
 ?>

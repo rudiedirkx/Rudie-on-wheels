@@ -50,7 +50,30 @@ HTMLElement.prototype.all = function(q) {
 Array.prototype.each = Array.prototype.forEach;
 Object.prototype.bind = function(type, event) { // Object so Window inherits it too
 	this.addEventListener(type, event, false);
+	return this;
 };
+Object.prototype.invoke = function(method, args) {
+	this[method].apply(this, args);
+	return this;
+};
+Array.prototype.invoke = function(method, args) {
+	this.each(function(el) {
+		el[method].apply(el, args);
+	});
+	return this;
+};
+Array.prototype.bind = function(type, fn) {
+	return this.invoke('bind', [type, fn]);
+};
+
+HTMLElement.prototype.attr = function(key, val) {
+	if ( val === undefined ) {
+		return this.getAttribute(key);
+	}
+	this.setAttribute(key, val);
+	return this;
+};
+
 HTMLElement.prototype.serialize = function() {
 	var v = [];
 	A(this.elements).forEach(function(el, i) {
@@ -118,13 +141,23 @@ HTMLElement.prototype.parent = function(q) {
 	return false;
 };
 
-$.ajax = function(url, handler, data) {
+$.ajax = function(url, handler, data, options) {
 	var xhr = new XMLHttpRequest,
 		method = data ? 'POST' : 'GET';
 	xhr.open(method, url);
 	xhr.setRequestHeader('Ajax', '1');
 	if ( data ) {
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	}
+	if ( options ) {
+		try {
+			for ( x in options ) {
+				if ( options.hasOwnProperty(x) ) {
+					xhr[x] = options[x];
+				}
+			}
+		}
+		catch (ex) { alert(ex.message); }
 	}
 	xhr.onreadystatechange = function(e) {
 		if ( 4 === this.readyState ) {
@@ -133,6 +166,7 @@ $.ajax = function(url, handler, data) {
 		}
 	};
 	xhr.send(data || '');
+console.log(xhr);
 	return false;
 }
 
