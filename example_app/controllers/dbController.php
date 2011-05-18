@@ -11,11 +11,11 @@ use app\models\User;
 
 class dbController extends Controller {
 
-	static $config = array(
+	protected $config = array(
 		'oele' => 'boele',
 	);
 
-	static $_actions = array(
+	protected $_actions = array(
 		'/' => 'index',
 		'/index' => 'index',
 		'/in' => 'in',
