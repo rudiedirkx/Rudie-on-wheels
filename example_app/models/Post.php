@@ -66,7 +66,8 @@ class Post extends Model {
 
 
 	public function url( $more = '' ) {
-		return 'blog/view/' . $this->post_id . '/' . Inflector::slugify($this->title) . $more;
+		$slug = $this->original_slug;//Inflector::slugify($this->title);
+		return 'blog/view/' . $this->post_id . '/' . $slug . $more;
 	}
 
 	public function catUrl() {
@@ -100,7 +101,23 @@ class Post extends Model {
 /**/
 Post::event(array(/*'update', '_update',*/ '_insert'), function( $self, $args, $chain ) {
 	if ( isset($args->values['title']) && !isset($args->values['original_slug']) ) {
-		$args->values['original_slug'] = Output::slugify($args->values['title']);
+		$slug = Output::slugify($args->values['title']);
+//var_dump($slug);
+		$slugs = Post::all("original_slug LIKE ?", $slug.'%');
+		if ( $slugs ) {
+			$nums = array();
+			$slugs = array_map(function( $post ) use( $slug, &$nums ) {
+				$nums[] = (int)substr($post->original_slug, strlen($slug)+1);
+				return $post->original_slug;
+			}, $slugs);
+			rsort($nums, SORT_NUMERIC);
+//print_r($slugs);
+//print_r($nums);
+			$slug .= '-'.($nums[0]+1);
+//var_dump($slug);
+		}
+//exit;
+		$args->values['original_slug'] = $slug;
 	}
 	return $chain($self, $args);
 });
