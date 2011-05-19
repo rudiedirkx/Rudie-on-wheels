@@ -96,6 +96,13 @@ abstract class Controller extends Object {
 		}
 	}
 
+	protected function _internal( $location ) {
+		if ( is_string($location) ) {
+			$application = $this->_dispatcher->getApplication($location);
+			return $application->_run();
+		}
+	}
+
 	protected function _download( $filename, $contentType = 'text/plain' ) {
 		header('Content-type: '.$contentType);
 		header('Content-Disposition: attachment; filename="'.addslashes($filename).'"');

@@ -414,9 +414,17 @@ class Dispatcher extends Object {
 				else {
 					$this->_action = $this->actionFunctionTranslation($this->_action);
 				}
+				if ( $this->options->restful && isset($_SERVER['REQUEST_METHOD']) ) {
+					$pa = $this->_action;
+					$this->_action = $_SERVER['REQUEST_METHOD'].'_'.$this->_action;
+				}
 
 				// 7. 
 				if ( $this->isCallableActionFunction($application, $this->_action) ) {
+					return $application;
+				}
+				else if ( isset($pa) && $this->isCallableActionFunction($application, $pa) ) {
+					$this->_action = $pa;
 					return $application;
 				}
 			}

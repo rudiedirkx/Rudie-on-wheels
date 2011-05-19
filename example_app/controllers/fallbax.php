@@ -13,6 +13,12 @@ class fallbax extends \app\specs\Controller {
 		$this->_dispatcher->options->restful = true;
 	}
 
+	public function GET_mobile() { // REST style. Why? No idea. Because we can!
+echo "// MOBILE //\n";
+		$path = implode('/', func_get_args());
+		return $this->_internal($path);
+	}
+
 	public function code() {
 		$post = options($_POST);
 		if ( $post->code ) {
