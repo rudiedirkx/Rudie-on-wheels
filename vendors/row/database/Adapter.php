@@ -17,8 +17,6 @@ class DatabaseException extends RowException {}
 
 abstract class Adapter extends \row\core\Object {
 
-	static public $events;
-
 	/* Reflection */ // Should this be put somewhere else?
 	abstract public function _getTables();
 	abstract public function _getTableColumns( $table );
@@ -33,9 +31,9 @@ abstract class Adapter extends \row\core\Object {
 	abstract public function escapeValue( $value );
 
 	public $queries = array();
-	public $db;
-	public $_connected;
-	public $connectionArgs;
+	protected $db;
+	protected $_connected;
+	protected $connectionArgs;
 	public $throwExceptions = true;
 	public $logErrors = false;
 
@@ -44,13 +42,12 @@ abstract class Adapter extends \row\core\Object {
 	}
 
 	public function __construct( $connection, $connect = true ) {
-		$this->_fire('construct', function($self, $args, $chain) {
-			$self->connectionArgs = Options::make($args->connection, Options::make(array('host' => 'localhost')));
-			if ( $args->connect ) {
-				$self->connect();
-				$self->connectionArgs = null;
-			}
-		}, compact('connection', 'connect'));
+		$this->connectionArgs = Options::make($connection, Options::make(array('host' => 'localhost')));
+		if ( $connect ) {
+			$this->connect();
+			$this->connectionArgs = null;
+		}
+		$this->_fire('init');
 	}
 
 	public function quoteValue( $value ) {

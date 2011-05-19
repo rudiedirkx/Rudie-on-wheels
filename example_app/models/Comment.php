@@ -10,7 +10,7 @@ use \Exception;
 
 class Comment extends Model {
 
-	static public $events;
+	static public $chain;
 
 	static public $_table = 'comments';
 

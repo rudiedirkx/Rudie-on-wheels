@@ -8,8 +8,6 @@ use \Exception;
 
 abstract class SessionUser extends Object {
 
-	static public $events;
-
 	static public function user() {
 		static $su;
 		if ( empty($su) ) {
@@ -26,9 +24,14 @@ abstract class SessionUser extends Object {
 	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
 
 	public function __construct() {
-		$this->_fire('construct', function($self, $args, $chain) {
-			$self->validate();
-		});
+		$this->_fire('init');
+	}
+
+	// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
+	public function _init() {
+		// _SESSION not required
+		// But try to validate =)
+		$this->validate();
 	}
 
 	// Step 1: login (once per session)

@@ -22,6 +22,15 @@ namespace app\specs;
 
 class Output extends \row\Output {
 
+	/**
+	 * Change to your default config here:
+	 *
+	public function _init() {
+		$this->extension = '.php';
+		// Or make the Application available to all views always:
+		$this->assign('application', $this::$application);
+	}// */
+
 	static public function ajaxlink( $text, $path, $options = array() ) {
 		$options['onclick'] = 'return openInAjaxPopup(this.href);';
 		return static::link($text, $path, $options);

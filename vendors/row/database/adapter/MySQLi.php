@@ -7,8 +7,6 @@ use row\database\DatabaseException;
 
 class MySQLi extends MySQL {
 
-	static public $events;
-
 	static public function initializable() {
 		return class_exists('\mysqli');
 	}

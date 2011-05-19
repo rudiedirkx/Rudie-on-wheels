@@ -12,7 +12,7 @@ class ModelException extends RowException {}
 
 abstract class Model extends ModelParent {
 
-	static public $events;
+	static public $chain;
 
 	public function __tostring() {
 		return empty(static::$_title) || !$this->_exists(static::$_title) ? basename(get_class($this)).' model' : $this->{static::$_title};

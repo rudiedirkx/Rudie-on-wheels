@@ -6,8 +6,6 @@ use row\core\Options;
 
 class Validator extends \row\core\Object {
 
-	static public $events;
-
 	static public $dateRegex = '\d{4}\-\d\d?-\d\d?';
 
 	static public $timeRegex = '\d\d?:\d\d';

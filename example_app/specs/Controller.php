@@ -21,7 +21,28 @@ use row\utils\Email;
 
 abstract class Controller extends \row\Controller {
 
-	static public $events;
+	protected function _init() {
+		// I don't want to load ROW's default _init, because it does unwanted stuff, so I don't:
+		// parent::_init();
+
+		// Because I don't use ROW's _init, I have to do this myself:
+		// Make the session user always available in every controller:
+		$this->user = SessionUser::user();
+
+		// Might come in handy sometimes: direct access to the DBAL:
+		$this->db = $GLOBALS['db'];
+
+		// Initialize Output/Views (used in 90% of controller actions):
+		$this->tpl = new Output($this);
+		$this->tpl->viewLayout = '_blogLayout';
+		$this->tpl->assign('app', $this);
+
+		// Prep e-mail
+		Email::$_from = 'blog@blog.blog';
+		Email::$_returnPath = 'bounces@blog.blog';
+		Email::$_sendAsHtml = false;
+	}
+
 
 	protected function _post_action() {
 		// display view example
@@ -44,26 +65,5 @@ abstract class Controller extends \row\Controller {
 	}
 
 }
-
-Controller::event('construct', function( $self, $args, $chain ) {
-	// Because I don't use ROW's _init, I have to do this myself:
-	// Make the session user always available in every controller:
-	$self->user = SessionUser::user();
-
-	// Might come in handy sometimes: direct access to the DBAL:
-	$self->db = $GLOBALS['db'];
-
-	// Initialize Output/Views (used in 90% of controller actions):
-	$self->tpl = new Output($self);
-	$self->tpl->viewLayout = '_blogLayout';
-	$self->tpl->assign('app', $self);
-
-	// Prep e-mail
-	Email::$_from = 'blog@blog.blog';
-	Email::$_returnPath = 'bounces@blog.blog';
-	Email::$_sendAsHtml = false;
-
-	// don't continue chain, because native ROW is crap =)
-});
 
 
