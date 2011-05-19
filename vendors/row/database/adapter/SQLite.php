@@ -10,6 +10,8 @@ use \SQLiteException;
 
 class SQLite extends Adapter {
 
+	static public $events;
+
 	/* Reflection */
 	public function _getTables() {
 		$tables = $this->selectFieldsNumeric('sqlite_master', 'name', array('type' => 'table'));

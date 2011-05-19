@@ -7,7 +7,7 @@ use row\utils\Inflector;
 
 class Category extends Model {
 
-	static public $chain;
+	static public $events;
 
 	static public $_table = 'categories';
 	static public $_pk = 'category_id';

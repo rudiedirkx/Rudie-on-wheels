@@ -8,7 +8,7 @@ use \Exception;
 
 class User extends Model implements VisitableRecord {
 
-	static public $chain;
+	static public $events;
 
 	static public $_table = 'users';
 	static public $_pk = 'user_id';

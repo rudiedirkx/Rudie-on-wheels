@@ -8,6 +8,8 @@ use \PDOException;
 
 abstract class PDO extends Adapter {
 
+	static public $events;
+
 	public $affected = 0;
 
 	static public function initializable() {

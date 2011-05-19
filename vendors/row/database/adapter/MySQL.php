@@ -8,6 +8,8 @@ use row\database\DatabaseException;
 
 class MySQL extends Adapter {
 
+	static public $events;
+
 	/* Reflection */
 	public function _getTables() {
 		$tables = $this->fetch('SHOW TABLES');
