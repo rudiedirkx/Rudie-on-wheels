@@ -10,7 +10,7 @@ class ChainException extends RowException {}
 
 abstract class Object {
 
-	static public $chain; // typeof Chain
+	static public $chain; // typeof Array<Chain>
 
 	static public function event( $type, Closure $event = null, $name = '' ) {
 		// add 1 Event to several types
