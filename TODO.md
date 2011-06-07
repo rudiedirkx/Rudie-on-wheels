@@ -4,6 +4,8 @@ To do:
 
 ### For 1.0
 
+1. `QueryResult`: Lose the `QueryResult` classes: PDO sucks! (Also change `Model` back.)
+
 1. Create 'internal redirect' from `Controller` eg. `$this->_internal(array('controller' => 'oele', 'action' => 'boele'))` or `$this->_internal('go/here/15')`
 1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
 

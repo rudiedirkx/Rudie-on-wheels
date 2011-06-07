@@ -85,12 +85,20 @@ abstract class PDO extends Adapter {
 
 class PDOResult extends \row\database\QueryResult {
 
+	public $rows = array();
+	public $index = 0;
+
 	public function singleResult() {
 		return $this->result->fetchColumn(0);
 	}
 
 	public function nextObject( $class = '\stdClass', $args = array() ) {
-		return $this->result->fetchObject($class, $args);
+		if ( !$this->rows ) {
+			$this->rows = $this->result->fetchAll(\PDO::FETCH_CLASS, $class, $args);
+		}
+		if ( isset($this->rows[$this->index]) ) {
+			return $this->rows[$this->index++];
+		}
 	}
 
 	public function nextAssocArray() {
@@ -102,6 +110,11 @@ class PDOResult extends \row\database\QueryResult {
 	}
 
 	public function count() {
+		$r = $this->result;
+		return count($this->result->fetchAll(\PDO::FETCH_NUM));
+
+		return $this->result->rowCount();
+
 		// WOW, PDO is stupid!
 //		return $this->db->query('SELECT FOUND_ROWS() AS r')->fetchColumn(0);
 
