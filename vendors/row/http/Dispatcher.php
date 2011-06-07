@@ -11,6 +11,8 @@ class NotFoundException extends RowException {}
 
 class Dispatcher extends Object {
 
+	public $_id = 0; // debug
+
 	// The path to the Action (e.g. "/" or "/blog/categories" or "/blogs-12-admin/users/jim")
 	public $requestPath = false;
 	// The path up to the application (e.g.: "" or "/admin")
@@ -107,6 +109,8 @@ class Dispatcher extends Object {
 		$defaults = $this->getDefaultOptions();
 		$this->options = new Options($options, $defaults);
 
+		$this->_id = rand(1000, 9999);
+
 		$this->cacheLoad();
 
 		$this->_fire('init');
@@ -147,6 +151,10 @@ class Dispatcher extends Object {
 
 
 	public function getApplication( $f_path ) {
+		if ( !$this->requestPath ) {
+			$this->requestPath = $f_path;
+		}
+
 		$controller = $this->getController($f_path);
 		$this->application = $controller;
 		if ( !$this->fromCache ) {
@@ -273,6 +281,7 @@ class Dispatcher extends Object {
 
 		// 1. Evaluate path into pieces
 		$this->evaluatePath($path);
+//print_r($this->_debug());
 
 		$dontEvalActionHooks = false;
 		if ( $routes && is_a($this->router, 'row\\http\\Router') ) {
@@ -434,6 +443,26 @@ class Dispatcher extends Object {
 
 	public function caught( $exception ) {
 		exit('Uncaught ['.get_class($exception).']: '.$exception->getMessage());
+	}
+
+
+	public function _redirect( $location, $exit = true ) {
+		$goto = 0 === strpos($location, '/') || in_array(substr($location, 0, 6), array('http:/', 'https:')) ? $location : Output::url($location);
+		header('Location: '.$goto);
+		if ( $exit ) {
+			exit;
+		}
+	}
+
+	public function _internal( $location ) {
+		if ( is_string($location) ) {
+			$dispatcher = new static(array());
+			$dispatcher->options = $this->options;
+			$dispatcher->router = $this->router;
+
+			$application = $dispatcher->getApplication($location);
+			return $application->_run();
+		}
 	}
 
 

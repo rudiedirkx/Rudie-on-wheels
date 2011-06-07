@@ -88,22 +88,15 @@ abstract class Controller extends Object {
 
 
 	// helpers
-	protected function _redirect( $location, $exit = true ) {
-		$goto = 0 === strpos($location, '/') || in_array(substr($location, 0, 6), array('http:/', 'https:')) ? $location : Output::url($location);
-		header('Location: '.$goto);
-		if ( $exit ) {
-			exit;
-		}
+	public function _redirect( $location, $exit = true ) {
+		return $this->_dispatcher->_redirect($location, $exit);
 	}
 
-	protected function _internal( $location ) {
-		if ( is_string($location) ) {
-			$application = $this->_dispatcher->getApplication($location);
-			return $application->_run();
-		}
+	public function _internal( $location ) {
+		return $this->_dispatcher->_internal($location);
 	}
 
-	protected function _download( $filename, $contentType = 'text/plain' ) {
+	public function _download( $filename, $contentType = 'text/plain' ) {
 		header('Content-type: '.$contentType);
 		header('Content-Disposition: attachment; filename="'.addslashes($filename).'"');
 	}

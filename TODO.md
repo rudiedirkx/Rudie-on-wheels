@@ -4,10 +4,14 @@ To do:
 
 ### For 1.0
 
+1. Create 'internal redirect' from `Controller` eg. `$this->_internal(array('controller' => 'oele', 'action' => 'boele'))` or `$this->_internal('go/here/15')`
+1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
+
+1. `Model`/`Adapter`: `replaceholders` for full queries too? So move the replacing to further on?
+
+1. `Dispatcher`: Detect Action arguments automatically and throw 404 if required arguments aren't present
+
 1. E-mail: Create simple `MailContext` and super simple 'mailer'
-2. Create `internal redirect` from `Controller` eg. `$this->_internal(array('controller' => 'oele', 'action' => 'boele'))` or `$this->_internal('go/here/15')`
-3. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
-4. `Model`/`Adapter`: `replaceholders` for full queries too? So move the replacing to further on?
 
 ### For 1.1
 
