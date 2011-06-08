@@ -91,7 +91,9 @@ class Output extends \row\Component {
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$folder = str_replace('-', '/', $this::$_application->_dispatcher->_modulePath);
+			$folder = $this::$_application->_dispatcher->_modulePath;
+			$folder = preg_replace('/\-(\d+)/', '_N', $folder);
+			$folder = str_replace('-', '/', $folder);
 			$file = $this::$_application->_dispatcher->_action;
 			$file = $this->templateFileRESTTranslation($file);
 			$tpl = $folder.'/'.$file;
