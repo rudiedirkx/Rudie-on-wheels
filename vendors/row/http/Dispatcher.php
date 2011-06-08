@@ -399,9 +399,13 @@ class Dispatcher extends Object {
 	}
 
 	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
-		$actions = array_map('strtolower', get_class_methods($application));
-//		$actions = $application->_getActionFunctions();
-		return in_array(strtolower($actionFunction), $actions);
+		$actions = $application->_getActionFunctions();
+		if ( in_array(strtolower($actionFunction), $actions) ) {
+			$refl = new \ReflectionClass($application);
+			$method = $refl->getMethod($actionFunction);
+			$required = $method->getNumberOfRequiredParameters();
+			return $required <= count($this->_actionArguments);
+		}
 	}
 
 	public function throwNotFound() {
