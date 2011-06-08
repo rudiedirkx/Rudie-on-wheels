@@ -96,21 +96,26 @@ abstract class Adapter extends \row\core\Object {
 	}
 
 	static public $paramPlaceholder = '?';
+
 	public function replaceholders( $conditions, $params ) {
 		$conditions = $this->stringifyConditions($conditions);
+
 		if ( array() === $params || null === $params ) {
 			return $conditions;
 		}
+
 		$ph = static::$paramPlaceholder;
-//		$conditions = str_replace($ph, $this->quoteValue('%s'), $conditions);
 		$offset = 0;
 		foreach ( (array)$params AS $param ) {
 			$pos = strpos($conditions, $ph, $offset);
-			if ( false === $pos ) break;
-			$param = is_array($param) ? implode(', ', array_map(array($this, 'escapeAndQuoteValue'), $param)) : $this->escapeAndQuoteValue($param);
+			if ( false === $pos ) {
+				break;
+			}
+			$param = is_array($param) ? implode(', ', array_map(array($this, 'escapeAndQuoteValue'), $param)) : $this->escapeAndQuoteValue((string)$param);
 			$conditions = substr_replace($conditions, $param, $pos, strlen($ph));
 			$offset = $pos + strlen($param);
 		}
+
 		return $conditions;
 	}
 

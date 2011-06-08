@@ -19,11 +19,18 @@ class dbController extends Controller {
 		'/' => 'index',
 		'/index' => 'index',
 		'/in' => 'in',
+		'/replace' => 'replace',
 	);
 
 	protected function _pre_action() {
 		echo '<pre>'."\n";
 	}
+
+
+	public function replace() {
+		$this->db->fetch('SELECT 1 FROM oele WHERE (boele IN (?) OR tra = ?) AND bla >= ?', array(array(1,2,3,'x'), 'gister', 4, 19));
+	}
+
 
 	protected function debugQuery() {
 		static $c = -1;
@@ -33,11 +40,13 @@ class dbController extends Controller {
 		}
 	}
 
+
 	public function in() {
 		$users = User::all('? AND user_id IN (?)', array(1, array(2, 3, 4)));
 		var_dump(User::dbObject()->error());
 		echo "\n".end($this->db->queries)."\n";
 	}
+
 
 	public function index() {
 
