@@ -131,9 +131,9 @@ class SQLite extends Adapter {
 		return sqlite_escape_string((string)$value);
 	}
 
-	public function escapeTable( $table ) {
+/*	public function escapeTable( $table ) {
 		return '"'.$table.'"';
-	}
+	}*/
 
 }
 
@@ -155,10 +155,6 @@ class SQLiteResult extends \row\database\QueryResult {
 
 	public function nextNumericArray() {
 		return $this->result->fetch(SQLITE_NUM);
-	}
-
-	public function count() {
-		return $this->result->numRows();
 	}
 
 }

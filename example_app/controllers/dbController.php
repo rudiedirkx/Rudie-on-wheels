@@ -51,11 +51,6 @@ class dbController extends Controller {
 		var_dump($result);
 		echo "\n";
 
-		$count = $result->count();
-		$this->debugQuery();
-		var_dump($count);
-		echo "\n";
-
 		$objects = $result->allObjects('app\models\User'); // post_fill will NOT be executed
 		$this->debugQuery();
 		var_dump($objects);

@@ -61,9 +61,9 @@ class PDOSQLite extends PDO {
 		return str_replace("'", "''", (string)$value);
 	}
 
-	public function escapeTable( $table ) {
+/*	public function escapeTable( $table ) {
 		return '"'.$table.'"';
-	}
+	}*/
 
 }
 

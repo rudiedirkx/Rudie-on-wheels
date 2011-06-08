@@ -109,21 +109,6 @@ class PDOResult extends \row\database\QueryResult {
 		return $this->result->fetch(\PDO::FETCH_NUM);
 	}
 
-	public function count() {
-		$r = $this->result;
-		return count($this->result->fetchAll(\PDO::FETCH_NUM));
-
-		return $this->result->rowCount();
-
-		// WOW, PDO is stupid!
-//		return $this->db->query('SELECT FOUND_ROWS() AS r')->fetchColumn(0);
-
-		$q = preg_replace('/select\s.+?\sfrom/i', 'select count(1) AS rv from', $this->result->queryString);
-		$c = (int)$this->db->query($q)->fetchColumn(0);
-		array_pop($this->db->queries);
-		return $c;
-	}
-
 }
 
 

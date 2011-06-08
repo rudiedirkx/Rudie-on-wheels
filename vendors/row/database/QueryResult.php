@@ -64,8 +64,6 @@ abstract class QueryResult extends \row\core\Object {
 	}
 
 
-	abstract public function count();
-
 }
 
 

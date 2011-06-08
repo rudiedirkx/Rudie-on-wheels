@@ -83,15 +83,12 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	static public function _byQuery( $query, $result = false ) {
+	static public function _byQuery( $query, $justFirst = false, $params = array() ) {
 		$class = get_called_class();
 		if ( class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
 			$class = $class.'Record';
 		}
-		if ( $result ) {
-			return static::dbObject()->result($query, $class);
-		}
-		return static::dbObject()->fetch($query, $class);
+		return static::dbObject()->fetch($query, $class, $justFirst, $params);
 	}
 
 	/**
@@ -127,13 +124,12 @@ abstract class Model extends ModelParent {
 		/* experimental */
 
 		$query = static::_query($conditions);
-		$r = static::_byQuery($query, true);
-		$c = $r->count();
-		if ( 1 !== $c ) {
-			throw new ModelException('Found '.$c.' of '.get_called_class().'.');
+		$objects = static::_byQuery($query);
+		if ( !isset($objects[0]) || isset($objects[1]) ) {
+			throw new ModelException('Found '.( !isset($objects[0]) ? '<' : '>' ).' 1 of '.get_called_class().'.');
 		}
 
-		$r = $r->nextObject($r->class, array(true));
+		$r = $objects[0];
 
 		/* experimental */
 		if ( false !== static::$_cache ) {

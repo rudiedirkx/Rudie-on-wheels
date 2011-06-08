@@ -174,18 +174,18 @@ abstract class Adapter extends \row\core\Object {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT '.$field.' FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
 		$r = $this->result($query);
-		if ( !$r || !$r->count() ) {
+		if ( !$r ) {
 			return false;
 		}
 		return $r->singleResult();
 	}
 
 	public function countRows( $query ) {
-		$r = $this->result($query);
+		$r = $this->fetch($query);
 		if ( !$r ) {
 			return false;
 		}
-		return $r->count();
+		return count($r);
 	}
 
 	public function fetchByField( $query, $field ) {

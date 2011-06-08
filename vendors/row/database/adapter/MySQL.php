@@ -148,10 +148,6 @@ class MySQLResult extends \row\database\QueryResult {
 		return mysql_fetch_row($this->result);
 	}
 
-	public function count() {
-		return mysql_num_rows($this->result);
-	}
-
 }
 
 

@@ -93,10 +93,6 @@ class MySQLiResult extends \row\database\QueryResult {
 		return $this->result->fetch_row();
 	}
 
-	public function count() {
-		return $this->result->num_rows;
-	}
-
 }
 
 
