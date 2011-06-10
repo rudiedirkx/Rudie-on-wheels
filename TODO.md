@@ -4,8 +4,6 @@ To do:
 
 ### For 1.0
 
-1. `Model`/`Adapter`: `replaceholders` for full queries too? So move the replacing to further on?
-
 1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
 
 1. E-mail: Create simple `MailContext` and super simple 'mailer'

@@ -84,10 +84,23 @@ abstract class Model extends ModelParent {
 	 * 
 	 */
 	static public function _byQuery( $query, $justFirst = false, $params = array() ) {
+		// don't require $justFirst, so params can be passed as 2nd argument (in $justFirst)
+		if ( is_array($justFirst) ) {
+			$_jf = $justFirst;
+			// allow reverse arguments: justFirst in $params
+			if ( is_bool($params) ) {
+				$justFirst = $params;
+			}
+			$params = $_jf;
+		}
+
+		$query = static::dbObject()->replaceholders($query, $params);
+
 		$class = get_called_class();
 		if ( class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
 			$class = $class.'Record';
 		}
+
 		return static::dbObject()->fetch($query, $class, $justFirst, $params);
 	}
 
@@ -112,7 +125,7 @@ abstract class Model extends ModelParent {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->replaceholders($conditions, $params);
 
 		/* experimental */
 		if ( false !== static::$_cache ) {
@@ -124,6 +137,8 @@ abstract class Model extends ModelParent {
 		/* experimental */
 
 		$query = static::_query($conditions);
+		$query = static::dbObject()->addLimit($query, 2);
+
 		$objects = static::_byQuery($query);
 		if ( !isset($objects[0]) || isset($objects[1]) ) {
 			throw new ModelException('Found '.( !isset($objects[0]) ? '<' : '>' ).' 1 of '.get_called_class().'.');
@@ -144,7 +159,7 @@ abstract class Model extends ModelParent {
 	 * Returns null or the first object with the matching conditions
 	 */
 	static public function _first( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->stringifyConditions($conditions);
+		$conditions = static::dbObject()->replaceholders($conditions, $params);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
 		return $r->nextObject($r->class, array(true));
@@ -164,7 +179,7 @@ abstract class Model extends ModelParent {
 
 		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
 		if ( $moreConditions ) {
-			$conditions .= ' AND '.static::dbObject()->stringifyConditions($moreConditions);
+			$conditions .= ' AND '.static::dbObject()->replaceholders($moreConditions, $params);
 		}
 
 		$r = static::_one($conditions);
@@ -176,10 +191,18 @@ abstract class Model extends ModelParent {
 	 * 
 	 */
 	static public function _delete( $conditions, $params = array() ) {
-		if ( static::dbObject()->delete(static::$_table, $conditions, $params) ) {
-			return static::dbObject()->affectedRows();
-		}
-		return false;
+		$chain = static::event(__FUNCTION__);
+		$chain->first(function($self, $args, $chain, $native = true) {
+
+			// actual methods body //
+			if ( $self::dbObject()->delete($self::$_table, $args->conditions, $args->params) ) {
+				return $self::dbObject()->affectedRows();
+			}
+			return $self::dbObject()->except();
+			// actual methods body //
+
+		});
+		return $chain->start(get_called_class(), options(compact('conditions', 'params')));
 	}
 
 	/**
@@ -193,7 +216,7 @@ abstract class Model extends ModelParent {
 			if ( $self::dbObject()->update($self::$_table, $args->values, $args->conditions, $args->params) ) {
 				return $self::dbObject()->affectedRows();
 			}
-			return false;
+			return $self::dbObject()->except();
 			// actual methods body //
 
 		});
@@ -203,15 +226,15 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	static public function _insert( $values ) {
-		$chain = static::event(__FUNCTION__);
-		$chain->first(function($self, $args, $chain, $native = true) {
+	static public function _insert( $values, $_method = 'insert' ) {
+		$chain = static::event('_'.$_method);
+		$chain->first(function($self, $args, $chain, $native = true) use ( $_method ) {
 
 			// actual method body //
-			if ( $self::dbObject()->insert($self::$_table, $args->values) ) {
+			if ( $self::dbObject()->$_method($self::$_table, $args->values) ) {
 				return (int)$self::dbObject()->insertId();
 			}
-			return false;
+			return $self::dbObject()->except();
 			// actual method body //
 
 		});
@@ -222,9 +245,12 @@ abstract class Model extends ModelParent {
 	 * 
 	 */
 	static public function _replace( $values ) {
-		return static::dbObject()->replace(static::$_table, $values);
+		return static::_insert($values, 'replace');
 	}
 
+	/**
+	 * 
+	 */
 	static public function _count( $conditions = '' ) {
 		return static::dbObject()->count(static::$_table, $conditions);
 	}
@@ -427,8 +453,23 @@ abstract class Model extends ModelParent {
 	}
 
 
+	/**
+	 * 
+	 */
 	public function isEmpty() {
 		return (array)$this == array();
+	}
+
+
+	/**
+	 * 
+	 */
+	public function toArray() {
+		$arr = (array)$this;
+		foreach ( static::$_getters AS $k => $x ) {
+			unset($arr[$x]);
+		}
+		return $arr;
 	}
 
 

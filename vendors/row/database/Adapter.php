@@ -88,8 +88,9 @@ abstract class Adapter extends \row\core\Object {
 		return $this->quoteColumn($this->escapeColumn($column));
 	}
 
-	protected function except( $msg ) {
+	public function except( $msg = null ) {
 		if ( $this->throwExceptions ) {
+			$msg or $msg = $this->error();
 			throw new DatabaseException($msg);
 		}
 		return false;
