@@ -1,6 +1,6 @@
 <?php
 
-namespace markdown;
+namespace row\utils\markdown;
 
 define( 'MARKDOWN_EMPTY_ELEMENT_SUFFIX',  " />");
 define( 'MARKDOWN_TAB_WIDTH',     4 );

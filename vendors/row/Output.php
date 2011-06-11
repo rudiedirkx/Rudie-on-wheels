@@ -4,6 +4,7 @@ namespace row;
 
 use row\core\Options;
 use row\core\RowException;
+use row\utils\markdown\Parser as MarkdownParser;
 
 class OutputException extends RowException {}
 
@@ -224,7 +225,7 @@ class Output extends \row\Component {
 	}
 
 	static public function markdown( $text ) {
-		return \markdown\Parser::parse((string)$text);
+		return MarkdownParser::parse((string)$text);
 	}
 
 	static public function nl2br( $text ) {

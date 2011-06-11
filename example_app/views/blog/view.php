@@ -22,7 +22,7 @@ use row\utils\Inflector;
 
 	<section class="article">
 		<footer>Posted by <em><?=$this::ajaxLink($post->author->full_name, $post->author->url())?></em> on <em utc="<?=$post->created_on?>"><?=$post->_created_on->format('Y-m-d H:i:s')?></em> in category <em><?=$this::link($post->category_name, $post->catUrl())?></em><?if($post->canEdit()):?> (<?=$this::link('edit', 'blog/edit-post/'.$post->post_id)?>)<?endif?>.</footer>
-		<content><?=$this->markdown($post->body)."\n"?></content>
+		<content><?=$this::markdown($post->body)."\n"?></content>
 	</section>
 	<a id="comments"></a>
 	<h2>Comments (<?=$this::link('add', 'blog/add-comment/'.$post->post_id)?>)</h2>
@@ -35,7 +35,7 @@ use row\utils\Inflector;
 					said on
 					<em><?=$comment->_created_on->format('Y-m-d H:i:s')?></em>:
 				</h3>
-				<?=$this->markdown($comment->comment)?>
+				<?=$this::markdown($comment->comment)?>
 				<?if( $comment->canEdit() ):?>
 					<footer>You can <a href="/blog/edit-comment/<?=$comment->comment_id?>">edit</a> this post...</footer>
 				<?endif?>

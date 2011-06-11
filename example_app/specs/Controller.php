@@ -37,10 +37,13 @@ abstract class Controller extends \row\Controller {
 		$this->tpl->viewLayout = '_blogLayout';
 		$this->tpl->assign('app', $this);
 
-		// Prep e-mail
-		Email::$_from = 'blog@blog.blog';
-		Email::$_returnPath = 'bounces@blog.blog';
-		Email::$_sendAsHtml = false;
+		// Blog `Email` context
+		Email::context('blog', function( $class, $options ) {
+			$mailer = new $class;
+			$mailer->setFrom('blog@blog.blog', 'Tha Blog');
+			$mailer->Sender = 'bounces@blog.blog';
+			return $mailer;
+		});
 	}
 
 

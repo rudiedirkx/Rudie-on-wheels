@@ -1,6 +1,6 @@
 <?php
 
-namespace markdown\extra;
+namespace row\utils\markdown\extra;
 
 class Parser extends \markdown\Parser {
 
