@@ -46,10 +46,11 @@ abstract class Model extends ModelParent {
 	const GETTER_FIRST		= 4;
 
 	static public $_getters = array(
-//		'author' => array( self::GETTER_ONE, true, 'User', 'author_id', 'user_id' ).
-//		'comments' => array( self::GETTER_ALL, true, 'Comment', 'post_id', 'post_id' ).
-//		'first_comment' => array( self::GETTER_FIRST, true, 'Comment', 'post_id', 'post_id' ).
-//		'followers' => array( self::GETTER_FUNCTION, true, 'getFollowerUserObjects' ).
+//		'author' => array( self::GETTER_ONE, true, 'User', 'author_id', 'user_id' ), // Exactly one ('mandatory') connected User
+//		'comments' => array( self::GETTER_ALL, true, 'Comment', 'post_id', 'post_id' ), // >= 0 Comment objects
+//		'first_comment' => array( self::GETTER_FIRST, true, 'Comment', 'post_id', 'parent_post_id' ), // First available comment (might not exist)
+//		'language' => array( self::GETTER_FIRST, true, 'Language', 'primary_language_id', 'language_id' ), // Optional language (might not be set (eg NULL))
+//		'followers' => array( self::GETTER_FUNCTION, true, 'getFollowerUserObjects' ), // Execute and return custom code
 	);
 
 
