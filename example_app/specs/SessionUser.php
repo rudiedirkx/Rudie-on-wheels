@@ -21,6 +21,27 @@ use \Exception;
 
 class SessionUser extends \row\auth\SessionUser {
 
+	public function history( $path ) {
+		if ( null === $this->variable('history') ) {
+			$this->variable('history', array());
+		}
+		$history = $this->variable('history');
+
+		// new path
+		if ( !isset($history[0]) || end($history) != $path ) {
+			// max 10 in history
+			if ( isset($history[9]) ) {
+				array_shift($history);
+			}
+			array_push($history, $path);
+
+			// save into session
+			$this->variable('history', $history);
+		}
+
+		return $path;
+	}
+
 	/**
 	 * This could be anything. It defaults to "return false" because
 	 * Access & Validation are different in every app.

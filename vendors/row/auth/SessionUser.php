@@ -5,6 +5,7 @@ namespace row\auth;
 use row\core\Object;
 use app\models;
 use \Exception;
+use row\auth\Session;
 
 abstract class SessionUser extends Object {
 
@@ -98,10 +99,12 @@ abstract class SessionUser extends Object {
 	}
 
 	public function variable( $key, $val = null ) {
-		/* For instance: *
 		if ( !$this->isLoggedIn() ) {
 			return Session::variable($key, $val);
 		}
+
+		$login =& Session::$session['logins'][count(Session::$session['logins'])-1];
+
 		if ( null !== $val ) {
 			if ( !isset($login['vars']) ) {
 				$login['vars'] = array();
@@ -109,9 +112,8 @@ abstract class SessionUser extends Object {
 			$login['vars'][$key] = $val;
 			return $val;
 		}
-		$login = Session::$session['logins'][count(Session::$session['logins'])-1];
+
 		return isset($login['vars'][$key]) ? $login['vars'][$key] : null;
-		/**/
 	}
 
 	// Step 5: logout (once per session)

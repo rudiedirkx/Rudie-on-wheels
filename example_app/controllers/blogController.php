@@ -20,16 +20,19 @@ class blogController extends \app\specs\Controller {
 	protected function _init() {
 		parent::_init();
 
+		// log page into user history (why? because we can!)
+		$this->user->history($this->_uri);
+
 		$this->aclAdd('true'); // adds required zone "true" to all Actions of this Controller, just to trigger Controller ACL
 		$this->aclAdd('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post', 'follow_post'));
 		$this->aclAdd('blog create posts', 'add_post');
 	}
 
-/*	protected function _post_action() {
+	protected function _post_action() {
 		parent::_post_action();
 		print_r(Session::$session);
 		var_dump(Session::$id);
-	}*/
+	}
 
 
 	public function follow_post( $post ) {

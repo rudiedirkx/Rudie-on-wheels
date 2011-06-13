@@ -12,11 +12,12 @@ class Session extends Object {
 	static public $session;
 
 	static public function variable( $k, $v = null ) {
-		if ( 2 <= func_num_args() ) {
+		if ( null !== $v ) {
 			static::required();
 			static::$session['vars'][$k] = $v;
 			return $v;
 		}
+
 		if ( static::validateEnvironment() ) {
 			return isset(static::$session['vars'][$k]) ? static::$session['vars'][$k] : null;
 		}
