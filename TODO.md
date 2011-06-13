@@ -2,10 +2,9 @@
 To do:
 ------
 
-### For 1.1
+### For 1.2
 
 1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'
-
 1. Perfect mixins
 2. Make the entire thing more `RESTful` (OMG!? Am I using it now too??)
 
