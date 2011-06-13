@@ -21,8 +21,8 @@ class User extends Model implements VisitableRecord {
 
 
 	public $_pf_acl = false;
-	protected function _post_fill( $data ) {
-		if ( !is_array($this->_pf_acl) && isset($data['access']) ) {
+	protected function _post_fill() {
+		if ( !is_array($this->_pf_acl) && $this->_exists('access') ) {
 			$this->_pf_acl = $this->getACL();
 		}
 	}

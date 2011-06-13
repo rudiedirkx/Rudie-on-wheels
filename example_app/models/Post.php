@@ -55,14 +55,9 @@ class Post extends Model {
 		return $sessionUser->userID() === (int)$this->author_id || $sessionUser->hasAccess('blog edit posts');
 	}
 
-/*	protected function _post_fill( $data ) {
-		if ( isset($data['is_published']) ) {
-			$this->is_published = (bool)$this->is_published; // because a Bool is prettier than a '0' or '1'
-		}
-		if ( isset($data['created_on']) ) {
-			$this->_created_on = new DateTime($this->created_on);
-		}
-	}*/
+	protected function _post_fill() {
+		$this->is_published = (bool)$this->is_published;
+	}
 
 
 	public function url( $more = '' ) {
@@ -132,8 +127,6 @@ Post::event(array('update'), function( $self, $args, $chain ) {
 
 /**/
 Post::event('fill', function($self, $args, $chain) {
-	$self->is_published = (bool)$self->is_published;
-
 	if ( isset($args->data['created_on']) || !$self->_created_on ) {
 		$self->_created_on = new DateTime($self->created_on);
 	}

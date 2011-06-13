@@ -268,6 +268,8 @@ abstract class Model extends ModelParent {
 			if ( true === $args->init || is_array($args->init) ) {
 				$self->_fill($args->init);
 			}
+
+			$self->_fire('init');
 			// actual method body //
 
 			// no chain->next
@@ -290,9 +292,9 @@ abstract class Model extends ModelParent {
 						$self->$k = $v;
 					}
 				}
-				return true;
 			}
-			return false;
+
+			$self->_fire('post_fill');
 			// actual methods body //
 
 		});
