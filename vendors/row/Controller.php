@@ -5,6 +5,7 @@ namespace row;
 use row\core\Object;
 use row\core\Options;
 use row\auth\SessionUser;
+use row\Output;
 
 /**
  * All Dispatcher functionality is in the Dispatcher (hey!) so the
@@ -38,6 +39,9 @@ abstract class Controller extends Object {
 		// overridable _POST and _GET
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
+
+		// overridable Output / View / Template engine
+		$this->tpl = new Output($this);
 	}
 
 	protected function _pre_action() {

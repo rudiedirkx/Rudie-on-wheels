@@ -31,7 +31,7 @@ class Output extends \row\Component {
 	public $extension = '.php';
 	public $viewsFolder = '';
 		public $oldIncludePath = false;
-	public $viewLayout = 'layout';
+	public $viewLayout = '_layout';
 
 	public static $_var_content = 'content';
 	public static $_var_title = 'title';

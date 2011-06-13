@@ -56,7 +56,7 @@ abstract class Model extends ModelParent {
 
 	static public $_on = array();
 
-	static public $_cache = false;//array();
+	static public $_cache = array();
 
 
 	/**

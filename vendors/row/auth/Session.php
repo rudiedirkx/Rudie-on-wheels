@@ -8,6 +8,7 @@ class Session extends Object {
 
 	static public $name = 'row_4_0'; // Change this frequently!
 
+	static public $id; // PHP's session id
 	static public $session;
 
 	static public function variable( $k, $v = null ) {
@@ -68,6 +69,7 @@ class Session extends Object {
 				
 			}
 			static::$session =& $_SESSION[static::$name];
+			static::$id = session_id();
 		}
 	}
 

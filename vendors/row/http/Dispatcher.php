@@ -6,6 +6,7 @@ use row\core\Object;
 use row\core\Options;
 use row\core\APC;
 use row\core\RowException;
+use row\Output;
 
 class NotFoundException extends RowException {}
 

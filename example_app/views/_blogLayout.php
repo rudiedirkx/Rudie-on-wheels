@@ -56,4 +56,4 @@ document.bind('keyup', function(e) {
 </body>
 
 </html>
-<? exit // this page is now valid XML =) Well... if you remove the doctype... ?>
+<? // exit // this page is now valid XML =) Well... if you remove the doctype... ?>
