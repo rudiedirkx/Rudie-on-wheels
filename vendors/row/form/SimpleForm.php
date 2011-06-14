@@ -587,7 +587,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderButtons() {
-		return '<'.$this->elementWrapperTag.' class="form-submit"><input type=submit></'.$this->elementWrapperTag.'>';
+		return '<'.$this->elementWrapperTag.' class="form-submit"><input type=submit value="'.$this->submitButtonText().'" /></'.$this->elementWrapperTag.'>';
 	}
 
 	public function renderElementWrapper( $html, $element ) {
