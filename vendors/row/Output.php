@@ -343,6 +343,20 @@ class Output extends \row\Component {
 		return strtr($str, $replacements);
 	}
 
+	static public function cookie( $name, $value = null, $options = array() ) {
+		if ( null === $value ) {
+			return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+		}
+
+		$domain = Options::one($options, 'domain', null);
+		$path = $options->path ?: '/';
+		$expires = $options->expires ?: $options->expire ?: 0;
+		$secure = $options->get('secure', false);
+		$httponly = $options->get('httponly', false);
+
+		return setcookie($name, $value, $expires, $path, $domain, $secure, $httponly);
+	}
+
 }
 
 
