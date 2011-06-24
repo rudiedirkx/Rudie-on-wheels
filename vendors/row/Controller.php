@@ -42,6 +42,8 @@ abstract class Controller extends Object {
 
 		// overridable Output / View / Template engine
 		$this->tpl = new Output($this);
+
+		$this->user = SessionUser::user();
 	}
 
 	protected function _pre_action() {
@@ -165,7 +167,7 @@ abstract class Controller extends Object {
 	}
 
 	public function aclCheckAccess( $zone ) {
-		return true;
+		return $this->user->hasAccess($zone);
 	}
 
 	protected function aclAccessFail( $zone, $action ) {
