@@ -163,7 +163,7 @@ abstract class Model extends ModelParent {
 		$conditions = static::dbObject()->replaceholders($conditions, $params);
 		$query = static::_query($conditions);
 		$r = static::_byQuery($query, true);
-		return $r->nextObject($r->class, array(true));
+		return $r;
 	}
 
 	/**
