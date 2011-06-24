@@ -139,8 +139,11 @@ class Dispatcher extends Object {
 				parse_str($uri[1], $_GET);
 			}
 			$path = $uri[0];
+
 			$base = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 			$this->requestBasePath = $base;
+			session_set_cookie_params(0, $base);
+
 			$path = substr($path, strlen($base));
 			if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
