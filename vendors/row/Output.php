@@ -269,9 +269,25 @@ class Output extends \row\Component {
 	 * the Application... How to get there??
 	 * Temporary (?) solution: static::$application
 	 */
-	static public function url( $path, $absolute = false ) {
+	static public function url( $path, $options = array() ) {
 		$base = static::$_application ? static::$_application->_dispatcher->requestBasePath.'/' : '/';
-		return $base.$path;
+
+		$options = options( is_bool($options) ? array('absolute' => $options) : $options );
+
+		$prefix = '';
+		if ( $options->absolute && isset($_SERVER['SERVER_PORT'], $_SERVER['HTTP_HOST']) ) {
+			$scheme = 'http';
+			$port = '';
+			if ( 443 == $_SERVER['SERVER_PORT'] ) {
+				$scheme = 'https';
+			}
+			else if ( 80 != $_SERVER['SERVER_PORT'] ) {
+				$port = ':' . $_SERVER['SERVER_PORT'];
+			}
+			$prefix = $scheme . '://' . $_SERVER['HTTP_HOST'] . $port;
+		}
+
+		return $prefix . $base . $path;
 	}
 
 	static public function attributes( $attr, $except = array() ) {
