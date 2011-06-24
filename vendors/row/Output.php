@@ -348,8 +348,10 @@ class Output extends \row\Component {
 			return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
 		}
 
+		$base = static::$_application ? static::$_application->_dispatcher->requestBasePath.'/' : '/';
+
 		$domain = Options::one($options, 'domain', null);
-		$path = $options->path ?: '/';
+		$path = $options->path ?: $base;
 		$expires = $options->expires ?: $options->expire ?: 0;
 		$secure = $options->get('secure', false);
 		$httponly = $options->get('httponly', false);
