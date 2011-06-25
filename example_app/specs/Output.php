@@ -25,7 +25,7 @@ class Output extends \row\Output {
 	/**
 	 * Change to your default config here:
 	 *
-	public function _init() {
+	protected function _init() {
 		$this->extension = '.php';
 		// Or make the Application available to all views always:
 		$this->assign('application', $this::$application);

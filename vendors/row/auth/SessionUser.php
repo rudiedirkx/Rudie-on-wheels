@@ -7,7 +7,7 @@ use app\models;
 use \Exception;
 use row\auth\Session;
 
-abstract class SessionUser extends Object {
+class SessionUser extends Object {
 
 	static public function user() {
 		static $su;
@@ -18,22 +18,35 @@ abstract class SessionUser extends Object {
 //		return $GLOBALS['application']->user;
 	}
 
+	static public function env_IP() {
+		return $_SERVER['REMOTE_ADDR'];
+	}
+
+	static public function env_UA() {
+		return $_SERVER['HTTP_USER_AGENT'];
+	}
+
+
 	public $user; // typeof Model
 //	public $name = 'Anonymous';
 //	public $id = 0;
 
 	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
 
+	public $ip = '';
+	public $ua = '';
+
 	public function __construct() {
+		$this->ip = $this::env_IP();
+		$this->ua = $this::env_UA();
+
+		// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
+		$this->validate();
+
 		$this->_fire('init');
 	}
 
-	// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
-	public function _init() {
-		// _SESSION not required
-		// But try to validate =)
-		$this->validate();
-	}
+	protected function _init() {}
 
 	// Step 1: login (once per session)
 	public function login( \row\database\Model $user ) {
@@ -118,10 +131,8 @@ abstract class SessionUser extends Object {
 
 	// Step 5: logout (once per session)
 	public function logout() {
-		if ( $this->isLoggedIn() ) {
-			// Alter _SESSION
-			// Remove session record in db?
-		}
+		// remove login layer from SESSION
+		array_pop(Session::$session['logins']);
 	}
 
 

@@ -89,9 +89,7 @@ abstract class Model extends ModelParent {
 		if ( is_array($justFirst) ) {
 			$_jf = $justFirst;
 			// allow reverse arguments: justFirst in $params
-			if ( is_bool($params) ) {
-				$justFirst = $params;
-			}
+			$justFirst = is_bool($params) ? $params : false;
 			$params = $_jf;
 		}
 

@@ -11,7 +11,7 @@ abstract class SimpleForm extends \row\Component {
 	public $_elements = array(); // internal cache
 	abstract protected function elements( $defaults = null );
 
-	public $default = null;
+	public $defaults = null;
 	public $input = array();
 	public $errors = array();
 	public $output = array();
@@ -231,7 +231,7 @@ abstract class SimpleForm extends \row\Component {
 		}
 
 		// check default form values
-		$dv = (array)$this->default;
+		$dv = (array)$this->defaults;
 		if ( isset($dv[$name]) ) {
 			return $dv[$name];
 		}
@@ -505,7 +505,7 @@ abstract class SimpleForm extends \row\Component {
 		if ( !$this->_elements ) {
 			$elements = array();
 			$index = 0;
-			foreach ( $this->elements($this->default) AS $name => $element ) {
+			foreach ( $this->elements($this->defaults) AS $name => $element ) {
 				$element['_name'] = $name;
 				$element['_index'] = $index++;
 				$this->elementTitle($element);
@@ -626,6 +626,11 @@ abstract class SimpleForm extends \row\Component {
 
 	public function __tostring() {
 		return $this->render();
+	}
+
+
+	public function __get( $key ) {
+		return null;
 	}
 
 

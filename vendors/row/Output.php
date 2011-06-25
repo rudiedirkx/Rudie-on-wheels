@@ -39,7 +39,7 @@ class Output extends \row\Component {
 	public $sections = array('javascript' => array(), 'css' => array());
 	public $viewFile = '';
 
-	public function _init() {
+	protected function _init() {
 		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
 		$this::$_application = $this->application;
 
@@ -336,7 +336,7 @@ class Output extends \row\Component {
 		$replacements = array();
 		foreach ( (array)$replace AS $k => $v ) {
 			if ( is_int($k) ) {
-				$k = '%'.$k;
+				$k = '%'.($k+1);
 			}
 			$replacements[$k] = $v;
 		}
