@@ -148,8 +148,11 @@ abstract class SimpleForm extends \row\Component {
 		$element = $elements[$name];
 
 		$length = is_array($this->input[$name]) ? count($this->input[$name]) : strlen(trim((string)$this->input[$name]));
+
 		$minlength = isset($element['minlength']) ? (int)$element['minlength'] : 1;
-		return $length >= $minlength;
+		$maxlength = isset($element['maxlength']) ? (int)$element['maxlength'] : 0;
+
+		return $length >= $minlength && ( !$maxlength || $maxlength >= $length );
 	}
 
 	public function validateUnique( $form, $name ) {
@@ -223,7 +226,6 @@ abstract class SimpleForm extends \row\Component {
 
 	public function input( $name, $alt = '' ) {
 		$elements = $this->useElements();
-		$element = $elements[$name];
 
 		// check input (probably POST) data
 		if ( isset($this->input[$name]) ) {
@@ -237,8 +239,8 @@ abstract class SimpleForm extends \row\Component {
 		}
 
 		// check default element value
-		if ( isset($element['default']) ) {
-			return $element['default'];
+		if ( isset($elements[$name], $elements[$name]['default']) ) {
+			return $elements[$name]['default'];
 		}
 
 		// no input found: return alt
@@ -451,7 +453,9 @@ abstract class SimpleForm extends \row\Component {
 		$elName = $name;
 		$value = $this->input($name);
 
-		$html = '<input type="'.$type.'" name="'.$elName.'" value="'.$value.'" />';
+		$maxlength = isset($element['maxlength']) ? ' maxlength="'.(int)$element['maxlength'].'"' : '';
+
+		$html = '<input type="'.$type.'" name="'.$elName.'" value="'.$value.'"'.$maxlength.$this->elementAttributes($element).' />';
 
 		if ( !$wrapper ) {
 			return $html;
@@ -517,6 +521,11 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function render( $withForm = true, $options = array() ) {
+		if ( is_array($withForm) ) {
+			$options = $withForm;
+			$withForm = true;
+		}
+
 		$this->options = $options = Options::make($options);
 		$elements = $this->useElements();
 
@@ -573,6 +582,12 @@ abstract class SimpleForm extends \row\Component {
 		}
 
 		return $this->$fn($name, $element);
+	}
+
+	protected function elementAttributes( $element ) {
+		if ( isset($element['attributes']) ) {
+			return Output::attributes($element['attributes']);
+		}
 	}
 
 	public function elementName( $element ) {

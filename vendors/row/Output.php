@@ -294,7 +294,7 @@ class Output extends \row\Component {
 		$html = '';
 		foreach ( $attr AS $k => $v ) {
 			if ( !in_array($k, $except) ) {
-				$html .= ' '.$k.'="'.htmlspecialchars($v).'"';
+				$html .= ' ' . $k . ( true === $v ? '' : '="'.static::html((string)$v).'"' );
 			}
 		}
 		return $html;
