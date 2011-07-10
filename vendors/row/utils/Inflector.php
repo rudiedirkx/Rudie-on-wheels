@@ -6,13 +6,13 @@ use row\core\Object;
 
 class Inflector extends Object {
 
-	static public function uncamelcase( $text ) {
-		$text = preg_replace('#([A-Z])#e', '"-".strtolower("\1")', $text);
+	static public function uncamelcase( $text, $delimiter = '-' ) {
+		$text = preg_replace('#([A-Z])#e', '"'.addslashes($delimiter).'".strtolower("\1")', trim($text));
 		return $text;
 	}
 
 	static public function camelcase( $text ) {
-		$text = preg_replace('#[\-_ ](.)#e', 'strtoupper("\1")', strtolower(trim($text, '-_ ')));
+		$text = preg_replace('#[\-_ ](.)#e', 'strtoupper("\1")', strtolower(trim($text)));
 		return $text;
 	}
 
