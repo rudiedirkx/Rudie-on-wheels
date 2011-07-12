@@ -15,44 +15,35 @@ class helloController extends Controller {
 	}
 
 	public function dave( $ip, $port = '17494' ) {
-		function bin201($byte) {
-			$dec = ord($byte);
-			$str = '';
-			for ( $i=7; $i>=0; $i-- ) {
-				$on = 0 < ($dec & pow(2, $i));
-				$str .= (string)(int)$on;
-			}
-			return $str;
+
+		require(__DIR__.'/inc.cls.ethrly.php');
+		$dave = new \ETHRLY($ip, $port, 2);
+
+		if ( !$dave->socket() ) {
+			var_dump($dave->error);
+			exit;
 		}
 
-		if ( $sock = fsockopen($ip, $port, $errno, $error, 2) ) {
-			fwrite($sock, chr(91));
-			$rsp = fread($sock, 2);
-			echo "\n\n\n\nstatus: " . bin201($rsp)."\n\n";
- 
-			// all off
-			fwrite($sock, chr(110));
+		// status
+		$status = $dave->status();
+		echo "status: ".implode($status)."\n\n";
 
-			// random 3 on
-			$on = range(1, 8);
-			foreach ( array_rand($on, 3) AS $n ) {
-				$n = $on[$n];
-				echo "turning ".$n." on\n";
+		// all off
+		$dave->off();
+		echo "all off\n\n";
 
-				$cmd = 100 + $n;
-				fwrite($sock, chr($cmd));
-			}
+		// status
+		$status = $dave->status();
+		echo "status: ".implode($status)."\n\n";
 
-			fwrite($sock, chr(91));
-			$rsp = fread($sock, 2);
-			echo "\nstatus: " . bin201($rsp)."\n";
+		// 3 relays on
+		$relays = array_rand(array_flip(range(1, 8)), 3);
+		$dave->on($relays);
+		echo "on: ".implode(', ', $relays)."\n\n";
 
-			fclose($sock);
-		}
-		else {
-			echo "no connecto =(\n";
-			var_dump($errno, $error);
-		}
+		// status
+		$status = $dave->status();
+		echo "status: ".implode($status)."\n\n";
 	}
 
 	public function world() {
