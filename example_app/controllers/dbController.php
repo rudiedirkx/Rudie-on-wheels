@@ -20,10 +20,22 @@ class dbController extends Controller {
 		'/index' => 'index',
 		'/in' => 'in',
 		'/replace' => 'replace',
+		'/conditions' => 'conditions',
 	);
 
 	protected function _pre_action() {
 		echo '<pre>'."\n";
+	}
+
+
+	public function conditions() {
+		$this->db->update('oele', array(
+			'a' => 'a+1',
+			'b = b+1',
+		), array(
+			'x' => 'X',
+			'y > 4'
+		));
 	}
 
 

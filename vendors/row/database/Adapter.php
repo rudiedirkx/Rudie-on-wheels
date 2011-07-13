@@ -120,18 +120,49 @@ abstract class Adapter extends \row\core\Object {
 		return $conditions;
 	}
 
-	public function fetch( $query, $class = null, $justFirst = false ) {
+	public function fetch( $query, $mixed = null ) {
+		// default options
+		$class = false;
+		$justFirst = false;
+		$params = array();
+
+		// unravel options
+		if ( is_array($mixed) ) {
+			if ( is_int(key($mixed)) ) {
+				$params = $mixed;
+			}
+			else {
+				$class = Options::one($mixed, 'class', false);
+				$justFirst = $mixed->get('single', $mixed->get('first', false));
+				$params = $mixed->get('params', array());
+			}
+		}
+		else if ( is_bool($mixed) ) {
+			$justFirst = $mixed;
+		}
+		else if ( is_string($mixed) ) {
+			$class = $mixed;
+		}
+
+		// apply params
+		if ( $params ) {
+			$query = $this->replaceholders($query, $params);
+		}
+
 		$result = $this->result($query);
 		class_exists($class) or $class = false;
+
 		if ( $justFirst ) {
 			if ( $class ) {
 				return $result->nextObject($class, array(true));
 			}
 			return $result->nextAssocArray();
 		}
+
 		if ( $class ) {
 			return $result->allObjects($class, array(true));
 		}
+
 		return $result->allAssocArrays();
 	}
 
@@ -214,7 +245,7 @@ abstract class Adapter extends \row\core\Object {
 	public function select( $table, $conditions, $params = array(), $justFirst = false ) {
 		$conditions = $this->replaceholders($conditions, $params);
 		$query = 'SELECT * FROM '.$this->escapeAndQuoteTable($table).' WHERE '.$conditions;
-		return $this->fetch($query, null, $justFirst);
+		return $this->fetch($query, (bool)$justFirst);
 	}
 
 	public function selectByField( $table, $field, $conditions, $params = array() ) {
@@ -291,7 +322,12 @@ abstract class Adapter extends \row\core\Object {
 		if ( !is_string($updates) ) {
 			$u = '';
 			foreach ( (array)$updates AS $k => $v ) {
-				$u .= ',' . $k . '=' . $this->escapeAndQuoteValue($v);
+				if ( is_int($k) ) {
+					$u .= ', ' . $v;
+				}
+				else {
+					$u .= ', ' . $k . ' = ' . $this->escapeAndQuoteValue($v);
+				}
 			}
 			$updates = substr($u, 1);
 		}
@@ -302,8 +338,13 @@ abstract class Adapter extends \row\core\Object {
 		if ( !is_string($conditions) ) {
 			$sql = array();
 			foreach ( (array)$conditions AS $column => $value ) {
-				$column = $table ? $this->aliasPrefix($table, $column) : $this->escapeAndQuoteColumn($column);
-				$sql[] = $column . ( null === $value ? ' IS NULL' : ' = ' . $this->escapeAndQuoteValue($value) );
+				if ( is_int($column) ) {
+					$sql[] = $value;
+				}
+				else {
+					$column = $table ? $this->aliasPrefix($table, $column) : $this->escapeAndQuoteColumn($column);
+					$sql[] = $column . ( null === $value ? ' IS NULL' : ' = ' . $this->escapeAndQuoteValue($value) );
+				}
 			}
 			$conditions = implode(' '.$delim.' ', $sql);
 		}

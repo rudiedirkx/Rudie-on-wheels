@@ -100,7 +100,11 @@ abstract class Model extends ModelParent {
 			$class = $class.'Record';
 		}
 
-		return static::dbObject()->fetch($query, $class, $justFirst, $params);
+		return static::dbObject()->fetch($query, array(
+			'class' => $class,
+			'single' => $justFirst,
+			'params' => $params
+		));
 	}
 
 	/**
@@ -250,8 +254,8 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	static public function _count( $conditions = '' ) {
-		return static::dbObject()->count(static::$_table, $conditions);
+	static public function _count( $conditions = '', $params = array() ) {
+		return static::dbObject()->count(static::$_table, $conditions, $params);
 	}
 
 
