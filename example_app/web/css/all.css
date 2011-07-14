@@ -9,7 +9,7 @@ body > .body { padding: 30px; max-width: 1200px; margin: 0 auto; }
 #messages > li.success { color:green; }
 h1 { margin:20px 0; }
 h1 smaller { font-size:16px; }
-pre { margin-left:10px; padding:5px 10px; background-color:#777;  color:#fff; font-size:16px; overflow:auto; }
+pre { border-left: solid 15px #555; padding:5px 10px; background-color:#777;  color:#fff; font-size:16px; overflow:auto; }
 article, fieldset { padding:30px; border:solid 1px #bbb; }
 fieldset { padding:10px 20px; margin:30px 0; }
 p, div.form-element, article content h3 { margin: 15px 0; }
@@ -123,6 +123,7 @@ article.unpublished { border-color: red; }
 article article { margin:0; }
 h2:first-child, article h3, article h2, article h1 { margin:0; }
 article.blogpostpreview { margin-bottom:30px; }
+.articles > article.blogpostpreview:last-child { margin-bottom: 0; }
 article.comment { margin-top:30px; }
 article.comment:first-child { margin-top:10px; }
 article.comment p:last-child { margin-bottom:0; }

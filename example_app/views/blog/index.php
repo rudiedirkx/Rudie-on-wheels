@@ -9,10 +9,9 @@
 
 <p>Showing <?=count($posts)?> newest (of <?=$numAllPosts?> total) posts...</p>
 
-<div>
 <?=$pager = $this::paginate($numAllPosts, $postsPerPage, 'page', array('start' => 1, 'type' => 'page', 'show' => 10, 'prevnext' => false, 'firstlast' => false))."\n"?>
-</div>
 
+<div class="articles">
 <?foreach( $posts as $post ):?>
 
 	<article class="blogpostpreview <?=!$post->is_published ? 'unpublished' : ''?>">
@@ -23,6 +22,9 @@
 	</article>
 
 <?endforeach?>
+</div>
+
+<?=$pager = $this::paginate($numAllPosts, $postsPerPage, 'page', array('start' => 1, 'type' => 'page', 'show' => 10, 'prevnext' => false, 'firstlast' => false))."\n"?>
 
 <?$this->section()?>
 $$('content').bind('dblclick', function(e) {
