@@ -264,16 +264,24 @@ class blogController extends \app\specs\Controller {
 	}
 
 	// Two ways to get the right posts. Access is called within the Controller, not
-	// the Model, because the Model doesn't have (as direct) access to the SessionUser.
-	public function index( $page = 1 ) {
+	// the Model, because the Model is (or should be) environmentless.
+	public function index() {
+
+		$postsPerPage = $this->_config('posts_on_index');
 
 		// Way 1
 		// Define which get method to use to fetch Posts by checking ACL
 		// Use that function and the Model's logic to get those posts.
 		$unpub = $this->user->hasAccess('blog read unpublished');
 		$method = $unpub ? 'newest' : 'newestPublished';
-		$poi = $this->_config('posts_on_index');
-		$posts = models\Post::$method($poi);
+		$posts = models\Post::$method($postsPerPage);
+
+		// The quick 'n dirty //
+		$page = Options::one($_GET, 'page', 1, false);
+		$start = ($page-1) * $postsPerPage;
+		$conditions = $unpub ? '1' : 'is_published = 1';
+		$posts = models\Post::all($conditions . ' ORDER BY created_on DESC LIMIT '.$start.', '.$postsPerPage.'');
+		// Don't do it! //
 
 		// Way 2
 		// Define the difference in conditions here (instead of in the Model)

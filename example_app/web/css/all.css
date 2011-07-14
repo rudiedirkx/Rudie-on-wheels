@@ -18,6 +18,39 @@ a { color: green; }
 a:visited { color: rgb(0, 120, 0); }
 content { display: block; margin: 0; }
 
+.pager {
+	padding-left: 0;
+	padding: 7px;
+	background: #eee;
+}
+.pager li {
+	display: inline-block;
+	line-height: 20px;
+	padding: 0 4px 0 5px;
+}
+.pager .page {
+	border-left: solid 1px #aaa;
+}
+.pager .first-page {
+	padding-left: 4px;
+	border-left: 0;
+}
+.pager .disabled a {
+	color: #999;
+	text-decoration: none;
+}
+.pager .current a {
+	color: #f00;
+	font-size: 140%;
+	text-decoration: none;
+	position: relative;
+	top: 2px;
+}
+.pager .page:not(.current) a {
+	position: relative;
+	bottom: 1px;
+}
+
 content textarea {
 	width: 100%;
 	height: 200px;

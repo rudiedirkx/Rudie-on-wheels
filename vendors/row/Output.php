@@ -287,7 +287,14 @@ class Output extends \row\Component {
 			$prefix = $scheme . '://' . $_SERVER['HTTP_HOST'] . $port;
 		}
 
-		return $prefix . $base . $path;
+		true !== $path or !static::$_application or $path = static::$_application->_uri;
+
+		$query = '';
+		if ( $options->get ) {
+			$query = '?' . ( is_scalar($options->get) ? $options->get : http_build_query((array)$options->get, '') );
+		}
+
+		return $prefix . $base . $path . $query;
 	}
 
 	static public function attributes( $attr, $except = array() ) {
@@ -301,7 +308,15 @@ class Output extends \row\Component {
 	}
 
 	static public function link( $text, $path, $options = array() ) {
-		return '<a href="'.static::url($path, !empty($options['absolute'])).'"'.static::attributes($options, array('absolute')).'>'.static::html($text).'</a>';
+		$options = options($options);
+
+		$href = static::url($path, array(
+			'absolute' => (bool)$options->absolute,
+			'get' => $options->get,
+		));
+		$attributes = static::attributes($options, array('absolute', 'get'));
+
+		return '<a href="'.$href.'"'.$attributes.'>'.static::html($text).'</a>';
 	}
 
 	static public function select( $selectOptions, $options = array() ) {
@@ -357,6 +372,49 @@ class Output extends \row\Component {
 		$httponly = $options->get('httponly', false);
 
 		return setcookie($name, $value, $expires, $path, $domain, $secure, $httponly);
+	}
+
+	static public function paginate( $total, $perPage, $name, $options = array() ) {
+		$return = Options::one($options, 'return', false);
+		$start = (int)(bool)$options->get('start', 1); // always 0 or 1
+		$prevnext = $options->prevnext;
+		$firstlast = $options->firstlast;
+
+		$pages = ceil($total / $perPage);
+		$current = isset($_GET[$name]) ? max($start, (int)$_GET[$name]) : $start;
+		$end = $pages - 1 + $start;
+
+		$g = $_GET;
+
+		$html = '<ul class="pager">';
+		if ( true === $firstlast || ( null === $firstlast && $start < $current ) ) {
+			$page = $start;
+			$g[$name] = $page;
+			$html .= '<li class="first'.( $current == $start ? ' disabled' : '' ).'">'.static::link('first', true, array('get' => $g)).'</li>';
+		}
+		if ( true === $prevnext || ( null === $prevnext && $start < $current ) ) {
+			$page = max($start, $current - 1);
+			$g[$name] = $page;
+			$html .= '<li class="prev'.( $current == $g[$name] ? ' disabled' : '' ).'">'.static::link('prev', true, array('get' => $g)).'</li>';
+		}
+		for ( $i=0; $i<$pages; $i++ ) {
+			$page = $i + $start;
+			$g[$name] = $page;
+			$html .= '<li class="page page-'.$page.( $current == $page ? ' current' : '' ).( $start == $page ? ' first-page' : ( $end == $page ? ' last-page' : '' ) ).'">'.static::link($page, true, array('get' => $g)).'</li>';
+		}
+		if ( true === $prevnext || ( null === $prevnext && $end > $current ) ) {
+			$page = min($end, $current + 1);
+			$g[$name] = $page;
+			$html .= '<li class="prev'.( $current == $g[$name] ? ' disabled' : '' ).'">'.static::link('next', true, array('get' => $g)).'</li>';
+		}
+		if ( true === $firstlast || ( null === $firstlast && $end > $current ) ) {
+			$page = $end;
+			$g[$name] = $page;
+			$html .= '<li class="last'.( $current == $end ? ' disabled' : '' ).'">'.static::link('last', true, array('get' => $g)).'</li>';
+		}
+		$html .= '</ul>';
+
+		return $html;
 	}
 
 }

@@ -7,8 +7,13 @@ use \Countable;
 
 class Options extends Object implements Countable {
 
-	static public function one( Array &$options, $name, $alt = null ) {
+	static public function one( &$options, $name, $alt = null, $convert = true ) {
+		if ( !$convert && is_array($options) ) {
+			return isset($options[$name]) ? $options[$name] : $alt;
+		}
+
 		$options = Options::make($options);
+
 		return $options->get($name, $alt);
 	}
 
@@ -16,6 +21,7 @@ class Options extends Object implements Countable {
 		if ( !is_a($options, 'Options') ) {
 			$options = new static((array)$options, $defaults);
 		}
+
 		return $options;
 	}
 
