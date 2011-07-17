@@ -2,6 +2,13 @@
 To do:
 ------
 
+### Must have
+
+1. Better `SessionUser::env_IP()`
+1. Better `SessionUser::env_UA()`?
+1. Better `SessionUser::env_Domain()`
+1. Check ALL row classes for extendability: **never** must a `ROW` class name be hardcoded in `ROW`! Give important classes a static `$class` property?
+
 ### For 1.2
 
 1. Implement error/404 `Controller Action` via `Dispatcher` 'error handler'

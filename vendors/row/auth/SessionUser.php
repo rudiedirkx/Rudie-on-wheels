@@ -15,7 +15,10 @@ class SessionUser extends Object {
 			$su = new static;
 		}
 		return $su;
-//		return $GLOBALS['application']->user;
+	}
+
+	static public function env_Domain() {
+		return $_SERVER['HTTP_HOST'];
 	}
 
 	static public function env_IP() {
@@ -28,8 +31,6 @@ class SessionUser extends Object {
 
 
 	public $user; // typeof Model
-//	public $name = 'Anonymous';
-//	public $id = 0;
 
 	public $salt; // a string to be filled by ->validate() (from session or database or environment (like hash(ip+ua)) or something)
 
@@ -42,6 +43,8 @@ class SessionUser extends Object {
 
 		// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
 		$this->validate();
+
+		$GLOBALS['User'] = $this;
 
 		$this->_fire('init');
 	}

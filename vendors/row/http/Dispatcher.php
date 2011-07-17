@@ -114,6 +114,11 @@ class Dispatcher extends Object {
 
 		$this->cacheLoad();
 
+		$base = dirname($_SERVER['PHP_SELF']) . '/';
+		$this->requestBasePath = $base;
+
+		$GLOBALS['Dispatcher'] = $this;
+
 		$this->_fire('init');
 	}
 
@@ -140,10 +145,6 @@ class Dispatcher extends Object {
 			}
 			$path = $uri[0];
 
-			$base = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-			$this->requestBasePath = $base;
-			session_set_cookie_params(0, $base);
-
 			$path = substr($path, strlen($base));
 			if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
@@ -155,15 +156,19 @@ class Dispatcher extends Object {
 
 
 	public function getApplication( $f_path ) {
-		if ( !$this->requestPath ) {
+		if ( false === $this->requestPath ) {
 			$this->requestPath = $f_path;
 		}
 
 		$controller = $this->getController($f_path);
 		$this->application = $controller;
+
+		$GLOBALS['Application'] = $this;
+
 		if ( !$this->fromCache ) {
 			$this->_fire('post_dispatch');
 		}
+
 		return $controller;
 	}
 

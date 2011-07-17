@@ -6,7 +6,7 @@ use row\core\Object;
 
 class Session extends Object {
 
-	static public $name = 'row_4_0'; // Change this frequently!
+	static public $name = 'row_4_0';
 
 	static public $id; // PHP's session id
 	static public $session;
@@ -26,19 +26,27 @@ class Session extends Object {
 	static public function validateEnvironment() {
 		if ( static::exists() ) {
 			// Check IP
-			if ( isset(static::$session['ip'], $_SERVER['REMOTE_ADDR']) && sha1($_SERVER['REMOTE_ADDR']) == static::$session['ip'] ) {
+			if ( isset(static::$session['ip']) && sha1(SessionUser::env_IP()) === static::$session['ip'] ) {
 				// Check User Agent
-				if ( isset(static::$session['ua'], $_SERVER['HTTP_USER_AGENT']) && sha1($_SERVER['HTTP_USER_AGENT']) == static::$session['ua'] ) {
-//					static::$session['active'] = time(); // Let's not...
+				if ( isset(static::$session['ua']) && sha1(SessionUser::env_UA()) === static::$session['ua'] ) {
 					return true;
 				}
 			}
 		}
 	}
 
+	static public function preInit() {
+		$sname = ini_get('session.name');
+		if ( isset($_POST[$sname]) ) {
+			session_id($_POST[$sname]);
+		}
+
+		session_set_cookie_params(0, $GLOBALS['Dispatcher']->requestBasePath, SessionUser::env_Domain(), false, true);
+	}
+
 	static public function exists() {
 		$sname = ini_get('session.name');
-		$exists = !empty($_SESSION) || isset($_COOKIE[$sname]) || isset($_POST['SID']);
+		$exists = !empty($_SESSION) || isset($_COOKIE[$sname]) || isset($_POST[$sname]);
 		if ( $exists ) {
 			static::required();
 			return true;
@@ -47,13 +55,16 @@ class Session extends Object {
 
 	static public function required() {
 		$sid = session_id();
-		if ( !$sid ) { // Session not started for this request
-			if ( isset($_POST['SID']) ) {
-				session_id($_POST['SID']);
-			}
-//echo 'reviving session with session_start'."\n";
+		if ( !$sid ) {
+
+			// Session not started for this request
+
+			static::preInit();
+
 			session_start();
-			if ( !isset($_SESSION[static::$name], $_SESSION[static::$name]['ip'], $_SESSION[static::$name]['ua']) ) { // Session not started for this session
+
+			if ( !isset($_SESSION[static::$name], $_SESSION[static::$name]['ip'], $_SESSION[static::$name]['ua']) ) {
+				// Session not started for this session
 				$_SESSION[static::$name] = array(
 					'ip' => sha1($_SERVER['REMOTE_ADDR']),
 					'ua' => sha1($_SERVER['HTTP_USER_AGENT']),
@@ -63,14 +74,14 @@ class Session extends Object {
 					'logins' => array(),
 					'vars' => array(),
 				);
-//echo 'session reset with new vars'."\n";
 			}
 			else {
-//echo 'valid session found, so don\'t change it'."\n";
 				
 			}
+
 			static::$session =& $_SESSION[static::$name];
 			static::$id = session_id();
+
 		}
 	}
 
