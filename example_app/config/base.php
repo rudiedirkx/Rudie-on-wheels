@@ -6,7 +6,12 @@ define( 'ROW_PATH', dirname(ROW_APP_PATH) ); // Absolute root
 define( 'ROW_VENDORS_PATH', ROW_PATH.'/vendors' ); // Folders with all the vendor folders
 define( 'ROW_VENDOR_ROW_PATH', ROW_VENDORS_PATH.'/row' ); // The folder for the framework vendor Rudie On Wheels
 
-require(__DIR__.'/env.php');
+if ( isset($_SERVER['ENVIRONMENT']) && $_SERVER['ENVIRONMENT'] == 'PAGODA' ) {
+	require(__DIR__.'/pagoda.php');
+}
+else {
+	require(__DIR__.'/env.php');
+}
 
 // core classes
 require(ROW_VENDOR_ROW_PATH.'/core/Object.php');
