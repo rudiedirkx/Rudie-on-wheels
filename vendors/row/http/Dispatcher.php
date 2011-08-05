@@ -421,7 +421,7 @@ class Dispatcher extends Object {
 
 	public function throwNotFound() {
 		$exceptionClass = $this->options->not_found_exception;
-		throw new $exceptionClass($this->requestPath);
+		throw new $exceptionClass('/'.$this->requestPath);
 	}
 
 	protected function tryFallback() {
@@ -429,7 +429,7 @@ class Dispatcher extends Object {
 			// 5. 
 			if ( $application = $this->getControllerObject($this->options->fallback_controller) ) {
 				// reevaluate params for Action
-				$this->evaluatePath('fallback'.$this->requestPath);
+				$this->evaluatePath('fallback/'.$this->requestPath);
 
 				// 6. 
 				if ( is_array($_actions = $application->_getActionPaths()) ) {
