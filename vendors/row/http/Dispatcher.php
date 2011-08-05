@@ -114,7 +114,8 @@ class Dispatcher extends Object {
 
 		$this->cacheLoad();
 
-		$base = dirname($_SERVER['PHP_SELF']) . '/';
+		$base = str_replace('\\', '/', dirname($_SERVER['PHP_SELF']));
+		$base == '/' or $base .= '/';
 		$this->requestBasePath = $base;
 
 		$GLOBALS['Dispatcher'] = $this;
@@ -145,12 +146,13 @@ class Dispatcher extends Object {
 			}
 			$path = $uri[0];
 
-			$path = substr($path, strlen($base));
+			$path = substr($path, strlen($this->requestBasePath));
 			if ( $this->options->ignore_trailing_slash ) {
 				$path = rtrim($path, '/');
 			}
 			$this->requestPath = $path ?: '/';
 		}
+
 		return $this->requestPath;
 	}
 

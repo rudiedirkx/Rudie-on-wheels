@@ -28,11 +28,13 @@ class blogController extends \app\specs\Controller {
 		$this->aclAdd('blog create posts', 'add_post');
 	}
 
+	/**
 	protected function _post_action() {
 		parent::_post_action();
 		print_r(Session::$session);
 		var_dump(Session::$id);
 	}
+	/**/
 
 
 	public function follow_post( $post ) {
@@ -298,7 +300,7 @@ class blogController extends \app\specs\Controller {
 
 		$messages = Session::messages();
 
-		return get_defined_vars(); // view will be rendered by app\specs\Controller->_post_action
+		return get_defined_vars(); // view will be rendered by row\Controller->_post_action
 	}
 
 	/**

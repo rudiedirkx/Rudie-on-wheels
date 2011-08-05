@@ -33,8 +33,9 @@ class Router extends Object {
 
 	public function redirect( $goto ) {
 		if ( 'http' != substr($goto, 0, 4) && '/' != substr($goto, 0, 1) ) {
-			$goto = $this->dispatcher->requestBasePath.'/'.$goto;
+			$goto = $this->dispatcher->requestBasePath . $goto;
 		}
+
 		header('Location: '.$goto);
 		exit;
 	}

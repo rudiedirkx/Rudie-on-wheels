@@ -47,18 +47,6 @@ abstract class Controller extends \row\Controller {
 	}
 
 
-	protected function _post_action() {
-		// display view example
-		if ( is_array($this->_response) ) {
-			$this->tpl->display(
-				$this->_response, // params
-				!$this->_ajax() // layout
-			);
-		}
-		parent::_post_action();
-	}
-
-
 	public function aclCheckAccess( $zone ) {
 		return $this->user->hasAccess($zone);
 	}

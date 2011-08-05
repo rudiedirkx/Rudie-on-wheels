@@ -270,7 +270,7 @@ class Output extends \row\Component {
 	 * Temporary (?) solution: static::$application
 	 */
 	static public function url( $path, $options = array() ) {
-		$base = static::$_application ? static::$_application->_dispatcher->requestBasePath.'/' : '/';
+		$base = isset($GLOBALS['Dispatcher']) ? $GLOBALS['Dispatcher']->requestBasePath : '/';
 
 		$options = options( is_bool($options) ? array('absolute' => $options) : $options );
 

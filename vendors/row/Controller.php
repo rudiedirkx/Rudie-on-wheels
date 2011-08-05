@@ -58,7 +58,7 @@ abstract class Controller extends Object {
 		}
 		else if ( is_array($this->_response) ) {
 			if ( $this->_exists('tpl') && is_a($this->tpl, 'row\Output') ) {
-				return $this->tpl->display($this->_response);
+				return $this->tpl->display($this->_response, !$this->_ajax());
 			}
 		}
 	}
