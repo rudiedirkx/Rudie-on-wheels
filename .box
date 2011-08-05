@@ -1,6 +1,11 @@
-
 document_root: /example_app/web/
-default_gateway: index.php
 
 shared_writable_dirs:
     - /example_app/runtime
+
+url_rewrites:
+    -
+        rule: "^/(.*)$ /index.php last"
+        conditions:
+            - "!-f $request_filename"
+            - "!-d $request_filename"
