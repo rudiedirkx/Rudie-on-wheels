@@ -3,4 +3,4 @@ document_root: /example_app/web/
 default_gateway: index.php
 
 shared_writable_dirs:
-	- /example_app/runtime
+    - /example_app/runtime
