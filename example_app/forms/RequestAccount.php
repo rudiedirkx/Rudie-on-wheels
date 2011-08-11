@@ -27,11 +27,11 @@ class RequestAccount extends \app\specs\SimpleForm {
 					$usernameExists = models\User::count(array('username' => $form->input('username')));
 					return $usernameExists ? 'This username is taken' : true;
 				},
-				'description' => Output::translate('Have you read our %0?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
+				'description' => Output::translate('Have you read our %1?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
 			),
 /*			'username_disclaimer' => array(
 				'type' => 'markup',
-				'text' => Output::translate('Have you read our %0?', array(Output::link(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog-user/guidelines/username')))
+				'text' => Output::translate('Have you read our %1?', array(Output::link(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog-user/guidelines/username')))
 			),*/
 			'password' => array(
 				'type' => 'password',

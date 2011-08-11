@@ -110,7 +110,10 @@ class SessionUser extends \row\auth\SessionUser {
 		Session::$session['logins'][] = $login;
 
 		// isLoggedIn() for this HTTP request
-		$this->user = $user;
+		$this->save(array(
+			'user' => $user,
+			'salt' => $login['salt'],
+		));
 
 		return true; // Why would this ever be false??
 	}
@@ -124,8 +127,10 @@ class SessionUser extends \row\auth\SessionUser {
 		$login = parent::validate();
 		if ( is_array($login) && isset($login['user_id'], $login['salt']) ) {
 			try {
-				$this->user = models\User::get($login['user_id']);
-				$this->salt = $login['salt'];
+				$this->save(array(
+					'user' => models\User::get($login['user_id']),
+					'salt' => $login['salt'],
+				));
 			}
 			catch ( Exception $ex ) {}
 		}
@@ -140,5 +145,7 @@ class SessionUser extends \row\auth\SessionUser {
 	}
 
 }
+
+SessionUser::$class = 'app\specs\SessionUser';
 
 

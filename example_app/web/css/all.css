@@ -141,6 +141,8 @@ article.comment p:last-child { margin-bottom:0; }
 	margin: 20px;
 	padding: 20px;
 	background-color: #fff;
+	border-radius: 4px;
+	box-shadow: 0 0 20px #888;
 }
 #overlays > .overlay > div > :last-child:not(p.close-overlay) {
 	margin-bottom: 0;

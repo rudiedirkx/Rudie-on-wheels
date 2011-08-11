@@ -86,6 +86,7 @@ class userController extends blogController {
 	public function POST_login( $uid = null ) {
 		$post = Options::make($_POST);
 		$get = Options::make($_GET);
+
 		try {
 			// get user object
 			$user = models\User::one(array( 'username' => (string)$post->username ));
@@ -108,7 +109,7 @@ class userController extends blogController {
 		$messages = Session::messages();
 
 		// reshow login form
-		return $this->tpl->display(get_defined_vars());
+		return get_defined_vars();
 	}
 
 	// I'm allowing double logins (or "login layers"):
@@ -120,9 +121,11 @@ class userController extends blogController {
 		if ( null !== $uid ) {
 			$this->user->login(models\User::get($uid));
 		}
+
 		if ( $this->user->isLoggedIn() ) {
 			$this->_redirect('/blog');
 		}
+
 /*		if ( $this->_post() ) {
 			try {
 				$user = models\User::one(array( 'username' => (string)$this->post->username ));
@@ -133,8 +136,10 @@ class userController extends blogController {
 			catch ( \Exception $ex ) {}
 			Session::error('Sorry, buddy, that\'s not your username!');
 		}*/
+
 		$messages = Session::messages();
-		return $this->tpl->display(get_defined_vars());
+
+		return get_defined_vars();
 	}
 
 

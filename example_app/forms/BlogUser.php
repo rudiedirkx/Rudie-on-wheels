@@ -32,7 +32,7 @@ class BlogUser extends \app\specs\SimpleForm {
 					'field' => 'username',
 					'conditions' => array('is_deleted = ? AND user_id <> ?', array(false, (int)$defaults->user_id)),
 				),
-				'description' => Output::translate('Have you read our %0?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
+				'description' => Output::translate('Have you read our %1?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
 			),
 			'password' => array(
 				'type' => 'text',

@@ -3,8 +3,11 @@
 namespace row\auth;
 
 use row\core\Object;
+use row\auth\SessionUser;
 
 class Session extends Object {
+
+	static public $class = __CLASS__;
 
 	static public $name = 'row_4_0';
 
@@ -25,10 +28,11 @@ class Session extends Object {
 
 	static public function validateEnvironment() {
 		if ( static::exists() ) {
+			$su = SessionUser::$class;
 			// Check IP
-			if ( isset(static::$session['ip']) && sha1(SessionUser::env_IP()) === static::$session['ip'] ) {
+			if ( isset(static::$session['ip']) && sha1($su::IP()) === static::$session['ip'] ) {
 				// Check User Agent
-				if ( isset(static::$session['ua']) && sha1(SessionUser::env_UA()) === static::$session['ua'] ) {
+				if ( isset(static::$session['ua']) && sha1($su::UA()) === static::$session['ua'] ) {
 					return true;
 				}
 			}
@@ -41,7 +45,8 @@ class Session extends Object {
 			session_id($_POST[$sname]);
 		}
 
-		session_set_cookie_params(0, $GLOBALS['Dispatcher']->requestBasePath, SessionUser::env_Domain(), false, true);
+		$su = SessionUser::$class;
+		session_set_cookie_params(0, $GLOBALS['Dispatcher']->requestBasePath, $su::Domain(), false, true);
 	}
 
 	static public function exists() {

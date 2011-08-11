@@ -369,9 +369,11 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderCheckboxElement( $name, $element, $wrapper = true ) {
+		$o = Output::$class;
+
 		$elName = $name;
 		$checked = null !== $this->input($name, null) ? ' checked' : '';
-		$value = isset($element['value']) ? ' value="'.Output::html($element['value']).'"' : '';
+		$value = isset($element['value']) ? ' value="'.$o::html($element['value']).'"' : '';
 
 		$input = '<label><input type="checkbox" name="'.$elName.'"'.$value.$checked.' /> '.$element['title'].'</label>';
 		$html = '<span class="input">'.$input.'</span>';
@@ -521,6 +523,8 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function render( $withForm = true, $options = array() ) {
+		$o = Output::$class;
+
 		if ( is_array($withForm) ) {
 			$options = $withForm;
 			$withForm = true;
@@ -546,9 +550,9 @@ abstract class SimpleForm extends \row\Component {
 
 		if ( $withForm ) {
 			$method = $options->get('method', 'post');
-			$action = Output::url($this->application->_uri);
+			$action = $o::url($this->application->_uri);
 			$html =
-				'<form method="'.$method.'" action="'.$action.'"'.Output::attributes($options, array('method')).'>' .
+				'<form method="'.$method.'" action="'.$action.'"'.$o::attributes($options, array('method')).'>' .
 					$this->elementSeparator() .
 					$html.$this->renderButtons() .
 					$this->elementSeparator() .
@@ -559,7 +563,7 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElement( $name, $element ) {
-		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || ($fn = array($this, (string)$this->renderers[$name])) ) ) {
+		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
 			return call_user_func($fn, $name, $element, $this);
 		}
 
@@ -585,8 +589,10 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	protected function elementAttributes( $element ) {
+		$o = Output::$class;
+
 		if ( isset($element['attributes']) ) {
-			return Output::attributes($element['attributes']);
+			return $o::attributes($element['attributes']);
 		}
 	}
 
@@ -602,7 +608,16 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderButtons() {
-		return '<'.$this->elementWrapperTag.' class="form-submit"><input type=submit value="'.$this->submitButtonText().'" /></'.$this->elementWrapperTag.'>';
+		$o = Output::$class;
+
+		$submit = $this->submitButtonText();
+		$submit && $submit = ' value="'.$o::html($submit).'"';
+
+		return '<'.$this->elementWrapperTag.' class="form-submit"><input type="submit"'.$submit.' /></'.$this->elementWrapperTag.'>';
+	}
+
+	public function submitButtonText() {
+		return '';
 	}
 
 	public function renderElementWrapper( $html, $element ) {

@@ -9,23 +9,25 @@ use row\auth\Session;
 
 class SessionUser extends Object {
 
+	static public $class = __CLASS__;
+
 	static public function user() {
 		static $su;
 		if ( empty($su) ) {
-			$su = new static;
+			$su = new static::$class;
 		}
 		return $su;
 	}
 
-	static public function env_Domain() {
+	static public function Domain() {
 		return $_SERVER['HTTP_HOST'];
 	}
 
-	static public function env_IP() {
+	static public function IP() {
 		return $_SERVER['REMOTE_ADDR'];
 	}
 
-	static public function env_UA() {
+	static public function UA() {
 		return $_SERVER['HTTP_USER_AGENT'];
 	}
 
@@ -38,8 +40,8 @@ class SessionUser extends Object {
 	public $ua = '';
 
 	public function __construct() {
-		$this->ip = $this::env_IP();
-		$this->ua = $this::env_UA();
+		$this->ip = $this::IP();
+		$this->ua = $this::UA();
 
 		// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
 		$this->validate();
@@ -53,7 +55,9 @@ class SessionUser extends Object {
 
 	// Step 1: login (once per session)
 	public function login( \row\database\Model $user ) {
-		Session::required();
+		$s = Session::$class;
+		$s::required();
+
 		// Alter _SESSION
 		$login = array(
 			'user_id' => 0,
@@ -61,6 +65,7 @@ class SessionUser extends Object {
 			'salt' => (string)rand(1000000, 9999999),
 			'vars' => array(),
 		);
+
 		// Add session record in db?
 		$insert = array(
 			'user_id' => &$login['user_id'],
@@ -68,16 +73,19 @@ class SessionUser extends Object {
 			'ip' => $_SERVER['REMOTE_ADDR'],
 			'start' => time(),
 		);
+
 		return compact('login', 'insert'); // To be used by SessionUser's (instantiable) extention
 	}
 
 	// Step 2: validate (once per HTTP request)
 	public function validate() {
+		$s = Session::$class;
+
 		// 1. FIRST: check env
-		if ( Session::validateEnvironment() ) { // Includes ::exists() and ::required()
+		if ( $s::validateEnvironment() ) { // Includes ::exists() and ::required()
 			// 2. Check session
-			if ( Session::$session['logins'] ) {
-				$login = Session::$session['logins'][count(Session::$session['logins'])-1];
+			if ( $s::$session['logins'] ) {
+				$login = $s::$session['logins'][count($s::$session['logins'])-1];
 				return $login;
 				// 3a. Check database
 				// 3b. Register User object in $this
@@ -87,9 +95,9 @@ class SessionUser extends Object {
 					$user = models\SessionUser::one(array(
 						'u.user_id' => $login['user_id'],
 						'login_sessions.unicheck' => $login['unicheck'],
-						'login_sessions.ip' => Session::$session['ip'],
+						'login_sessions.ip' => $s::$session['ip'],
 					));
-					$this->user = $user;
+					$this->save(array('user' => $user));
 					$user->saveACL(); // You might wanna lazy-load this with a _GETTER (will be lazy-loaded in $this->hasAccess())
 					/**/
 				}
@@ -97,6 +105,13 @@ class SessionUser extends Object {
 					// No $this->user, so no $this->isLoggedIn()
 				}
 			}
+		}
+	}
+
+	// Step 2b: save user stuff to current request
+	public function save( $data ) {
+		foreach ( $data AS $k => $v ) {
+			$this->$k = $v;
 		}
 	}
 
@@ -115,11 +130,13 @@ class SessionUser extends Object {
 	}
 
 	public function variable( $key, $val = null ) {
+		$s = Session::$class;
+
 		if ( !$this->isLoggedIn() ) {
-			return Session::variable($key, $val);
+			return $s::variable($key, $val);
 		}
 
-		$login =& Session::$session['logins'][count(Session::$session['logins'])-1];
+		$login =& $s::$session['logins'][count($s::$session['logins'])-1];
 
 		if ( null !== $val ) {
 			if ( !isset($login['vars']) ) {
@@ -134,8 +151,10 @@ class SessionUser extends Object {
 
 	// Step 5: logout (once per session)
 	public function logout() {
+		$s = Session::$class;
+
 		// remove login layer from SESSION
-		array_pop(Session::$session['logins']);
+		array_pop($s::$session['logins']);
 	}
 
 

@@ -30,7 +30,7 @@ abstract class Controller extends Object {
 
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
-		$this->_uri = substr($this->_dispatcher->requestPath, 1);
+		$this->_uri = $this->_dispatcher->requestPath;
 	}
 
 

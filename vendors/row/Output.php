@@ -22,6 +22,8 @@ class OutputException extends RowException {}
 
 class Output extends \row\Component {
 
+	static public $class = __CLASS__;
+
 	static public $_application;
 
 	public $_exceptionClass = 'row\OutputException';

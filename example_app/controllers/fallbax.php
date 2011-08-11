@@ -10,6 +10,8 @@ use app\specs\Output;
 class fallbax extends \app\specs\Controller {
 
 	protected function _init() {
+		parent::_init();
+
 		$this->_dispatcher->options->restful = true;
 	}
 
