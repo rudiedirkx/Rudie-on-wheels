@@ -21,10 +21,79 @@ class dbController extends Controller {
 		'/in' => 'in',
 		'/replace' => 'replace',
 		'/conditions' => 'conditions',
+		'/build' => 'build',
 	);
 
 	protected function _pre_action() {
 		echo '<pre>'."\n";
+	}
+
+
+	public function build() {
+		include(ROW_APP_PATH.'/config/db-schema.php');
+
+		foreach ( $schema['tables'] AS $tableName => $table ) {
+			$table = options($table);
+			echo "CREATE TABLE ".$tableName." (\n";
+
+			$primary = array();
+			foreach ( $table->columns AS $columnName => $column ) {
+				$column = options($column);
+				if ( $column->primary ) {
+					$primary[] = $columnName;
+				}
+			}
+			$primaryIsAutoIncremenent = 1 == count($primary);
+
+			// columns
+			$first = true;
+			foreach ( $table->columns AS $columnName => $column ) {
+				$column = options($column);
+				$column->type = strtolower($column->type);
+
+				if ( 'boolean' == $column->type ) {
+					$column->type = 'tinyint';
+					$column->size = 1;
+					if ( $column->_exists('default') ) {
+						$column->default = (int)$column->default;
+					}
+				}
+
+				$type = strtoupper($column->type);
+				$size = $column->size ? "(".$column->size.")" : '';
+				$notnull = !$column->get('null', true) ? ' NOT NULL' : '';
+				$unsigned = $column->get('unsigned', false) ? ' UNSIGNED' : '';
+				$default = false !== $column->get('default', false) ? ' DEFAULT '.( is_int($column->default) ? $column->default : "'".$column->default."'" ) : '';
+				$autoincrement = $primaryIsAutoIncremenent && $column->primary && $column->get('autoincrement', true) ? ' auto_increment' : '';
+
+				$comma = $first ? ' ' : ',';
+				echo "  ".$comma.$columnName." ".$type.$size.$unsigned.$notnull.$default.$autoincrement."\n";
+
+				$first = false;
+			}
+
+			if ( !$table->_exists('indexes') ) {
+				$table->indexes = array();
+			}
+
+			if ( $primary ) {
+				array_unshift($table->indexes, array('columns' => $primary, 'primary' => true));
+			}
+
+			// indexes
+			$i = 0;
+			foreach ( $table->indexes AS $index ) {
+				$i++;
+				$index = options($index);
+
+				$type = $index->primary ? 'PRIMARY KEY' : ( $index->unique ? 'UNIQUE' : 'INDEX' );
+
+				echo "  ,".$type." ( ".implode(', ', $index->columns)." )\n";
+			}
+			echo ");\n\n";
+		}
+
+		print_r($schema);
 	}
 
 
