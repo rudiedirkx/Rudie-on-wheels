@@ -32,7 +32,7 @@ class SQLite extends Adapter {
 	public function _getPKColumns( $table ) {
 		$columns = $this->_getTableColumns($table);
 		$columns = array_filter($columns, function($c) {
-			return (bool)$c['pk'];
+			return $c['primary'];
 		});
 		$columns = array_keys($columns);
 		return $columns;

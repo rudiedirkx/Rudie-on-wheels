@@ -22,10 +22,52 @@ class dbController extends Controller {
 		'/replace' => 'replace',
 		'/conditions' => 'conditions',
 		'/build' => 'build',
+		'/difference' => 'difference',
 	);
 
 	protected function _pre_action() {
 		echo '<pre>'."\n";
+	}
+
+
+	protected function difference() {
+		include(ROW_APP_PATH.'/config/db-schema.php');
+
+		$dbTables = $this->db->_getTables();
+		$schemaTables = array_keys($schema['tables']);
+
+		$dropTables = array_diff($dbTables, $schemaTables);
+		foreach ( $dropTables AS $table ) {
+			echo "DROP TABLE ".$table.";\n";
+		}
+#echo "drop tables: ".implode(', ', $dropTables)."\n";
+
+		$createTables = array_diff($schemaTables, $dbTables);
+		foreach ( $createTables AS $table ) {
+			echo "CREATE TABLE ".$table." ( ... );\n";
+		}
+#echo "create tables: ".implode(', ', $createTables)."\n";
+
+		$compareTables = array_intersect($dbTables, $schemaTables);
+		foreach ( $compareTables AS $table ) {
+			$dbTable = $this->db->_getTableColumns($table);
+			$dbColumns = array_keys($dbTable);
+
+			$schemaTable = $schema['tables'][$table]['columns'];
+			$schemaColumns = array_keys($schemaTable);
+
+			$dropColumns = array_diff($dbColumns, $schemaColumns);
+			foreach ( $dropColumns AS $column ) {
+				echo "ALTER TABLE ".$table." DROP COLUMN ".$column.";\n";
+			}
+#echo "\ndrop columns: ".implode(', ', $dropColumns)."\n";
+			$createColumns = array_diff($schemaColumns, $dbColumns);
+			foreach ( $createColumns AS $column ) {
+				echo "ALTER TABLE ".$table." ADD COLUMN ".$column." ...;\n";
+			}
+#echo "create columns: ".implode(', ', $createColumns)."\n";
+		}
+
 	}
 
 

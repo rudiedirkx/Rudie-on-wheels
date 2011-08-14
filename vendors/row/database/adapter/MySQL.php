@@ -22,12 +22,14 @@ class MySQL extends Adapter {
 		$_columns = $this->fetch('EXPLAIN '.$table);
 		$columns = array();
 		foreach ( $_columns AS $c ) {
-			$c['type'] = strtoupper(is_int($p=strpos($c['Type'], '(')) ? substr($c['Type'], 0, $p) : $c['Type']);
-			$c['name'] = $c['Field'];
-			$c['null'] = 'NO' !== $c['Null'];
-			$c['default'] = $c['Default'];
-			$c['pk'] = 'PRI' === $c['Key'];
-			$columns[$c['Field']] = $c;
+			$c2 = array(
+				'type' => strtolower(is_int($p=strpos($c['Type'], '(')) ? substr($c['Type'], 0, $p) : $c['Type']),
+				'null' => 'NO' !== $c['Null'],
+				'default' => $c['Default'],
+				'primary' => 'PRI' === $c['Key'],
+			);
+
+			$columns[$c['Field']] = $c2;
 		}
 		return $columns;
 	}
@@ -35,7 +37,7 @@ class MySQL extends Adapter {
 	public function _getPKColumns( $table ) {
 		$columns = $this->_getTableColumns($table);
 		$columns = array_filter($columns, function($c) {
-			return $c['pk'];
+			return $c['primary'];
 		});
 		$columns = array_keys($columns);
 		return $columns;

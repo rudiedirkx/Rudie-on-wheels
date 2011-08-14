@@ -98,6 +98,11 @@ $schema = array(
 					'null' => false,
 					'default' => 0
 				),
+				'active' => array(
+					'type' => 'boolean',
+					'null' => false,
+					'default' => false,
+				),
 			),
 			'indexes' => array(
 				array(
@@ -132,6 +137,11 @@ $schema = array(
 					'unsigned' => true,
 					'null' => false,
 					'default' => 0
+				),
+				'active' => array(
+					'type' => 'boolean',
+					'null' => false,
+					'default' => false,
 				),
 			),
 			'indexes' => array(
@@ -174,13 +184,6 @@ $schema = array(
 					'null' => false,
 					'default' => '',
 				),
-				'original_slug' => array(
-					'type' => 'text',
-					'size' => 222,
-					'null' => false,
-					'default' => '',
-					'charset' => 'ascii',
-				),
 				'body' => array(
 					'type' => 'text',
 					'null' => false,
@@ -222,11 +225,21 @@ $schema = array(
 		),
 
 		'users' => array(
-			
+			'model' => 'User',
+			'columns' => array(),
+			'indexes' => array(),
+			'relationships' => array(),
+			'engine' => 'myisam',
+			'charset' => 'utf8',
 		),
 
-		'domains' => array(
-			
+		'testtable' => array(
+			'model' => 'TestData',
+			'columns' => array(),
+			'indexes' => array(),
+			'relationships' => array(),
+			'engine' => 'myisam',
+			'charset' => 'utf8',
 		),
 	),
 );

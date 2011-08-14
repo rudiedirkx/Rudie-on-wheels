@@ -7,7 +7,7 @@ require(ROW_VENDOR_ROW_PATH.'/database/adapter/MySQLi.php');
 use row\database\adapter;
 use row\database\Model;
 
-//$db = adapter\MySQL::open(array('user' => DB_HOST, 'dbname' => DB_NAME, 'names' => 'utf8')); // typeof MySQLi (probably)
+//$db = adapter\MySQL::open(array('user' => DB_USER, 'pass' => DB_PASS, 'dbname' => DB_NAME, 'names' => 'utf8')); // typeof MySQLi (probably)
 $db = adapter\SQLite::open(array('path' => DB_PATH));
 
 if ( !$db->connected() ) {

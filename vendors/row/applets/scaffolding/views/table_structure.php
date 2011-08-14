@@ -6,17 +6,17 @@
 <?php
 
 echo '<table><thead><tr>';
+echo '<th>Name</th>';
 $k0 = key($columns);
 foreach ( $columns[$k0] AS $k => $v ) {
-	echo '<th>'.$k.'</th>';
+	echo '<th>' . $k . '</th>';
 }
 echo '</tr></thead><tbody>';
-foreach ( $columns AS $row ) {
+foreach ( $columns AS $name => $row ) {
 	echo '<tr>';
-	$first = true;
+	echo '<td>' . row\utils\Inflector::spacify($name) . '</td>';
 	foreach ( $row AS $k => $v ) {
-		echo '<td>' . ( $first ? row\utils\Inflector::spacify($v) : $v ) . '</td>';
-		$first = false;
+		echo '<td>' . $v . '</td>';
 	}
 	echo '</tr>';
 }
