@@ -36,6 +36,8 @@ class dbController extends Controller {
 			$table = options($table);
 			echo "CREATE TABLE ".$tableName." (\n";
 
+			$tableCharset = $table->get('charset', 'utf8');
+
 			$primary = array();
 			foreach ( $table->columns AS $columnName => $column ) {
 				$column = options($column);
@@ -59,15 +61,18 @@ class dbController extends Controller {
 					}
 				}
 
-				$type = strtoupper($column->type);
+				$type = 'text' == $column->type && $column->size ? 'VARCHAR' : strtoupper($column->type);
 				$size = $column->size ? "(".$column->size.")" : '';
 				$notnull = !$column->get('null', true) ? ' NOT NULL' : '';
 				$unsigned = $column->get('unsigned', false) ? ' UNSIGNED' : '';
 				$default = false !== $column->get('default', false) ? ' DEFAULT '.( is_int($column->default) ? $column->default : "'".$column->default."'" ) : '';
 				$autoincrement = $primaryIsAutoIncremenent && $column->primary && $column->get('autoincrement', true) ? ' auto_increment' : '';
 
+				$columnCharset = $column->get('charset', $tableCharset);
+				$charset = 'text' == $column->type ? ' CHARACTER SET '.$columnCharset : '';
+
 				$comma = $first ? ' ' : ',';
-				echo "  ".$comma.$columnName." ".$type.$size.$unsigned.$notnull.$default.$autoincrement."\n";
+				echo "  ".$comma.$columnName." ".$type.$size.$unsigned.$charset.$notnull.$default.$autoincrement."\n";
 
 				$first = false;
 			}

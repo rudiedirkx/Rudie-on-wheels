@@ -179,6 +179,7 @@ $schema = array(
 					'size' => 222,
 					'null' => false,
 					'default' => '',
+					'charset' => 'ascii',
 				),
 				'body' => array(
 					'type' => 'text',
