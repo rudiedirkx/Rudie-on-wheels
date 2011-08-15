@@ -2,4 +2,4 @@ document_root: /example_app/web/
 shared_writable_dirs:
     - /example_app/runtime
 url_rewrites:
-	- ^(.*)$ /index.php
+	- "^(.*)$ /index.php"
