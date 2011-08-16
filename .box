@@ -5,5 +5,5 @@ url_rewrites:
     -
         rule: "^(.*)$ /index.php last"
         conditions:
-            - "!-f $request_filename"
-            - "!-d $request_filename"
+            - "!-f $request_filename"
+            - "!-d $request_filename"
