@@ -19,7 +19,7 @@ use row\http\NotFoundException;
 
 class dbsecretsController extends \row\applets\scaffolding\Controller {
 
-	static protected $config = array(
+	protected $config = array(
 		'allowed_ip_addresses' => array('127.0.0.1'),
 	);
 
