@@ -128,6 +128,14 @@ class MySQL extends Adapter {
 		return mysql_real_escape_string((string)$value, $this->db);
 	}
 
+#	public function quoteColumn( $column ) {
+#		return !is_int(strpos($column, ' ')) && !is_int(strpos($column, '.')) ? '`'.$column.'`' : $column;
+#	}
+
+#	public function quoteTable( $table ) {
+#		return !is_int(strpos($table, ' ')) && !is_int(strpos($table, '.')) ? '`'.$table.'`' : $table;
+#	}
+
 }
 
 

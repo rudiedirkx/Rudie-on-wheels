@@ -2,6 +2,29 @@
 
 $schema = array(
 	'tables' => array(
+		'test' => array(
+			'columns' => array(
+				'a' => array(
+					'type' => 'int',
+					'unsigned' => true,
+					'null' => false,
+					'primary' => true
+				),
+				'b' => array(
+					'type' => 'int',
+					'unsigned' => true,
+					'null' => false,
+					'primary' => true
+				),
+				'c' => array(
+					'type' => 'set',
+					'options' => array('oele', 'boele'),
+					'null' => false,
+					'default' => 'maybe',
+				),
+			),
+		),
+
 		'categories' => array(
 			'model' => 'Category',
 			'columns' => array(
@@ -16,6 +39,12 @@ $schema = array(
 					'size' => 60,
 					'null' => false,
 					'default' => '',
+				),
+				'available' => array(
+					'type' => 'enum',
+					'options' => array('no', 'maybe', 'yes'),
+					'null' => false,
+					'default' => 'maybe',
 				),
 			),
 			'engine' => 'myisam',

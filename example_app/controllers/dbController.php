@@ -80,20 +80,22 @@ class dbController extends Controller {
 
 			$tableCharset = $table->get('charset', 'utf8');
 
-			$primary = array();
+			$primaries = array();
 			foreach ( $table->columns AS $columnName => $column ) {
 				$column = options($column);
 				if ( $column->primary ) {
-					$primary[] = $columnName;
+					$primaries[] = $columnName;
 				}
 			}
-			$primaryIsAutoIncremenent = 1 == count($primary);
+			$primaryIsAutoIncremenent = 1 == count($primaries);
 
 			// columns
 			$first = true;
 			foreach ( $table->columns AS $columnName => $column ) {
 				$column = options($column);
 				$column->type = strtolower($column->type);
+
+				$sqlColumnName = $this->db->escapeAndQuoteColumn($columnName);
 
 				if ( 'boolean' == $column->type ) {
 					$column->type = 'tinyint';
@@ -104,17 +106,20 @@ class dbController extends Controller {
 				}
 
 				$type = 'text' == $column->type && $column->size ? 'VARCHAR' : strtoupper($column->type);
+				$type == 'INT' && $type = 'INTEGER';
 				$size = $column->size ? "(".$column->size.")" : '';
-				$notnull = !$column->get('null', true) ? ' NOT NULL' : '';
-				$unsigned = $column->get('unsigned', false) ? ' UNSIGNED' : '';
-				$default = false !== $column->get('default', false) ? ' DEFAULT '.( is_int($column->default) ? $column->default : "'".$column->default."'" ) : '';
-				$autoincrement = $primaryIsAutoIncremenent && $column->primary && $column->get('autoincrement', true) ? ' auto_increment' : '';
+				in_array($column->type, array('enum', 'set')) && $size = '('.implode(', ', array_map(array($this->db, 'escapeAndQuoteValue'), (array)$column->options)).')';
+				$notnull = !$column->primary && !$column->get('null', true) ? ' NOT NULL' : '';
+				$unsigned = $column->get('unsigned', false) ? ' CHECK( '.$sqlColumnName.' > 0 )' : '';
+				$autoincrement = $primaryIsAutoIncremenent && $column->primary && $column->get('autoincrement', true) ? ' AUTOINCREMENT' : '';
+				$primary = $column->primary && $primaryIsAutoIncremenent ? ' PRIMARY KEY' : '';
+				$default = !$column->primary && false !== $column->get('default', false) ? ' DEFAULT '.( is_int($column->default) ? $column->default : "'".$column->default."'" ) : '';
 
 				$columnCharset = $column->get('charset', $tableCharset);
-				$charset = 'text' == $column->type ? ' CHARACTER SET '.$columnCharset : '';
+				$charset = 'text' == $column->type ? ' COLLATE '.$columnCharset : '';
 
 				$comma = $first ? ' ' : ',';
-				echo "  ".$comma.$columnName." ".$type.$size.$unsigned.$charset.$notnull.$default.$autoincrement."\n";
+				echo "  ".$comma.$sqlColumnName." ".$type.$size.$unsigned.$primary.$charset.$notnull.$default.$autoincrement."\n";
 
 				$first = false;
 			}
@@ -123,21 +128,29 @@ class dbController extends Controller {
 				$table->indexes = array();
 			}
 
-			if ( $primary ) {
-				array_unshift($table->indexes, array('columns' => $primary, 'primary' => true));
+			if ( $primaries && !$primaryIsAutoIncremenent ) {
+				array_unshift($table->indexes, array('columns' => $primaries, 'primary' => true));
 			}
+
+			// PRIMARY KEY
+			foreach ( $table->indexes AS $index ) {
+				$index = options($index);
+				if ( $index->primary ) {
+					echo "  ,PRIMARY KEY (".implode(', ', array_map(array($this->db, 'escapeAndQuoteColumn'), $index->columns)).")\n";
+				}
+			}
+
+			echo ");\n\n";
 
 			// indexes
-			$i = 0;
 			foreach ( $table->indexes AS $index ) {
-				$i++;
 				$index = options($index);
+				if ( !$index->primary ) {
+					$unique = $index->unique ? ' UNIQUE' : '';
 
-				$type = $index->primary ? 'PRIMARY KEY' : ( $index->unique ? 'UNIQUE' : 'INDEX' );
-
-				echo "  ,".$type." ( ".implode(', ', $index->columns)." )\n";
+					echo "CREATE".$unique." INDEX i".rand(0, 999999)." ON ".$tableName." (".implode(', ', array_map(array($this->db, 'escapeAndQuoteColumn'), $index->columns)).");\n\n";
+				}
 			}
-			echo ");\n\n";
 		}
 
 		print_r($schema);
