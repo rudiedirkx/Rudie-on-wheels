@@ -14,10 +14,14 @@ class Dispatcher extends Object {
 
 	public $_id = 0; // debug
 
-	// The path to the Action (e.g. "/" or "/blog/categories" or "/blogs-12-admin/users/jim")
+	// The path to the Action (e.g. "" or "blog/categories" or "blogs-12-admin/users/jim")
 	public $requestPath = false;
-	// The path up to the application (e.g.: "" or "/admin")
+	// The path up to the application URI's (e.g.: "/" or "/admin/" or "/admin/index.php/")
 	public $requestBasePath = '';
+	// The path up to the application files (e.g.: "/" or "/admin/")
+	public $fileBasePath = '';
+	// The filename of the entryscript (all URI's are routed there, preferably with a URL rewrite) (e.g.: "index.php" or "backend_dev.php")
+	public $entryScript = '';
 
 	// The path that defines the module of this request (e.g. "blog" or "blogs-12-admin")
 	public $_modulePath = '';
@@ -114,9 +118,29 @@ class Dispatcher extends Object {
 
 		$this->cacheLoad();
 
-		$base = str_replace('\\', '/', dirname($_SERVER['PHP_SELF']));
-		$base == '/' or $base .= '/';
-		$this->requestBasePath = $base;
+		$dirname = function( $path ) {
+			return rtrim(str_replace('\\', '/', dirname($path)), '/');
+		};
+
+		$this->entryScript = basename($_SERVER['SCRIPT_NAME']);
+
+		$fileBase = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+		$fileBase == '/' or $fileBase .= '/';
+
+		if ( 0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) ) {
+			$requestBase = $_SERVER['SCRIPT_NAME'] . '/';
+			$uri = ltrim(substr($_SERVER['REQUEST_URI'], strlen($requestBase)-1), '/');
+		}
+		else {
+			$requestBase = $dirname($_SERVER['SCRIPT_NAME']) . '/';
+			$uri = ltrim(substr($_SERVER['REQUEST_URI'], strlen($requestBase)-1), '/');
+		}
+		is_int($p = strpos($uri, '?')) && $uri = substr($uri, 0, $p);
+
+		$this->requestBasePath = $requestBase;
+		$this->fileBasePath = $fileBase;
+
+		$this->requestPath = $uri;
 
 		$GLOBALS['Dispatcher'] = $this;
 
@@ -135,25 +159,6 @@ class Dispatcher extends Object {
 	public function setRouter( \row\http\Router $router ) {
 		$router->setDispatcher($this); // Now the Router knows Dispatcher config like action_path_wildcards
 		$this->router = $router;
-	}
-
-
-	public function getRequestPath() {
-		if ( false === $this->requestPath ) {
-			$uri = explode('?', $_SERVER['REQUEST_URI'], 2);
-			if ( isset($uri[1]) ) {
-				parse_str($uri[1], $_GET);
-			}
-			$path = $uri[0];
-
-			$path = substr($path, strlen($this->requestBasePath));
-			if ( $this->options->ignore_trailing_slash ) {
-				$path = rtrim($path, '/');
-			}
-			$this->requestPath = $path ?: '/';
-		}
-
-		return $this->requestPath;
 	}
 
 

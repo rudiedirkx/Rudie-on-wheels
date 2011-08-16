@@ -3,7 +3,7 @@
 
 <head>
 <title><?=$this->title()?></title>
-<link rel="stylesheet" href="<?=$this::url('css/all.css')?>" />
+<link rel="stylesheet" href="<?=$this::url('css/all.css', array('file' => true))?>" />
 <?=$this->section('css')?>
 </head>
 
@@ -31,7 +31,7 @@
 
 <?=$content?>
 
-<script src="<?=$this::url('js/all.js')?>"></script>
+<script src="<?=$this::url('js/all.js', array('file' => true))?>"></script>
 <script>
 <?=$this->section('javascript')?>
 if ( msgs = document.querySelector('#messages') ) {

@@ -27,7 +27,7 @@ $dispatcher->setRouter($router);
 // overwrite this method so that it gets the path from $_GET (or somewhere
 // else if you'd like).
 // If that's the case, you should probably also change `Output::url()`.
-$path = $dispatcher->getRequestPath();
+$path = $dispatcher->requestPath;
 
 try {
 

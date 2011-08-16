@@ -268,13 +268,12 @@ class Output extends \row\Component {
 
 	/**
 	 * This function's output depends on config and evaluations in
-	 * the Application... How to get there??
-	 * Temporary (?) solution: static::$application
+	 * the Application...
 	 */
 	static public function url( $path, $options = array() ) {
-		$base = isset($GLOBALS['Dispatcher']) ? $GLOBALS['Dispatcher']->requestBasePath : '/';
-
 		$options = options( is_bool($options) ? array('absolute' => $options) : $options );
+
+		$base = isset($GLOBALS['Dispatcher']) ? $GLOBALS['Dispatcher']->{ $options->file ? 'fileBasePath' : 'requestBasePath' } : '/';
 
 		$prefix = '';
 		if ( $options->absolute && isset($_SERVER['SERVER_PORT'], $_SERVER['HTTP_HOST']) ) {
