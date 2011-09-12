@@ -326,6 +326,7 @@ class Output extends \row\Component {
 
 	static public function urlencode( $in ) {
 		$replace = array(
+			'%' => '%25',
 			'?' => '%3F',
 //			'=' => '%3D', // any reason to encode = characters?
 			'&' => '%26',
