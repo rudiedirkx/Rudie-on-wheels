@@ -27,14 +27,17 @@ var_dump($path);
 	}
 
 	public function code() {
-		$post = options($_POST);
-		if ( $post->code ) {
-			$db = $GLOBALS['db'];
-			echo '<pre>';
-			eval($post->code);
-			echo '</pre><br><br><hr>';
+		if ( !isset($_POST['code']) ) {
+			$_POST['code'] = 'print_r($_GET);';
 		}
-		echo '<form method="post"><textarea rows=20 cols=120 name=code>'.Output::html($post->get('code', '')).'</textarea><br><input type=submit></form>';
+		$code = $_POST['code'];
+
+		$db = $GLOBALS['db'];
+		echo '<pre>';
+		eval($code);
+		echo '</pre><br><br><hr>';
+
+		echo '<form method="post"><textarea rows=20 cols=120 name=code>'.Output::html($code).'</textarea><br><input type=submit></form>';
 	}
 
 	public function allJS() {

@@ -324,6 +324,22 @@ class Output extends \row\Component {
 		return '<a href="'.$href.'"'.$attributes.'>'.static::html($text).'</a>';
 	}
 
+	static public function urlencode( $in ) {
+		$replace = array(
+			'?' => '%3F',
+//			'=' => '%3D', // any reason to encode = characters?
+			'&' => '%26',
+			'#' => '%23',
+			'+' => '%2B',
+		);
+
+		$out = $in;
+		$out = preg_replace('/\s+/', '+', $out); // encode whitespaces so they're not encoded to %20 by browser
+		$out = strtr($out, $replace);
+
+		return $out;
+	}
+
 	static public function select( $selectOptions, $options = array() ) {
 		$options = Options::make(is_string($options) ? array('name' => $options) : $options);
 		$html = '';
