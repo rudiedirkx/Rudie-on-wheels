@@ -266,10 +266,14 @@ class Output extends \row\Component {
 		return '"'.implode('","', array_map(__METHOD__, (array)$data)).'"'."\r\n";
 	}
 
-	/**
-	 * This function's output depends on config and evaluations in
-	 * the Application...
-	 */
+	static public function asset( $path, $options = array() ) {
+		$options = options( is_bool($options) ? array('absolute' => $options) : $options );
+
+		$options->file = true;
+
+		return static::url($path, $options);
+	}
+
 	static public function url( $path, $options = array() ) {
 		$options = options( is_bool($options) ? array('absolute' => $options) : $options );
 

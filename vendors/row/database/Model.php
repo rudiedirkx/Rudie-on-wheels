@@ -171,7 +171,7 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	static public function _get( $pkValues, $moreConditions = false, $params = array() ) {
+	static public function _get( $pkValues, $moreConditions = '', $params = array() ) {
 		$pkValues = (array)$pkValues;
 
 		$pkColumns = (array)static::$_pk;
