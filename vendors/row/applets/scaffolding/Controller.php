@@ -121,7 +121,15 @@ class Controller extends \row\Controller {
 
 	public function _url( $action = '', $more = '' ) {
 		$x = explode('/', ltrim($this->_dispatcher->requestPath, '/'));
-		return Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ));
+
+		$uri = Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ));
+		if ( $_GET ) {
+			$qs = http_build_query($_GET);
+			$delim = is_int(strpos($uri, '?')) ? '&' : '?';
+			$uri .= $delim . $qs;
+		}
+
+		return $uri;
 	}
 
 }

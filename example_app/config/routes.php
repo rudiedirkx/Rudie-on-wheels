@@ -13,7 +13,7 @@ $router = new Router;
  * 
  * Advised routes are:
 	- Crazy URLs (e.g. with reversed arguments)
-	- Home: / (the only URL with no Controller)
+	- Home: / (the only URI with no Controller)
  */
 
 
@@ -21,7 +21,7 @@ $router = new Router;
 // $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
 // To an applet but with 'access control'
 $router->add('/scaffolding', function() {
-	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) ) {
+	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) && hash('sha256', @$_GET['password']) !== 'cac74babf308c40b7f531013043631dff4f56434f3aab026f73feafe34564340' ) {
 		exit('Access denied!');
 	}
 	return array('controller' => 'row\\applets\\scaffolding\\Controller');
