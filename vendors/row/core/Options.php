@@ -30,8 +30,10 @@ class Options extends Object implements Countable {
 			if ( is_a($v, 'Options') && is_a($base->$k, 'Options') ) {
 				$v = static::merge($base->$k, $v);
 			}
+
 			$base->$k = $v;
 		}
+
 		return $base;
 	}
 
@@ -42,6 +44,10 @@ class Options extends Object implements Countable {
 		foreach ( $options as $k => $v ) {
 			$this->$k = $v;
 		}
+	}
+
+	public function extend( $options ) {
+		return static::merge($this, $options);
 	}
 
 	public function get( $name, $alt = null ) {

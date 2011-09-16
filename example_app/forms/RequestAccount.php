@@ -9,7 +9,7 @@ use app\specs\Output;
 
 class RequestAccount extends \app\specs\SimpleForm {
 
-	protected function elements( $defaults = null ) {
+	protected function elements( $defaults ) {
 		$this->options->oninput = 'this.op.value=this.username.value;';
 		return array(
 			array(

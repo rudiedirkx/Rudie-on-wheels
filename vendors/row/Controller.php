@@ -21,6 +21,12 @@ abstract class Controller extends Object {
 	public $_uri;
 	public $_response;
 
+	public $POST = false;
+	public $GET = false;
+	public $HEAD = false;
+	public $DELETE = false;
+	public $PUT = false;
+
 	public $post; // typeof Options
 	public $get; // typeof Options
 
@@ -31,6 +37,12 @@ abstract class Controller extends Object {
 	public function __construct( $dispatcher ) {
 		$this->_dispatcher = $dispatcher;
 		$this->_uri = $this->_dispatcher->requestPath;
+
+		$this->POST = $this->_post();
+		$this->GET = $this->_get();
+		$this->HEAD = $this->_head();
+		$this->DELETE = $this->_delete();
+		$this->PUT = $this->_put();
 	}
 
 
@@ -131,6 +143,22 @@ abstract class Controller extends Object {
 
 	public function _post() {
 		return isset($_SERVER['REQUEST_METHOD']) && 'POST' === $_SERVER['REQUEST_METHOD'];
+	}
+
+	public function _get() {
+		return isset($_SERVER['REQUEST_METHOD']) && 'GET' === $_SERVER['REQUEST_METHOD'];
+	}
+
+	public function _head() {
+		return isset($_SERVER['REQUEST_METHOD']) && 'HEAD' === $_SERVER['REQUEST_METHOD'];
+	}
+
+	public function _delete() {
+		return isset($_SERVER['REQUEST_METHOD']) && 'DELETE' === $_SERVER['REQUEST_METHOD'];
+	}
+
+	public function _put() {
+		return isset($_SERVER['REQUEST_METHOD']) && 'PUT' === $_SERVER['REQUEST_METHOD'];
 	}
 
 

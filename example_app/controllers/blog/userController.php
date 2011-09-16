@@ -22,7 +22,7 @@ class userController extends blogController {
 	public function create() {
 		$form = new BlogUser($this);
 
-		if ( $this->_post() ) {
+		if ( $this->POST ) {
 			$valid = $form->validate($_POST);
 			if ( $valid ) {
 				return 'OK';
@@ -36,12 +36,11 @@ class userController extends blogController {
 	public function POST_edit( $user = null ) {
 		$user = models\User::get($user);
 
-		$form = new BlogUser($this);
-		$form->default = $user;
+		$form = new BlogUser($this, array('defaults' => $user));
 
 		$valid = $form->validate($_POST);
 		if ( $valid ) {
-			return 'OK';
+			return $user->update($form->output) ? 'OK' : 'DB ERROR';
 		}
 
 		return $this->tpl->display(get_defined_vars());
@@ -50,8 +49,7 @@ class userController extends blogController {
 	public function GET_edit( $user = null ) {
 		$user = models\User::get($user);
 
-		$form = new BlogUser($this);
-		$form->default = $user;
+		$form = new BlogUser($this, array('defaults' => $user));
 
 		return $this->tpl->display(get_defined_vars());
 	}
@@ -126,7 +124,7 @@ class userController extends blogController {
 			$this->_redirect('/blog');
 		}
 
-/*		if ( $this->_post() ) {
+/*		if ( $this->POST ) {
 			try {
 				$user = models\User::one(array( 'username' => (string)$this->post->username ));
 				$this->user->login($user);

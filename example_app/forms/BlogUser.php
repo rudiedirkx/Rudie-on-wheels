@@ -19,8 +19,12 @@ class BlogUser extends \app\specs\SimpleForm {
 		$this->renderers['access'] = 'renderCSVList'; // renderCSVList is a mixin method from app\mixins\ReusableFormRenderers
 	}
 
-	protected function elements( $defaults = null ) {
-		is_a($defaults, 'row\\database\\Model') or $defaults = Options::make((array)$defaults);
+	protected function _post_validate() {
+		$this->output['username'] = strtolower($this->output['username']);
+		$this->output['full_name'] = ucfirst($this->output['full_name']);
+	}
+
+	protected function elements( $defaults ) {
 		return array(
 			'username' => array(
 				'type' => 'text',
@@ -30,7 +34,7 @@ class BlogUser extends \app\specs\SimpleForm {
 				'unique' => array(
 					'model' => 'app\\models\\User',
 					'field' => 'username',
-					'conditions' => array('is_deleted = ? AND user_id <> ?', array(false, (int)$defaults->user_id)),
+					'conditions' => array('user_id <> ?', array($defaults->user_id)),
 				),
 				'description' => Output::translate('Have you read our %1?', array(Output::ajaxLink(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/page/username')))
 			),

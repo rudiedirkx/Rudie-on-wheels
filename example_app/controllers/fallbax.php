@@ -61,7 +61,7 @@ var_dump($path);
 
 	public function brmember() {
 		$form = new \app\forms\BRMember($this, array('table' => true));
-		if ( $this->_post() ) {
+		if ( $this->POST ) {
 			if ( $form->validate($_POST) ) {
 				return 'OK';
 			}
@@ -77,7 +77,7 @@ var_dump($path);
 			'domain' => models\Domain::first('1 ORDER BY RAND()'),
 		));
 		$content = '';
-		if ( $this->_post() ) {
+		if ( $this->POST ) {
 			var_dump($form->validate($_POST));
 			$content .= '<pre>'.print_r($form->errors(), 1).'</pre>';
 		}

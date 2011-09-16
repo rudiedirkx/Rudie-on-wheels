@@ -9,7 +9,9 @@ use row\Output;
 abstract class SimpleForm extends \row\Component {
 
 	public $_elements = array(); // internal cache
-	abstract protected function elements( $defaults = null );
+	abstract protected function elements( $defaults );
+
+	public $options; // typeof Options
 
 	public $defaults = null;
 	public $input = array();
@@ -19,6 +21,15 @@ abstract class SimpleForm extends \row\Component {
 	public $inlineErrors = true;
 	public $elementWrapperTag = 'div';
 	public $renderers = array();
+
+
+	protected function _init() {
+		parent::_init();
+
+		if ( $this->options->_exists('defaults') ) {
+			$this->defaults = $this->options->defaults;
+		}
+	}
 
 
 	public function validate( $data ) {
@@ -509,6 +520,9 @@ abstract class SimpleForm extends \row\Component {
 
 	public function &useElements() {
 		if ( !$this->_elements ) {
+			if ( !is_a($this->defaults, 'row\\database\\Model') && !is_a($this->defaults, 'row\\core\\Options') ) {
+				$this->defaults = Options::make((array)$this->defaults);
+			}
 			$elements = array();
 			$index = 0;
 			foreach ( $this->elements($this->defaults) AS $name => $element ) {
@@ -530,7 +544,7 @@ abstract class SimpleForm extends \row\Component {
 			$withForm = true;
 		}
 
-		$this->options = $options = Options::make($options);
+		$options = $this->options->extend($options);
 		$elements = $this->useElements();
 
 		// Render 1 element?
