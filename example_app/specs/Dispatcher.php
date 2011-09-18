@@ -40,16 +40,20 @@ class Dispatcher extends \row\http\Dispatcher {
 		$class = get_class($ex);
 		switch ( $class ) {
 			case 'row\database\ModelException':
+			case 'row\database\NotEnoughFoundException':
+			case 'row\database\TooManyFoundException':
 //				exit('[Database Model error] '.$ex->getMessage().'');
 			case 'row\http\NotFoundException':
 			case 'row\OutputException':
 				return $this->_internal('errors/notfound', array('exception' => $ex));
-				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
+//				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
 			case 'row\core\MethodException':
-				exit('Unknown method: '.$ex->getMessage().'');
+			case 'ErrorException':
+				exit('Parse/runtime error: '.$ex->getMessage().'');
 			case 'row\database\DatabaseException':
 				exit('[Database/Query error] '.$ex->getMessage().'');
 		}
+
 		exit('Unknown ['.get_class($ex).'] encountered: '.$ex->getMessage().'');
 	}
 

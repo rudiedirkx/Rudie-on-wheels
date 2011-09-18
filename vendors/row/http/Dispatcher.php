@@ -37,6 +37,9 @@ class Dispatcher extends Object {
 	// Arguments to be passed to the Action method (e.g. array() or array("jim"))
 	public $_actionArguments = array();
 
+	// Params passed through _internal
+	public $params; // typeof Options
+
 	// Whether this dispatch comes from cache
 	protected $fromCache = false;
 
@@ -280,6 +283,8 @@ class Dispatcher extends Object {
 
 	public function getController( $path, $routes = true ) {
 
+		$this->params = options($this->params);
+
 		/* experimental */
 		if ( null !== ($target = $this->cacheGet($path)) ) {
 			foreach ( $target AS $k => $v ) {
@@ -474,11 +479,12 @@ class Dispatcher extends Object {
 		}
 	}
 
-	public function _internal( $location ) {
+	public function _internal( $location, $params = array() ) {
 		if ( is_string($location) ) {
 			$dispatcher = new static(array());
 			$dispatcher->options = $this->options;
 			$dispatcher->router = $this->router;
+			$dispatcher->params = $params;
 
 			$application = $dispatcher->getApplication($location);
 			return $application->_run();

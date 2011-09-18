@@ -6,9 +6,12 @@ namespace row\database;
 use row\core\Object AS ModelParent;
 use row\database\Adapter; // abstract
 use row\core\RowException;
+use ErrorException;
 use row\core\Chain;
 
 class ModelException extends RowException {}
+class NotEnoughFoundException extends ModelException {}
+class TooManyFoundException extends ModelException {}
 
 abstract class Model extends ModelParent {
 
@@ -62,14 +65,18 @@ abstract class Model extends ModelParent {
 	/**
 	 * Enables calling of Post::update with defined function _update
 	 */
-	static public function __callStatic( $func, $args ) {
-		if ( '_' != $func{0} ) {
-			$func = '_'.$func;
+	static public function __callStatic( $method, $args ) {
+		$calledMethod = $method;
+		if ( '_' != substr($method, 0, 1) ) {
+			$method = '_'.$method;
 		}
-		if ( !method_exists(get_called_class(), $func) ) {
-			throw new ModelException('Methodo "'.$func.'" no existo!');
+
+		if ( !method_exists(get_called_class(), $method) ) {
+			throw new ErrorException('Call to undefined method '.get_called_class().'::'.$calledMethod.'()');
 		}
-		return call_user_func_array(array('static', $func), $args);
+
+		return call_user_func_array(array('static', $method), $args);
+
 	} // END __callStatic() */
 
 
@@ -144,7 +151,9 @@ abstract class Model extends ModelParent {
 
 		$objects = static::_byQuery($query);
 		if ( !isset($objects[0]) || isset($objects[1]) ) {
-			throw new ModelException('Found '.( !isset($objects[0]) ? '<' : '>' ).' 1 of '.get_called_class().'.');
+			$toomany = isset($objects[1]);
+			$class = $toomany ? 'TooManyFoundException' : 'NotEnoughFoundException';
+			throw new $class('Found '.( $toomany ? '>' : '<' ).' 1 of '.get_called_class().'.');
 		}
 
 		$r = $objects[0];
@@ -176,7 +185,7 @@ abstract class Model extends ModelParent {
 
 		$pkColumns = (array)static::$_pk;
 		if ( count($pkValues) !== count($pkColumns) ) {
-			throw new ModelException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
+			throw new NotEnoughFoundException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
 		}
 		$pkValues = array_combine($pkColumns, $pkValues);
 
