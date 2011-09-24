@@ -626,8 +626,13 @@ abstract class SimpleForm extends \row\Component {
 	}
 
 	public function renderElement( $name, $element ) {
-		if ( isset($this->renderers[$name]) && ( is_callable($fn = $this->renderers[$name]) || is_callable($fn = array($this, (string)$this->renderers[$name])) ) ) {
-			return call_user_func($fn, $name, $element, $this);
+		// centrally assigned renderer for this element
+		if ( isset($this->renderers[$name]) ) {
+			$renderer = $this->renderers[$name];
+			// Closure or class method
+			if ( is_callable($fn = $renderer) || is_callable($fn = array($this, (string)$renderer)) ) {
+				return call_user_func($fn, $name, $element, $this);
+			}
 		}
 
 		if ( empty($element['type']) ) {
@@ -635,6 +640,12 @@ abstract class SimpleForm extends \row\Component {
 		}
 		$type = $element['type'];
 
+		// special render method in class extension: only if a custom renderer wasn't defined
+		if ( !isset($element['render']) ) {
+			if ( method_exists($this, 'renderElement_'.$name) ) {
+				$element['render'] = 'renderElement_'.$name;
+			}
+		}
 		if ( isset($element['render']) ) {
 			$fn = $element['render'];
 			if ( is_string($fn) ) {
