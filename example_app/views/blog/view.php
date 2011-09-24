@@ -47,7 +47,7 @@ use row\utils\Inflector;
 
 <p><a href="#">Naar boven</a></p>
 
-<?$this->section()?>
+<?$this->section('javascript')?>
 $('content').bind('dblclick', function(e) {
 	var self = this;
 	if ( self.oldInnerHTML ) {

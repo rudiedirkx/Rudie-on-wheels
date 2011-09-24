@@ -26,7 +26,7 @@
 
 <?=$pager = $this::paginate($numAllPosts, $postsPerPage, 'page', array('start' => 1, 'type' => 'page', 'show' => 10, 'prevnext' => false, 'firstlast' => false))."\n"?>
 
-<?$this->section()?>
+<?$this->section('javascript')?>
 $$('content').bind('dblclick', function(e) {
 	var self = this;
 	if ( self.oldInnerHTML ) {

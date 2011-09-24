@@ -31,6 +31,10 @@ abstract class SimpleForm extends \row\Component {
 		}
 	}
 
+	protected function _post_validation() {}
+
+	protected function _post_validation_failed() {}
+
 
 	public function validate( $data ) {
 		$this->input = $data;
@@ -51,8 +55,9 @@ abstract class SimpleForm extends \row\Component {
 		foreach ( $elements AS $name => &$element ) {
 			$element['_name'] = $name;
 			$this->elementTitle($element);
+
+			// named form element
 			if ( is_string($name) ) {
-				// form element
 				if ( !empty($element['required']) ) {
 					if ( !$this->validateRequired($this, $name) ) {
 						$this->errors[$name][] = $this->errorMessage('required', $element);
@@ -64,7 +69,7 @@ abstract class SimpleForm extends \row\Component {
 						$this->errors[$name][] = $this->errorMessage('regex', $element);
 					}
 				}
-				if ( !empty($element['validation']) && empty($this->errors[$name]) && $this->input($name) ) {
+				if ( !empty($element['validation']) && empty($this->errors[$name]) && '' !== $this->input($name, '') ) {
 					$fn = $element['validation'];
 					if ( is_string($fn) ) {
 						$validationFunction = 'validate'.ucfirst($fn);
@@ -73,7 +78,7 @@ abstract class SimpleForm extends \row\Component {
 					if ( is_callable($fn) ) {
 						$r = call_user_func($fn, $this, $name);
 						if ( false === $r || is_string($r) ) {
-							$this->errors[$name][] = false === $r ? $this->errorMessage('custom', $element) : $r;
+							$this->errors[$name][] = false === $r ? ( isset($element['error']) ? $element['error'] : $this->errorMessage('custom', $element) ) : $r;
 						}
 					}
 				}
@@ -90,35 +95,71 @@ abstract class SimpleForm extends \row\Component {
 					}
 				}
 			}
+
+			// extra validator
 			else if ( isset($element['validation']) ) {
-				// validator
-				$validators[] = $element;
+				// must have fields connection
+				if ( isset($element['fields']) ) {
+					$validators[] = $element;
+				}
 			}
+
 			unset($element);
 		}
 		$output = implode('&', $output);
 		$this->output = array();
 		parse_str($output, $this->output);
 
-		if ( 0 == count($this->errors) ) {
-			foreach ( $validators AS $validator ) {
-				if ( empty($validator['require']) || 0 == count(array_intersect((array)$validator['require'], array_keys($this->errors))) ) {
+		$noErrors = empty($this->errors);
+		// check extra (field agnostic) validators
+		foreach ( $validators AS $validator ) {
+
+			// require previous validation for some fields?
+			$require = isset($validator['require']) ? (array)$validator['require'] : null;
+
+			// do this validator always, independant of previous/rest validation
+			$always = !empty($validator['always']);
+
+			// Always or No field errors so far
+			if ( $always || $noErrors ) {
+
+				// requirements met?
+				if ( empty($require) || !array_intersect($require, array_keys($this->errors)) ) {
+
+					// validator must be class method or Closure
 					$v = $validator['validation'];
+					$v = is_string($v) ? array($this, $v) : $v;
+
+					// execute validator function
 					$r = $v($this);
+
+					// false for failed with standard message, String for failed with response as message
 					if ( false === $r || is_string($r) ) {
+
+						// error message
 						$error = false === $r ? $this->errorMessage('custom', $validator) : $r;
-						foreach ( (array)$validator['fields'] AS $name ) {
-							$this->errors[$name][] = $error;
+
+						// show message for these fields
+						is_array($validator['fields']) or $validator['fields'] = explode(',', $validator['fields']);
+						foreach ( $validator['fields'] AS $name ) {
+							$this->errors[trim($name)][] = $error;
 						}
-					}
-				}
-			}
-		}
+
+					} // validation response
+
+				} // validator's requirements
+
+			} // Always || NoErrors
+
+		} // extra validators
 
 		if ( 0 == count($this->errors) ) {
-			$this->_fire('post_validate');
+			$this->_fire('post_validation');
 			return true;
 		}
+
+		$this->_fire('post_validation_failed');
+
 		return false;
 	}
 
@@ -202,20 +243,23 @@ abstract class SimpleForm extends \row\Component {
 		$this->elementTitle($element);
 		$title = $element['title'];
 
+		$quote = '';
+
 		switch ( $type ) {
 			case 'required':
-				return 'Field "'.$title.'" is required';
+				return 'Field '.$quote.$title.$quote.' is required';
 			break;
 			case 'regex':
-				return 'Field "'.$title.'" has invalid format';
+				return 'Field '.$quote.$title.$quote.' has invalid format';
 			break;
 			case 'custom':
-				$fields = !isset($element['fields']) ? array($element['_name']) : (array)$element['fields'];
+				$fields = !isset($element['fields']) ? array($element['_name']) : $element['fields'];
+				is_array($fields) or $fields = explode(',', $fields);
 				foreach ( $fields AS &$name ) {
-					$name = $this->_elements[$name]['title'];
+					$name = $this->_elements[trim($name)]['title'];
 					unset($name);
 				}
-				return isset($element['message']) ? $element['message'] : 'Validation failed for: "'.implode('", "', $fields).'"';
+				return isset($element['message']) ? $element['message'] : 'Validation failed for: '.$quote.implode($quote.', '.$quote, $fields).$quote;
 			break;
 		}
 
@@ -548,9 +592,14 @@ abstract class SimpleForm extends \row\Component {
 		$elements = $this->useElements();
 
 		// Render 1 element?
-		if ( is_string($withForm) && isset($this->_elements[$withForm]) ) {
+		if ( is_string($withForm) ) {
 			// First argument is element name, so render only that element
-			return $this->renderElement($withForm, $this->_elements[$withForm]);
+			if ( isset($this->_elements[$withForm]) ) {
+				return $this->renderElement($withForm, $this->_elements[$withForm]);
+			}
+
+			// Element doesn't exist, so return that
+			return '';
 		}
 
 		$index = 0;
@@ -636,7 +685,15 @@ abstract class SimpleForm extends \row\Component {
 
 	public function renderElementWrapper( $html, $element ) {
 		$name = $element['_name'];
-		return '<'.$this->elementWrapperTag.' class="form-element '.$element['type'].' '.$name.$this->error($name).'">'.$html.'</'.$this->elementWrapperTag.'>';
+		return '<'.$this->elementWrapperTag.' class="'.$this->elementWrapperClasses($element).'">'.$html.'</'.$this->elementWrapperTag.'>';
+	}
+
+	public function elementWrapperClasses( $element, $string = true ) {
+		$name = $element['_name'];
+
+		$classes = array('form-element', $element['type'], $name, trim($this->error($name)));
+
+		return $string ? implode(' ', $classes) : $classes;
 	}
 
 	public function renderElementWrapperWithTitle( $input, $element ) {

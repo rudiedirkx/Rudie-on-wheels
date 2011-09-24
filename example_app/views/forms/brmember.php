@@ -1,26 +1,26 @@
 
-<?$this->section()?>
+<?$this->section('css')?>
 <style>
 table.br {
 	border-spacing: 2px;
-	border: solid 1px midnightblue;
+	border: solid 1px #000;
 }
 table.br tr > * {
 	padding: 4px;
 }
 table.br thead td {
-	background-color: midnightblue;
+	background-color: #555;
 	color: #fff;
 	text-align: center;
 }
 table.br th {
-	background-color: lightblue;
+	background-color: #CCC;
 	text-align: right;
 	padding-right: 7px;
 }
-table.br th:after {
+/*table.br th:after {
 	content: ':';
-}
+}*/
 table.br tfoot td {
 	text-align: center;
 }
@@ -38,7 +38,7 @@ table.br span.icon {
 table.br span.icon.help {
 	background-image: url(<?=$this::url('images/help.png')?>);
 }
-table.br td.input input {
+table.br td.input input:not([type=checkbox]):not([type=radio]) {
 	width: 250px;
 }
 table.br td.input.date input {
@@ -53,6 +53,8 @@ table.br input.date + img.date {
 <?$this->section('css')?>
 
 <h1><?=$this->title('Test form in different format')?></h1>
+
+<!--<pre><? var_dump($form->error('phone1', true, false)) ?></pre>-->
 
 <form method="post" action="" onsubmit="$.ajax(this.action, function(t){ alert(t); }, this.serialize());return false;">
 <table class="br">
@@ -82,12 +84,16 @@ table.br input.date + img.date {
 		<?=$form->render('birthdate')?>
 		<?=$form->render('group')?>
 	</tr>
+	<tr class="secret stuff">
+		<?=$form->render('secret') ?: '<td colspan="2"> .. filling .. </td>'?>
+		<?=$form->render('oele')?>
+	</tr>
 </tbody>
 <tfoot>
 	<tr>
 		<td colspan="4">
-			<input type="submit" value="<?=$this::translate('Save')?>" />
-			<input type="reset" value="<?=$this::translate('Reset')?>" />
+			<input type="submit" value="<?=translate('Save')?>" />
+			<input type="reset" value="<?=translate('Reset')?>" />
 			<input type="button" class="cancel-action" value="<?=$this::translate('Cancel')?>" />
 		</td>
 	</tr>
@@ -95,7 +101,7 @@ table.br input.date + img.date {
 </table>
 </form>
 
-<?$this->section()?>
+<?$this->section('javascript')?>
 $(function() {
 	$$('input.date + img.date').each(function(el) {
 		el.bind('click', function() {

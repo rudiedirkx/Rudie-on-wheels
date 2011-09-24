@@ -1,6 +1,7 @@
 <?php
 
 use row\core\Options;
+use row\Output;
 
 function gmtime() {
 	return (int)gmdate('U');
@@ -20,6 +21,11 @@ function rpad( $val, $len = 2, $pad = '0' ) {
 
 function options( $options ) {
 	return Options::make($options);
+}
+
+function translate( $text, $replace = array(), $options = array() ) {
+	$class = Output::$class;
+	return $class::translate($text, $replace = array(), $options);
 }
 
 

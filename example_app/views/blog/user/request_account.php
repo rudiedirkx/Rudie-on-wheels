@@ -9,7 +9,7 @@
 
 <?=$form->render()?>
 
-<?$this->section()?>
+<?$this->section('javascript')?>
 //$(function() {
 	$('form').bind('submit', function(e) {
 		if ( $('#ajax-it').checked ) {

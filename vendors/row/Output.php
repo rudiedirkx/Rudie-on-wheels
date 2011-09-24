@@ -7,6 +7,7 @@ use row\core\RowException;
 use row\utils\markdown\Parser as MarkdownParser;
 
 class OutputException extends RowException {}
+class OutputBufferException extends OutputException {}
 
 /**
  * Only very basic unprerequisited functionality in the base
@@ -187,37 +188,41 @@ class Output extends \row\Component {
 		return $this->vars['title'];
 	}
 
-	public function section( $name = null, $addition = null ) {
-		static $buffering;
+	public function section( $name, $return = false ) {
+		static $_buffering;
 
-		if ( $name && !isset($this->sections[$name]) ) {
-			// make section exist
-			$this->sections[$name] = array();
-		}
+		// buffering per section, so it's an array
+		is_array($_buffering) or $_buffering = array();
 
-		if ( $buffering ) {
-			// stop running buffer
-			$content = ob_get_contents();
-			ob_end_clean();
-			if ( $name ) {
-				// assign buffer contents to section
-				$this->sections[$name][] = $content;
+		// make buffering status exist
+		isset($_buffering[$name]) or $_buffering[$name] = false;
+
+		// make section exist
+		isset($this->sections[$name]) or $this->sections[$name] = array();
+
+		if ( $return ) {
+			if ( $_buffering[$name] ) {
+				throw new OutputBufferException($name);
 			}
-			$buffering = false;
-			return;
+
+			return isset($this->sections[$name][0]) ? implode("\n", $this->sections[$name])."\n" : '';
 		}
 
-		if ( null === $name ) {
+		if ( !$_buffering[$name] ) {
 			// start section
 			ob_start();
-			$buffering = true;
-			return;
+			$_buffering[$name] = true;
 		}
 
-		if ( $name ) {
-			return implode("\n", $this->sections[$name])."\n";
+		else {
+			// end section, stop buffer
+			$content = ob_get_contents();
+			ob_end_clean();
+			$_buffering[$name] = false;
+
+			// assign buffer contents to section
+			$this->sections[$name][] = $content;
 		}
-		return '';
 	}
 
 

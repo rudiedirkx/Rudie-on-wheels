@@ -4,7 +4,7 @@
 <head>
 <title><?=$this->title()?></title>
 <link rel="stylesheet" href="<?=$this::asset('css/all.css')?>" />
-<?=$this->section('css')?>
+<?=$this->section('css', true)?>
 </head>
 
 <body>
@@ -33,7 +33,7 @@
 
 <script src="<?=$this::asset('js/all.js')?>"></script>
 <script>
-<?=$this->section('javascript')?>
+<?=$this->section('javascript', true)?>
 if ( msgs = document.querySelector('#messages') ) {
 	msgs.bind('click', function() {
 		this.parentNode.removeChild(this);

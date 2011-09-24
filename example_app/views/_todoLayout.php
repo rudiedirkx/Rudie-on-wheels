@@ -17,7 +17,7 @@ p, ul, ol, table {
 	margin: 15px 0;
 }
 </style>
-<?=$this->section('css')?>
+<?=$this->section('css', true)?>
 </head>
 
 <body>
@@ -28,7 +28,7 @@ p, ul, ol, table {
 
 <script src="<?=$this::url('js/all.js')?>"></script>
 <script>
-<?=$this->section('javascript')?>
+<?=$this->section('javascript', true)?>
 </script>
 </body>
 

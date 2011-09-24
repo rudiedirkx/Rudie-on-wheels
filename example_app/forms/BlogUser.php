@@ -19,7 +19,7 @@ class BlogUser extends \app\specs\SimpleForm {
 		$this->renderers['access'] = 'renderCSVList'; // renderCSVList is a mixin method from app\mixins\ReusableFormRenderers
 	}
 
-	protected function _post_validate() {
+	protected function _post_validation() {
 		$this->output['username'] = strtolower($this->output['username']);
 		$this->output['full_name'] = ucfirst($this->output['full_name']);
 	}
