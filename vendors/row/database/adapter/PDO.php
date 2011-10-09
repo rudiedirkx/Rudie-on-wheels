@@ -42,7 +42,7 @@ abstract class PDO extends Adapter {
 		try {
 			$q = @$this->db->exec($query);
 			if ( !$q ) {
-				throw new DatabaseException($query.' -> '.$this->error());
+				return $this->except($query.' -> '.$this->error());
 			}
 		} catch ( PDOException $ex ) {
 			return $this->except($query.' -> '.$ex->getMessage());
@@ -50,7 +50,7 @@ abstract class PDO extends Adapter {
 
 		$this->affected = $q;
 
-		return $q;
+		return true;
 	}
 
 	public function result( $query, $targetClass = '' ) {
