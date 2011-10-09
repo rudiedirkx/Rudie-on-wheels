@@ -40,15 +40,15 @@ abstract class PDO extends Adapter {
 		$this->queries[] = $query;
 
 		try {
-			$q = @$this->db->exec($query);
-			if ( !$q ) {
+			$r = @$this->db->exec($query);
+			if ( false === $r ) {
 				return $this->except($query.' -> '.$this->error());
 			}
 		} catch ( PDOException $ex ) {
 			return $this->except($query.' -> '.$ex->getMessage());
 		}
 
-		$this->affected = $q;
+		$this->affected = $r;
 
 		return true;
 	}
