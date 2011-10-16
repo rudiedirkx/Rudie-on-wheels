@@ -1,11 +1,28 @@
 
+window.setTimeout(function() {
+	if ( !arguments.length ) {
+		// polyfill
+		var sto = window.setTimeout;
+		window.setTimeout = function(cb, speed) {
+			var args = [];
+			for ( var i=2; i<arguments.length; i++ ) {
+				args.push(arguments[i]);
+			}
+			sto(function() {
+				cb.apply(null, args);
+			}, speed);
+		};
+		window.setTimeout.polyfilled = true;
+	}
+}, 0, 1);
+
 $ = function(q) {
 	if ( 'function' == typeof q ) {
 		if ( 'complete' == document.readyState ) {
 			q();
 			return;
 		}
-		this.bind('load', q);
+		document.bind('DOMContentLoaded', q);
 		return;
 	}
 	return document.querySelector(q);
@@ -111,6 +128,9 @@ HTMLElement.prototype.next = function() {
 		s = s.nextSibling;
 	}
 	return s;
+};
+HTMLElement.prototype.remove = function() {
+	return this.parentNode.removeChild(this);
 };
 HTMLElement.prototype.html = function(html) {
 	if ( html != null ) {
