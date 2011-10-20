@@ -1,5 +1,5 @@
 web1:
-	name: example_app
+    name: example_app
     document_root: /example_app/web/
     shared_writable_dirs:
         - /example_app/runtime
