@@ -1,5 +1,8 @@
 <?php
 
+print_r($_SERVER);
+exit;
+
 $_start = microtime(1); // The very first thing this request
 
 use app\specs\Dispatcher; // My custom Dispatcher
