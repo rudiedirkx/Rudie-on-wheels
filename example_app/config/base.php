@@ -6,7 +6,7 @@ define( 'ROW_PATH', dirname(ROW_APP_PATH) ); // Absolute root
 define( 'ROW_VENDORS_PATH', ROW_PATH.'/vendors' ); // Folders with all the vendor folders
 define( 'ROW_VENDOR_ROW_PATH', ROW_VENDORS_PATH.'/row' ); // The folder for the framework vendor Rudie On Wheels
 
-if ( isset($_SERVER['SERVER_SOFTWARE']) && $_SERVER['SERVER_SOFTWARE'] == 'pagodabox' ) {
+if ( isset($_SERVER['SERVER_NAME']) && is_int(strpos($_SERVER['SERVER_NAME'], 'pagodabox')) ) {
 	require(__DIR__.'/pagoda.php');
 }
 else {
