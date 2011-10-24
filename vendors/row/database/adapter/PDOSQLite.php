@@ -67,6 +67,8 @@ class PDOSQLite extends PDO {
 		if ( $this->connected() ) {
 			$this->db->sqliteCreateFunction('IF', array('row\database\adapter\SQLite', 'fn_if'));
 			$this->db->sqliteCreateFunction('RAND', array('row\database\adapter\SQLite', 'fn_rand'));
+			$this->db->sqliteCreateFunction('CONCAT', array('row\database\adapter\SQLite', 'fn_concat'));
+			$this->db->sqliteCreateFunction('SHA1', array('row\database\adapter\SQLite', 'fn_sha1'));
 		}
 	}
 

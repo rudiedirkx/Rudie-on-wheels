@@ -338,7 +338,16 @@ abstract class Adapter extends \row\core\Object {
 		if ( !is_string($conditions) ) {
 			$sql = array();
 			foreach ( (array)$conditions AS $column => $value ) {
-				if ( is_int($column) ) {
+				if ( is_array($value) ) {
+					$cond = array_shift($value);
+					$cond = $this->replaceholders($cond, $value);
+					if ( !is_int($column) ) {
+						$column = $table ? $this->aliasPrefix($table, $column) : $this->escapeAndQuoteColumn($column);
+						$cond = $column . ' = ' . $cond;
+					}
+					$sql[] = $cond;
+				}
+				else if ( is_int($column) ) {
 					$sql[] = $value;
 				}
 				else {

@@ -136,6 +136,7 @@ abstract class Model extends ModelParent {
 	 */
 	static public function _one( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->replaceholders($conditions, $params);
+var_dump($conditions);
 
 		/* experimental */
 		if ( false !== static::$_cache ) {
@@ -152,7 +153,7 @@ abstract class Model extends ModelParent {
 		$objects = static::_byQuery($query);
 		if ( !isset($objects[0]) || isset($objects[1]) ) {
 			$toomany = isset($objects[1]);
-			$class = $toomany ? 'TooManyFoundException' : 'NotEnoughFoundException';
+			$class = $toomany ? 'row\database\TooManyFoundException' : 'row\database\NotEnoughFoundException';
 			throw new $class('Found '.( $toomany ? '>' : '<' ).' 1 of '.get_called_class().'.');
 		}
 

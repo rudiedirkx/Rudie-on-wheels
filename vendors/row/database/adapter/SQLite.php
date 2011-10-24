@@ -44,7 +44,16 @@ class SQLite extends Adapter {
 	}
 
 	static public function fn_rand() {
-		return rand(0, 99999999);
+		$f = 100000000;
+		return rand(0, $f-1) / $f;
+	}
+
+	static public function fn_concat() {
+		return implode(func_get_args());
+	}
+
+	static public function fn_sha1( $str ) {
+		return sha1($str);
 	}
 
 

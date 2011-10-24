@@ -34,7 +34,13 @@ var_dump($path);
 
 		$db = $GLOBALS['db'];
 		echo '<pre>';
-		eval($code);
+		try {
+			eval($code);
+		}
+		catch ( \Exception $ex ) {
+			echo "\n=================== exception ====================\n\n";
+			print_r($ex);
+		}
 		echo '</pre><br><br><hr>';
 
 		echo '<form method="post"><textarea rows=20 cols=120 name=code>'.Output::html($code).'</textarea><br><input type=submit></form>';

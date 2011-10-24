@@ -9,6 +9,17 @@ class VendorException extends RowException {}
 
 class Vendors extends Object {
 
+	// app config //
+
+	static public function verifyAppConfig() {
+		$required = array('ROW_APP_PATH', 'ROW_PATH', 'ROW_VENDORS_PATH', 'ROW_VENDOR_ROW_PATH');
+		foreach ( $required AS $constant ) {
+			defined($constant) or die('Not configured: ' . $constant);
+		}
+
+		defined('ROW_APP_SECRET') or define('ROW_APP_SECRET', 'NotSecret');
+	}
+
 	// cache //
 
 	static public $cache = array();
@@ -52,13 +63,20 @@ class Vendors extends Object {
 	static public $loaders = array();
 
 	static public function init($path) {
+		static::verifyAppConfig();
+
 		static::cacheLoad();
-		static::$defaultLoader = function( $vendor, $class ) { // e.g.: ( "row", "utils\Options" )
+
+		static::$vendorPath = $vendorPath = $path;
+
+		static::$defaultLoader = function( $vendor, $class ) use ( $vendorPath ) { // e.g.: ( "row", "utils\Options" )
 			$path = str_replace('\\', DIRECTORY_SEPARATOR, $class);
-			return Vendors::$vendorPath.DIRECTORY_SEPARATOR.$vendor.'/'.$path.'.php';
+			$path = $vendorPath.DIRECTORY_SEPARATOR.$vendor.DIRECTORY_SEPARATOR.$path.'.php';
+			return $path;
 		};
-		static::$vendorPath = $path;
+
 		spl_autoload_register('row\core\Vendors::load');
+
 		static::add('row');
 	}
 

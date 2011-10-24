@@ -3,10 +3,11 @@
 namespace app\models;
 
 use app\specs\Model;
+use row\auth\AbstractUser;
 use row\utils\Inflector;
 use \Exception;
 
-class User extends Model implements VisitableRecord {
+class User extends AbstractUser implements VisitableRecord {
 
 	static public $chain;
 
