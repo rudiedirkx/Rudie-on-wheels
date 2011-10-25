@@ -16,7 +16,10 @@ class BlogUser extends \app\specs\SimpleForm {
 
 	protected function _init() {
 		parent::_init();
+
 		$this->renderers['access'] = 'renderCSVList'; // renderCSVList is a mixin method from app\mixins\ReusableFormRenderers
+
+		$this->input['password'] = '';
 	}
 
 	protected function _post_validation() {
@@ -40,8 +43,8 @@ class BlogUser extends \app\specs\SimpleForm {
 			),
 			'password' => array(
 				'type' => 'text',
-				'required' => true,
 				'minlength' => 2,
+				'description' => Output::html(Output::translate('Current password: %1', array($defaults->password))),
 			),
 			'full_name' => array(
 				'type' => 'text',

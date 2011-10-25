@@ -1,7 +1,7 @@
 
 <h1>
 	<?=$this->title('Posts')?>
-	<?if ($app->user->hasAccess('blog create posts')):?>
+	<?if ($canCreatePosts):?>
 		<smaller>(<a href="<?=$this::url('blog/add-post')?>">new</a>)</smaller>
 	<?endif?>
 	<smaller>(<a href="<?=$this::url('blog/csv-archive/archive.csv')?>">archive.csv</a>)</smaller>

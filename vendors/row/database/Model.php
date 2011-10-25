@@ -136,7 +136,7 @@ abstract class Model extends ModelParent {
 	 */
 	static public function _one( $conditions, $params = array() ) {
 		$conditions = static::dbObject()->replaceholders($conditions, $params);
-var_dump($conditions);
+//var_dump($conditions);
 
 		/* experimental */
 		if ( false !== static::$_cache ) {

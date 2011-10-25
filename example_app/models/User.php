@@ -29,6 +29,20 @@ class User extends AbstractUser implements VisitableRecord {
 	}
 
 
+	public function update( $values ) {
+		if ( isset($values['password']) ) {
+			$password = $values['password'];
+			unset($values['password']);
+
+			if ( '' != $password ) {
+				$this->setPassword($password);
+			}
+		}
+
+		return parent::update($values);
+	}
+
+
 	public function isFollowingPost( $post ) {
 		$db = self::dbObject();
 		// I'm not making a Model for just this! But it **should** be in a Model, not in a Controller!

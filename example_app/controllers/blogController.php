@@ -300,6 +300,8 @@ class blogController extends \app\specs\Controller {
 
 		$messages = Session::messages();
 
+		$canCreatePosts = $this->user->hasAccess('blog create posts');
+
 		return get_defined_vars(); // view will be rendered by row\Controller->_post_action
 	}
 

@@ -140,6 +140,10 @@ class Dispatcher extends Object {
 		}
 		is_int($p = strpos($uri, '?')) && $uri = substr($uri, 0, $p);
 
+		if ( $this->options->ignore_trailing_slash ) {
+			$uri = rtrim($uri, '/');
+		}
+
 		$this->requestBasePath = $requestBase;
 		$this->fileBasePath = $fileBase;
 

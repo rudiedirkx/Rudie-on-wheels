@@ -5,20 +5,20 @@ namespace row\core;
 use row\core\APC;
 use row\core\RowException;
 
-class VendorException extends RowException {}
+//class VendorException extends RowException {}
 
 class Vendors extends Object {
 
 	// app config //
 
-	static public function verifyAppConfig() {
+	/*static public function verifyAppConfig() {
 		$required = array('ROW_APP_PATH', 'ROW_PATH', 'ROW_VENDORS_PATH', 'ROW_VENDOR_ROW_PATH');
 		foreach ( $required AS $constant ) {
 			defined($constant) or die('Not configured: ' . $constant);
 		}
 
 		defined('ROW_APP_SECRET') or define('ROW_APP_SECRET', 'NotSecret');
-	}
+	}*/
 
 	// cache //
 
@@ -63,7 +63,7 @@ class Vendors extends Object {
 	static public $loaders = array();
 
 	static public function init($path) {
-		static::verifyAppConfig();
+//		static::verifyAppConfig();
 
 		static::cacheLoad();
 

@@ -29,7 +29,7 @@ class userController extends blogController {
 			}
 		}
 
-		return $this->tpl->display(get_defined_vars());
+		return get_defined_vars();
 	}
 
 
@@ -40,18 +40,27 @@ class userController extends blogController {
 
 		$valid = $form->validate($_POST);
 		if ( $valid ) {
-			return $user->update($form->output) ? 'OK' : 'DB ERROR';
+			$user->update($form->output);
+
+			Session::success('User saved. Probably. Didn\'t check for ->update feedback.');
+
+			return $this->_redirect('blog-user/edit/' . $user->user_id);
 		}
 
-		return $this->tpl->display(get_defined_vars());
+		$messages = Session::messages();
+
+		return get_defined_vars();
 	}
 
 	public function GET_edit( $user = null ) {
 		$user = models\User::get($user);
+//		$user->password = '';
 
 		$form = new BlogUser($this, array('defaults' => $user));
 
-		return $this->tpl->display(get_defined_vars());
+		$messages = Session::messages();
+
+		return get_defined_vars();
 	}
 
 
@@ -71,26 +80,37 @@ class userController extends blogController {
 			return 'ERROR'."\n\n* ".implode("\n* ", $form->errors());
 		}
 
-		return $this->tpl->display(get_defined_vars());
+		$messages = Session::messages();
+
+		return get_defined_vars();
 	}
 
 	// 
 	public function GET_request_account() {
 		$form = new RequestAccount($this);
-		return $this->tpl->display(get_defined_vars());
+
+		$messages = Session::messages();
+
+		return get_defined_vars();
 	}
 
 
 	public function POST_login( $uid = null ) {
-		$post = Options::make($_POST);
-		$get = Options::make($_GET);
+		$post = options($_POST);
+		$get = options($_GET);
 
 		try {
 			// get user object
-			$user = models\User::one(array( 'username' => (string)$post->username ));
+			$user = models\User::withCredentials(array(
+				'username' => (string)$post->username,
+				'password' => (string)$post->password,
+			));
 
 			// log user in(to SessionUser)
 			$this->user->login($user);
+
+			// debug direct logged in status
+			Session::message('<pre>'.var_export($this->user->isLoggedIn(), 1).'</pre>');
 
 			// message OK
 			Session::success('Alright, alright, alright, you\'re logged in...');

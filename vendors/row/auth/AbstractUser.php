@@ -17,18 +17,20 @@ class AbstractUser extends Model {
 			$credentials['password'],
 			ROW_APP_SECRET,
 		);
-print_r($credentials);
+//print_r($credentials);
 
 		return static::one($credentials);
 	}
 
 	public function setPassword( $password ) {
-		$id = $this->_pkValue();
-		$id = $id[0];
+		$pk = $this->_pkValue();
+		$id = reset($pk);
 
-		return $this->update(array(
+		$update = array(
 			'password' => sha1($id . ':' . $password . ':' . ROW_APP_SECRET),
-		));
+		);
+		// don't `this->update`, because that might trigger ->setPassword etc etc etc
+		return self::_update($update, $pk);
 	}
 
 }
