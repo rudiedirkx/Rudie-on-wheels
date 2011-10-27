@@ -83,8 +83,12 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	public static function _query( $conditions ) {
-		return 'SELECT * FROM '.static::$_table.' WHERE '.$conditions; // .' /*'.get_called_class().'*/';
+	public static function _query() {
+//		return 'SELECT * FROM '.static::$_table.' WHERE '.$conditions; // .' /*'.get_called_class().'*/';
+		return array(
+			'tables' => array(static::$_table),
+			'fields' => array('*'),
+		);
 	}
 
 
@@ -99,8 +103,6 @@ abstract class Model extends ModelParent {
 			$justFirst = is_bool($params) ? $params : false;
 			$params = $_jf;
 		}
-
-		$query = static::dbObject()->replaceholders($query, $params);
 
 		$class = get_called_class();
 		if ( class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
@@ -118,8 +120,11 @@ abstract class Model extends ModelParent {
 	 * 
 	 */
 	static public function _fetch( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->replaceholders($conditions, $params);
-		$query = static::_query($conditions, $params);
+//		$conditions = static::dbObject()->replaceholders($conditions, $params);
+
+		$query = static::_query();
+		$query['conditions'][] = array($conditions, $params);
+
 		return static::_byQuery($query);
 	}
 
@@ -135,9 +140,6 @@ abstract class Model extends ModelParent {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->replaceholders($conditions, $params);
-//var_dump($conditions);
-
 		/* experimental */
 		if ( false !== static::$_cache ) {
 			$_c = get_called_class();
@@ -147,8 +149,9 @@ abstract class Model extends ModelParent {
 		}
 		/* experimental */
 
-		$query = static::_query($conditions);
-		$query = static::dbObject()->addLimit($query, 2);
+		$query = static::_query();
+		$query['conditions'][] = array($conditions, $params);
+		$query['limit'] = array(0, 2);
 
 		$objects = static::_byQuery($query);
 		if ( !isset($objects[0]) || isset($objects[1]) ) {
@@ -172,8 +175,10 @@ abstract class Model extends ModelParent {
 	 * Returns null or the first object with the matching conditions
 	 */
 	static public function _first( $conditions, $params = array() ) {
-		$conditions = static::dbObject()->replaceholders($conditions, $params);
-		$query = static::_query($conditions);
+		$query = static::_query();
+		$query['conditions'][] = array($conditions, $params);
+		$query['limit'] = array(0, 1);
+
 		$r = static::_byQuery($query, true);
 		return $r;
 	}

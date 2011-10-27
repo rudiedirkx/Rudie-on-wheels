@@ -471,6 +471,8 @@ class Dispatcher extends Object {
 	}
 
 	public function caught( $exception ) {
+//		ob_end_clean();
+
 		exit('Uncaught ['.get_class($exception).']: '.$exception->getMessage());
 	}
 

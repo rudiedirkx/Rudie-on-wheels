@@ -37,16 +37,19 @@ class Dispatcher extends \row\http\Dispatcher {
 	 * minimal, standard exception catch.
 	 */
 	public function caught( $ex ) {
+//		ob_end_clean();
+
 		$class = get_class($ex);
 		switch ( $class ) {
 			case 'row\database\ModelException':
 			case 'row\database\NotEnoughFoundException':
 			case 'row\database\TooManyFoundException':
-//				exit('[Database Model error] '.$ex->getMessage().'');
+				exit('[Database Model error] '.$ex->getMessage().'');
 			case 'row\http\NotFoundException':
 			case 'row\OutputException':
-				return $this->_internal('errors/notfound', array('exception' => $ex));
-//				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
+//				ob_end_clean();
+//				return $this->_internal('errors/notfound', array('exception' => $ex));
+				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());
 			case 'row\core\MethodException':
 			case 'ErrorException':
 				exit('Parse/runtime error: '.$ex->getMessage().'');

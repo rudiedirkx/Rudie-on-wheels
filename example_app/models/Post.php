@@ -87,8 +87,12 @@ class Post extends Model {
 	}
 
 
-	static public function _query( $conditions ) {
-		return 'SELECT c.*, posts.* FROM posts, categories c WHERE c.category_id = posts.category_id AND '.$conditions;
+	static public function _query() {
+		return array(
+			'tables' => array('posts', 'categories c'),
+			'fields' => array('c.*', 'posts.*'),
+			'conditions' => array('c.category_id = posts.category_id'),
+		);
 	}
 
 }

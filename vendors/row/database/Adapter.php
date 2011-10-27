@@ -120,6 +120,33 @@ abstract class Adapter extends \row\core\Object {
 		return $conditions;
 	}
 
+	public function buildSQL( $query ) {
+		$query = options($query);
+
+		$fields = implode(', ', (array)$query->get('fields', '*'));
+		$tables = implode(', ', (array)$query->tables);
+
+		$sql = 'SELECT ' . $fields . ' FROM ' . $tables;
+
+		if ( $query->conditions ) {
+			$db = $this;
+			$conditions = array_map(function( $condition ) use ( $db ) {
+				if ( is_string($condition) ) {
+					return $condition;
+				}
+				return $db->replaceholders($condition[0], $condition[1]);
+			}, $query->conditions);
+			$conditions = implode(' AND ', $conditions);
+			$sql .= ' WHERE ' . $conditions;
+		}
+
+		if ( $query->limit ) {
+			$sql .= ' LIMIT '.$query->limit[0].', '.$query->limit[1];
+		}
+
+		return $sql;
+	}
+
 	public function fetch( $query, $mixed = null ) {
 		// default options
 		$class = false;
@@ -142,6 +169,11 @@ abstract class Adapter extends \row\core\Object {
 		}
 		else if ( is_string($mixed) ) {
 			$class = $mixed;
+		}
+
+		// build SQL
+		if ( is_array($query) ) {
+			$query = $this->buildSQL($query);
 		}
 
 		// apply params
@@ -360,11 +392,17 @@ abstract class Adapter extends \row\core\Object {
 		return $conditions;
 	}
 
-	public function addLimit( $sql, $limit, $offset = 0 ) {
-		if ( 0 == $offset ) {
-			return $sql.' LIMIT '.$limit;
+	public function addLimit( $query, $limit, $offset = 0 ) {
+		if ( is_array($query) ) {
+			$query['limit'] = array($offset, $limit);
+
+			return $query;
 		}
-		return $sql.' LIMIT '.$offset.', '.$limit;
+
+		if ( 0 == $offset ) {
+			return $query.' LIMIT '.$limit;
+		}
+		return $query.' LIMIT '.$offset.', '.$limit;
 	}
 
 }
