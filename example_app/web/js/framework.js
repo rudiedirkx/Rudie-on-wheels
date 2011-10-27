@@ -160,6 +160,11 @@ HTMLElement.prototype.parent = function(q) {
 	catch (ex) {}
 	return false;
 };
+HTMLElement.prototype.fire = function(type, args) {
+	var e = document.createEvent('MouseEvents');
+	e.initMouseEvent(type, true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+	return this.dispatchEvent(e);
+};
 
 $.ajax = function(url, handler, data, options) {
 	var xhr = new XMLHttpRequest,
