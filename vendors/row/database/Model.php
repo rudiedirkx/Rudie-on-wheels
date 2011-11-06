@@ -140,18 +140,19 @@ abstract class Model extends ModelParent {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-		/* experimental */
-		if ( false !== static::$_cache ) {
-			$_c = get_called_class();
-			if ( isset(static::$_cache[$_c][$conditions]) ) {
-				return static::$_cache[$_c][$conditions];
-			}
-		}
-		/* experimental */
-
 		$query = static::_query();
 		$query['conditions'][] = array($conditions, $params);
 		$query['limit'] = array(0, 2);
+
+		/* experimental */
+		$cacheKey = md5(serialize($query['conditions']));
+		if ( false !== static::$_cache ) {
+			$_c = get_called_class();
+			if ( isset(static::$_cache[$_c][$cacheKey]) ) {
+				return static::$_cache[$_c][$cacheKey];
+			}
+		}
+		/* experimental */
 
 		$objects = static::_byQuery($query);
 		if ( !isset($objects[0]) || isset($objects[1]) ) {
@@ -164,7 +165,7 @@ abstract class Model extends ModelParent {
 
 		/* experimental */
 		if ( false !== static::$_cache ) {
-			static::$_cache[$_c][$conditions] = $r;
+			static::$_cache[$_c][$cacheKey] = $r;
 		}
 		/* experimental */
 
@@ -359,7 +360,7 @@ abstract class Model extends ModelParent {
 				$localValues = $this->_values($localColumns);
 
 				$foreignTable = $class::$_table;
-				$foreignColumns = (array)$getter[4];
+				$foreignColumns = isset($getter[4]) ? (array)$getter[4] : $localColumns;
 
 				$conditions = array_combine($foreignColumns, $localValues);
 				$conditions = static::dbObject()->stringifyConditions($conditions, 'AND', $foreignTable);
