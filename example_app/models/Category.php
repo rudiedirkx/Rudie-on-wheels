@@ -13,7 +13,7 @@ class Category extends Model {
 	static public $_pk = 'category_id';
 	static public $_title = 'category_name';
 	static public $_getters = array(
-		'posts' => array( self::GETTER_ALL, true, 'app\models\Post', 'category_id', 'category_id' ),
+		'posts' => array( self::GETTER_ALL, true, 'app\models\Post', 'category_id' ),
 	);
 
 	public function url( $more = '' ) {

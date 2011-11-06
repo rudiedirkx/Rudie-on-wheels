@@ -23,5 +23,5 @@ use app\specs\Output;
 
 	<p><input type=submit></p>
 
-</fielset>
+</fieldset>
 </form>
