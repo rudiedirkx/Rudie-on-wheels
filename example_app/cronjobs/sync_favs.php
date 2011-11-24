@@ -17,35 +17,30 @@ use app\models\User;
 use app\models\Post;
 use \Exception; // for clarity's sake
 
-echo "<pre>\n";
-
 foreach ( $data AS $userData ) {
 
 	try {
 
-echo "Looking for User # ".$userData->uid."\n";
+		echo "Looking for User # ".$userData->uid."\n";
 		$user = User::get($userData->uid);
-echo "User '".$user."' found\n";
+		echo "User '".$user."' found\n";
 
 		// following posts
-//echo "Parsing ".count($userData->posts)." posts\n";
 		foreach ( $userData->posts AS $postData ) {
 			list($_pid, $_status) = $postData;
-//echo "Looking for Post # ".$_pid."\n";
 			try {
 				$post = Post::get($_pid);
-//echo "Post '".$post."' found\n";
 				if ( $_status ) {
 					$user->stopFollowingPost($post);
-echo "- User '".$user."' stopped following Post '".$post."'\n";
+					echo "- User '".$user."' stopped following Post '".$post."'\n";
 				}
 				else {
 					$user->startFollowingPost($post);
-echo "+ User '".$user."' started following Post '".$post."'\n";
+					echo "+ User '".$user."' started following Post '".$post."'\n";
 				}
 			}
 			catch ( Exception $ex2 ) {
-//				echo $ex2->getMessage()."\n";
+				// Care!
 			}
 		}
 
