@@ -23,8 +23,10 @@ class BlogUser extends \app\specs\SimpleForm {
 	}
 
 	protected function _post_validation() {
-		$this->output['username'] = strtolower($this->output['username']);
-		$this->output['full_name'] = ucfirst($this->output['full_name']);
+		$this->output['default']['username'] = strtolower($this->output['default']['username']);
+		$this->output['default']['full_name'] = ucfirst($this->output['default']['full_name']);
+
+		$this->output['in_domains']['domains'] = array_map('trim', explode(',', $this->output['in_domains']['domains']));
 	}
 
 	protected function elements( $defaults ) {
@@ -57,6 +59,12 @@ class BlogUser extends \app\specs\SimpleForm {
 			'access' => array(
 				'type' => 'text',
 				'validation' => 'csv',
+			),
+			'domains' => array(
+				'type' => 'text',
+				'validation' => 'csv',
+				'storage' => 'in_domains',
+				'description' => Output::translate('Comma (+ space) separated. Will be checked individually and created if no existo.'),
 			),
 		);
 	}

@@ -82,13 +82,16 @@ var_dump($path);
 			'user' => models\User::first('1 ORDER BY RAND()'),
 			'domain' => models\Domain::first('1 ORDER BY RAND()'),
 		));
+
 		$content = '';
 		if ( $this->POST ) {
-			var_dump($form->validate($_POST));
+			$content .= '<pre>VALIDATION: ' . ( $form->validate($_POST) ? 'OK' : 'FAIL' ) . '</pre>';
 			$content .= '<pre>'.print_r($form->errors(), 1).'</pre>';
 		}
+
 		$content .= $form->render();
 		$content .= '<pre>$_POST: '.print_r($_POST, 1).'</pre>';
+		$content .= '<pre>&output: '.print_r($form->output, 1).'</pre>';
 		$content .= '<pre>$form: '.print_r($form, 1).'</pre>';
 
 		return $this->tpl->display(false, array('content' => $content));

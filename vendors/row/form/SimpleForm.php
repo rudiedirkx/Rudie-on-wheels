@@ -31,8 +31,8 @@ abstract class SimpleForm extends \row\Component {
 		}
 	}
 
+	protected function _pre_validation() {}
 	protected function _post_validation() {}
-
 	protected function _post_validation_failed() {}
 
 
@@ -40,7 +40,7 @@ abstract class SimpleForm extends \row\Component {
 		$this->input = $data;
 
 		$elements =& $this->useElements();
-		$validators = $output = array();
+		$validators = $output = $storage = array();
 
 		$this->_fire('pre_validate');
 
@@ -90,6 +90,11 @@ abstract class SimpleForm extends \row\Component {
 					else {
 						$input = $this->input[$name];
 					}
+
+					$elStorage = isset($element['storage']) ? (string)$element['storage'] : 'default';
+					isset($storage[$elStorage]) or $storage[$elStorage] = array();
+					$storage[$elStorage][] = $elName;
+
 					foreach ( (array)$input AS $k => $v ) {
 						$output[] = is_array($v) ? murlencode($elName, $k, $v) : $elName . '=' . urlencode((string)$v);
 					}
@@ -106,9 +111,14 @@ abstract class SimpleForm extends \row\Component {
 
 			unset($element);
 		}
+
+		// output -> array -> into $this
 		$output = implode('&', $output);
 		$this->output = array();
 		parse_str($output, $this->output);
+
+		// split output array
+		$this->output = $this->splitOutput($storage);
 
 		$noErrors = empty($this->errors);
 		// check extra (field agnostic) validators
@@ -231,7 +241,8 @@ abstract class SimpleForm extends \row\Component {
 
 	public function validateCSV( $form, $name ) {
 		$value = trim($this->input($name, ''));
-		return 0 < preg_match('/^[a-z ]+(?:, ?[a-z ]+)*$/', $value);
+		$pattern = 'a-z1-9\- ';
+		return 0 < preg_match('/^['.$pattern.']+(?:, ?['.$pattern.']+)*$/', $value);
 	}
 
 	public function validateNumber( $form, $name ) {
@@ -243,14 +254,16 @@ abstract class SimpleForm extends \row\Component {
 		$this->elementTitle($element);
 		$title = $element['title'];
 
-		$quote = '';
+		$quote = function($value) {
+			return $value;
+		};
 
 		switch ( $type ) {
 			case 'required':
-				return 'Field '.$quote.$title.$quote.' is required';
+				return 'Field '.$quote($title).' is required';
 			break;
 			case 'regex':
-				return 'Field '.$quote.$title.$quote.' has invalid format';
+				return 'Field '.$quote($title).' has invalid format';
 			break;
 			case 'custom':
 				$fields = !isset($element['fields']) ? array($element['_name']) : $element['fields'];
@@ -259,7 +272,7 @@ abstract class SimpleForm extends \row\Component {
 					$name = $this->_elements[trim($name)]['title'];
 					unset($name);
 				}
-				return isset($element['message']) ? $element['message'] : 'Validation failed for: '.$quote.implode($quote.', '.$quote, $fields).$quote;
+				return isset($element['message']) ? $element['message'] : 'Validation failed for: '.implode(', ', array_map($quote, $fields));
 			break;
 		}
 
