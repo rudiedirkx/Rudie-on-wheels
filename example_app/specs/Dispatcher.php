@@ -47,6 +47,7 @@ class Dispatcher extends \row\http\Dispatcher {
 				exit('[Database Model error] '.$ex->getMessage().'');
 			case 'row\http\NotFoundException':
 			case 'row\OutputException':
+			case 'row\core\VendorException':
 //				ob_end_clean();
 //				return $this->_internal('errors/notfound', array('exception' => $ex));
 				exit('[404] ['.$class.'] Not Found: '.$ex->getMessage());

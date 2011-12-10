@@ -2,6 +2,7 @@
 
 namespace row\database;
 
+use row\core\Vendors;
 //use row\core\Extendable AS ModelParent;
 use row\core\Object AS ModelParent;
 use row\database\Adapter; // abstract
@@ -105,7 +106,7 @@ abstract class Model extends ModelParent {
 		}
 
 		$class = get_called_class();
-		if ( class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
+		if ( Vendors::class_exists($class.'Record') && is_a($class.'Record', get_called_class()) ) {
 			$class = $class.'Record';
 		}
 

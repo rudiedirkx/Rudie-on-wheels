@@ -2,6 +2,7 @@
 
 namespace row\database\adapter;
 
+use row\core\Vendors;
 use row\database\Adapter;
 use row\database\DatabaseException;
 use row\database\adapter\PDOSQLite;
@@ -58,7 +59,7 @@ class SQLite extends Adapter {
 
 
 	static public function initializable() {
-		return class_exists('\SQLiteDatabase');
+		return Vendors::class_exists('\SQLiteDatabase');
 	}
 
 	static public function open( $info, $do = true ) {

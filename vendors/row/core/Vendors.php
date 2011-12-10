@@ -5,7 +5,7 @@ namespace row\core;
 use row\core\APC;
 use row\core\RowException;
 
-//class VendorException extends RowException {}
+class VendorException extends RowException {}
 
 class Vendors extends Object {
 
@@ -89,18 +89,23 @@ class Vendors extends Object {
 
 	static public function load( $class ) {
 		$file = static::cacheGet($class); // NULL, FALSE or String classFile
+
+		// Unknown (new reference)
 		if ( null === $file ) {
-			// Unknown (new reference)
+			// Only cache existing classes (safer?, smaller cache)
 			if ( $file = static::class_exists($class) ) {
-				// Only cache existing classes (safer?, smaller cache)
 				static::cachePut($class, $file);
 			}
 		}
+
+		// Known: class file exists
 		if ( $file ) {
-			// Known: class file exists
-			require_once($file);
+			return require_once($file);
 		}
 		// Known: no class file
+		else {
+			throw new VendorException($class);
+		}
 	}
 
 	static public function class_exists( $class ) {
@@ -112,6 +117,8 @@ class Vendors extends Object {
 				return !file_exists($file) ? false : $file;
 			}
 		}
+
+		return class_exists($class);
 	}
 
 

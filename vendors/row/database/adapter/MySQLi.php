@@ -2,13 +2,14 @@
 
 namespace row\database\adapter;
 
+use row\core\Vendors;
 use row\database\adapter\MySQL;
 use row\database\DatabaseException;
 
 class MySQLi extends MySQL {
 
 	static public function initializable() {
-		return class_exists('\mysqli');
+		return Vendors::class_exists('\mysqli');
 	}
 
 	public function connect() {

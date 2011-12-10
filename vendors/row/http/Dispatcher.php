@@ -3,6 +3,7 @@
 namespace row\http;
 
 use row\core\Object;
+use row\core\Vendors;
 use row\core\Options;
 use row\core\APC;
 use row\core\RowException;
@@ -416,7 +417,7 @@ class Dispatcher extends Object {
 
 	protected function getControllerObject( $module ) {
 		$namespacedModuleClass = $this->getControllerClassName($module);
-		if ( class_exists($namespacedModuleClass) ) {
+		if ( Vendors::class_exists($namespacedModuleClass) ) {
 			$application = new $namespacedModuleClass($this);
 			$application->_fire('init');
 			return $application;

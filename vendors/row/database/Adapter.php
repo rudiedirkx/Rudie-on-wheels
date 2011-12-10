@@ -2,6 +2,7 @@
 
 namespace row\database;
 
+use row\core\Vendors;
 use row\core\Options;
 use row\core\RowException;
 
@@ -182,7 +183,7 @@ abstract class Adapter extends \row\core\Object {
 		}
 
 		$result = $this->result($query);
-		class_exists($class) or $class = false;
+		Vendors::class_exists($class) or $class = false;
 
 		if ( $justFirst ) {
 			if ( $class ) {

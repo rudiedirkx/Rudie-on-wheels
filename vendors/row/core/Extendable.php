@@ -2,6 +2,8 @@
 
 namespace row\core;
 
+use row\core\Vendors;
+
 function is_callable( $callback ) {
 	if ( is_array($callback) && isset($callback[0], $callback[1]) ) {
 		list($obj, $method) = $callback;
@@ -22,7 +24,7 @@ abstract class Extendable extends Object {
 
 	protected function _init() {
 		foreach ( $this::$_mixins AS $class ) {
-			if ( class_exists($class) ) {
+			if ( Vendors::class_exists($class) ) {
 				$this->__mixins[] = new $class($this);
 			}
 		}

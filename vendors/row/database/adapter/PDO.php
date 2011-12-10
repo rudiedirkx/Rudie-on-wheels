@@ -2,6 +2,7 @@
 
 namespace row\database\adapter;
 
+use row\core\Vendors;
 use row\database\Adapter;
 use row\database\DatabaseException;
 use \PDOException;
@@ -11,7 +12,7 @@ abstract class PDO extends Adapter {
 	public $affected = 0;
 
 	static public function initializable() {
-		return class_exists('\PDO');
+		return Vendors::class_exists('\PDO');
 	}
 
 	public function connect() {
