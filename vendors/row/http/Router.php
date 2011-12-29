@@ -23,6 +23,10 @@ class Router extends Object {
 		);
 	}
 
+	public function routeToRegex( $from ) {
+		return $from;
+	}
+
 	public function resolve( $path ) {
 		foreach ( $this->routes AS $route ) {
 			if ( $to = $this->resolveRoute($route, '/'.$path) ) {
@@ -42,26 +46,30 @@ class Router extends Object {
 
 	public function resolveRoute( $route, $path ) {
 		$route = (object)$route;
-		$from = '^/'.trim($route->from, '^ /');
+
+		$from = $route->from;
+		$from = trim($from, '^ /');
+#var_dump($from);
+		$from = $this->routeToRegex($from);
+#var_dump($from);
+#echo "----\n";
+		$from = '^/' . $from;
 		if ( !$this->dispatcher->options->case_sensitive_paths ) {
 			$from = strtolower($from);
 			$path = strtolower($path);
 		}
 		if ( 0 < preg_match('#'.$from.'#', $path, $match) ) {
 			$to = $route->to;
-//print_r($to);
 			if ( null === $to ) {
 				$to = $match;
 			}
 			else if ( is_callable($to) ) {
 				$to = $to($match);
 			}
-//var_dump($to); exit;
 			if ( is_string($to) ) {
 				$options = Options::make($route->options);
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
-//var_dump($goto); exit;
 				if ( $options->redirect ) {
 					return $this->redirect($goto);
 				}
@@ -75,7 +83,6 @@ class Router extends Object {
 				else if ( 1 < count($match) ) {
 					$to['actionArguments'] = array_slice($match, 1);
 				}
-//print_r($to);
 				return $to;
 			}
 		}

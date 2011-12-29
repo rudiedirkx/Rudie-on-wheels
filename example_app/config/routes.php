@@ -1,6 +1,6 @@
 <?php
 
-use row\http\Router;
+use app\specs\Router;
 
 $router = new Router;
 
@@ -16,6 +16,9 @@ $router = new Router;
 	- Home: / (the only URI with no Controller)
  */
 
+
+// With magic keywords
+$router->add('/ctrl/%controller/action/%action$');
 
 // To an applet
 // $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
