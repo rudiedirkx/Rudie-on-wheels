@@ -17,8 +17,22 @@ $router = new Router;
  */
 
 
-// With magic keywords
-$router->add('/ctrl/%controller/action/%action$');
+// With special sauce (ONLY POSSIBLE BECAUSE OF app\specs\Router)
+/*$router->add('/do/%action/of/%controller/with/', function($match, $uri) {
+	$parts = explode('/', $uri);
+	$args = array_slice($parts, 5);
+	return array(
+		'controller' => $match['controller'],
+		'action' => $match['action'],
+		'arguments' => $args,
+	);
+});*/
+// would match: /do/more/of/admin/with/sauce
+// but so would:
+$router->add('/do/%/of/%/with/(.+)$', '%2/%1/%3');
+// and that's much simpler
+// and for 0 arguments (no /with/):
+$router->add('/do/%/of/%$', '%2/%1');
 
 // To an applet
 // $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
@@ -54,7 +68,7 @@ $router->add('/blog-user/(\d+)/?', array(
 ));
 
 // (1) This is how simple it **can** be
-$router->add('/$', 'todo', array('redirect' => true));
+$router->add('/$', 'todo', array('redirect' => 301));
 
 // (2) Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
 // $router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');

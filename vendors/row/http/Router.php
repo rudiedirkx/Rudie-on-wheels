@@ -16,7 +16,7 @@ class Router extends Object {
 	}
 
 	public function add( $from, $to = null, $options = array() ) {
-		$this->routes[] = array(
+		$this->routes[] = (object)array(
 			'from' => $from,
 			'to' => $to,
 			'options' => $options,
@@ -24,54 +24,65 @@ class Router extends Object {
 	}
 
 	public function routeToRegex( $from ) {
-		return $from;
+		return preg_replace('/%/', '([^/]+)', $from);
 	}
 
 	public function resolve( $path ) {
 		foreach ( $this->routes AS $route ) {
-			if ( $to = $this->resolveRoute($route, '/'.$path) ) {
+			if ( $to = $this->resolveRoute($route, $path) ) {
 				return $to;
 			}
 		}
 	}
 
-	public function redirect( $goto ) {
+	public function redirect( $goto, $status = true ) {
 		if ( 'http' != substr($goto, 0, 4) && '/' != substr($goto, 0, 1) ) {
 			$goto = $this->dispatcher->requestBasePath . $goto;
+		}
+
+		if ( is_int($status) ) {
+			header('HTTP/1.1 '.$status.' Redirect');
 		}
 
 		header('Location: '.$goto);
 		exit;
 	}
 
-	public function resolveRoute( $route, $path ) {
-		$route = (object)$route;
+	public function resolveRoute( $route, $uri ) {
+		// routes have a leading /
+		$path = '/' . $uri;
 
+		// make a nice little regex
 		$from = $route->from;
 		$from = trim($from, '^ /');
-#var_dump($from);
-		$from = $this->routeToRegex($from);
-#var_dump($from);
-#echo "----\n";
-		$from = '^/' . $from;
 		if ( !$this->dispatcher->options->case_sensitive_paths ) {
 			$from = strtolower($from);
 			$path = strtolower($path);
 		}
-		if ( 0 < preg_match('#'.$from.'#', $path, $match) ) {
+		$from = $this->routeToRegex($from, $route);
+		$from = '^/' . $from;
+		$from = '#' . $from . '#';
+
+		// regex the path
+		if ( 0 < preg_match($from, $path, $match) ) {
+			// NULL, Array, String or Closure
 			$to = $route->to;
+
 			if ( null === $to ) {
+				// Array
 				$to = $match;
 			}
 			else if ( is_callable($to) ) {
-				$to = $to($match);
+				// String or Array
+				$to = $to($match, $uri);
 			}
+
 			if ( is_string($to) ) {
 				$options = Options::make($route->options);
 				$match[0] = preg_replace('/%(\d+)/', '%\1$s', $to);
 				$goto = call_user_func_array('sprintf', $match);
 				if ( $options->redirect ) {
-					return $this->redirect($goto);
+					return $this->redirect($goto, $options->redirect);
 				}
 				return $goto;
 			}
@@ -81,7 +92,12 @@ class Router extends Object {
 					unset($to['arguments']);
 				}
 				else if ( 1 < count($match) ) {
-					$to['actionArguments'] = array_slice($match, 1);
+					$args = $match;
+					unset($args[0]);
+					$args = row_array_filter($args, function($v, $k) {
+						return is_int($k);
+					});
+					$to['actionArguments'] = $args;
 				}
 				return $to;
 			}

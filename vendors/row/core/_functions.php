@@ -3,6 +3,24 @@
 use row\core\Options;
 use row\Output;
 
+function row_array_map($from, $cb) {
+	$to = array();
+	foreach ( $from AS $k => $v ) {
+		$to[$k] = $cb($v, $k, $from);
+	}
+	return $to;
+}
+
+function row_array_filter($from, $cb) {
+	$to = array();
+	foreach ( $from AS $k => $v ) {
+		if ( $cb($v, $k, $from) ) {
+			$to[$k] = $v;
+		}
+	}
+	return $to;
+}
+
 function gmtime() {
 	return (int)gmdate('U');
 }
