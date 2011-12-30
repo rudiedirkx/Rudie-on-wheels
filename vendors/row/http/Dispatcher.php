@@ -96,10 +96,6 @@ abstract class Dispatcher extends Object {
 				'*' => 'STRING',
 			)),
 
-			// Only for "specific" Controllers:
-			// If true, $requestPath "/blog/categories" will do the same as "/blog/categories/"
-			'ignore_trailing_slash' => true,
-
 			// Only for Routes and "specific" Controllers:
 			// It's very much reccomended that you keep this false!
 			// If true, all paths (module & action) will be evaluated case-sensitive which will make a match less likely.
@@ -149,10 +145,7 @@ abstract class Dispatcher extends Object {
 			$uri = ltrim(substr($_SERVER['REQUEST_URI'], strlen($requestBase)-1), '/');
 		}
 		is_int($p = strpos($uri, '?')) && $uri = substr($uri, 0, $p);
-
-		if ( $this->options->ignore_trailing_slash ) {
-			$uri = rtrim($uri, '/');
-		}
+		$uri = rtrim($uri, '/');
 
 		$this->requestBasePath = $requestBase;
 		$this->requestPath = $uri;
@@ -216,12 +209,10 @@ abstract class Dispatcher extends Object {
 		}
 
 		foreach ( $actions AS $hookPath => $actionFunction ) {
-			if ( $this->options->ignore_trailing_slash && '/' != $hookPath ) {
+			if ( '/' != $hookPath ) {
 				$hookPath = rtrim($hookPath, '/');
 			}
 
-//			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcard_aliases); // Aliases might be overkill?
-//			$hookPath = strtr($hookPath, (array)$this->options->action_path_wildcards); // Another strtr for every action hook... Too expensive?
 			$hookPath = strtr($hookPath, $wildcards);
 
 			if ( !$this->options->case_sensitive_paths ) {
