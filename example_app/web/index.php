@@ -8,23 +8,14 @@ use \Exception;
 // Config Vendors, database, ... ?
 require(dirname(__DIR__).'/config/bootstrap.php');
 
-// Config Dispatcher
-$options = array(
-
-	// I use the fallback several times. I love it. So I have to define it.
-	'fallback_controller' => 'app\\controllers\\fallbax',
-
-	// My Action names will be sensible and literal. No use for stupid prefixes or postfixes. PHP >= 5.3.4 ftw!
-	'action_name_postfix' => '',
-
-);
-$dispatcher = new Dispatcher($options);
+// All custom Dispatcher config is in app\specs\Dispatcher
+$dispatcher = new Dispatcher();
 
 // Enable routes (available through config/routes.php through config/bootstrap.php)
 $dispatcher->setRouter($router);
 
 // If your web host doesn't do pretty urls (Apache's mod_rewrite), you should
-// overwrite this method so that it gets the path from $_GET (or somewhere
+// overwrite getRequestPath() so that it gets the path from $_GET (or somewhere
 // else if you'd like).
 // If that's the case, you should probably also change `Output::url()`.
 $path = $dispatcher->requestPath;

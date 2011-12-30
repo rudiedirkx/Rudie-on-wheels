@@ -11,7 +11,7 @@ use row\Output;
 
 class NotFoundException extends RowException {}
 
-class Dispatcher extends Object {
+abstract class Dispatcher extends Object {
 
 	public $_id = 0; // debug
 
@@ -51,7 +51,7 @@ class Dispatcher extends Object {
 	public $options; // typeof row\core\Options
 
 	// This method is easily extended so that your personal preferences won't smudge my index.php
-	public function getDefaultOptions() {
+	public function getOptions() {
 		return Options::make(array(
 
 			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
@@ -112,22 +112,37 @@ class Dispatcher extends Object {
 
 
 	public function __construct( $options = array() ) {
-		$defaults = $this->getDefaultOptions();
-		$this->options = new Options($options, $defaults);
+		$this->options = $this->getOptions();
 
 		$this->_id = rand(1000, 9999);
 
 		$this->cacheLoad();
 
+		$this->getRequestPath();
+
+		$GLOBALS['Dispatcher'] = $this;
+
+		$this->_fire('init');
+	}
+
+	protected function _init() {
+		
+	}
+
+	protected function _post_dispatch() {
+		$this->cacheCurrentDispatch();
+	}
+
+
+	public function getRequestPath() {
 		$dirname = function( $path ) {
 			return rtrim(str_replace('\\', '/', dirname($path)), '/');
 		};
 
+		// entry script: index.php
 		$this->entryScript = basename($_SERVER['SCRIPT_NAME']);
 
-		$fileBase = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-		$fileBase == '/' or $fileBase .= '/';
-
+		// request path / uri: admin/users/view/14 & uri base path
 		if ( 0 === strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) ) {
 			$requestBase = $_SERVER['SCRIPT_NAME'] . '/';
 			$uri = ltrim(substr($_SERVER['REQUEST_URI'], strlen($requestBase)-1), '/');
@@ -143,21 +158,14 @@ class Dispatcher extends Object {
 		}
 
 		$this->requestBasePath = $requestBase;
-		$this->fileBasePath = $fileBase;
-
 		$this->requestPath = $uri;
 
-		$GLOBALS['Dispatcher'] = $this;
+		// file base path: /
+		$fileBase = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+		$fileBase == '/' or $fileBase .= '/';
 
-		$this->_fire('init');
-	}
+		$this->fileBasePath = $fileBase;
 
-	protected function _init() {
-		
-	}
-
-	protected function _post_dispatch() {
-		$this->cacheCurrentDispatch();
 	}
 
 
