@@ -81,7 +81,6 @@ abstract class Dispatcher extends Object {
 			// The following three options will do the same as the previous three but for the Action method name.
 			'action_name_prefix' => '',
 			'action_name_postfix' => 'Action',
-			'action_name_translation' => false,
 
 			// Wildcards to be used in the hooks of "specific" Controllers.
 			// See row\applets\scaffolding\Controller for examples.
@@ -367,10 +366,6 @@ abstract class Dispatcher extends Object {
 	}
 
 	protected function actionFunctionTranslation( $actionFunction ) {
-		// Custom translation
-		if ( is_callable($translation = $this->options->action_name_translation) ) {
-			return call_user_func($translation, $actionFunction);
-		}
 		// Default (simple) translation
 		return $this->options->action_name_prefix.str_replace('-', '_', $actionFunction).$this->options->action_name_postfix;
 	}
