@@ -54,9 +54,6 @@ class Dispatcher extends Object {
 	public function getDefaultOptions() {
 		return Options::make(array(
 
-			// Whether or not to prefix Action methods with the HTTP method
-			'restful' => false,
-
 			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
 			// If you don't want to evaluate a multi level controller app, make this false or "".
 			// The advantage of a multi level controller app: smaller controllers, more sensible Action names, $_moduleArguments
@@ -349,17 +346,10 @@ class Dispatcher extends Object {
 				$this->_action = $this->actionFunctionTranslation($this->_action);
 			}
 		}
-		if ( $this->options->restful && isset($_SERVER['REQUEST_METHOD']) ) {
-			$pa = $this->_action;
-			$this->_action = $_SERVER['REQUEST_METHOD'].'_'.$this->_action;
-		}
 
 		// 7. 
 		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
-			if ( !isset($pa) || !$this->isCallableActionFunction($application, $pa) ) {
-				return $this->tryFallback();
-			}
-			$this->_action = $pa;
+			return $this->tryFallback();
 		}
 
 		return $application;
@@ -453,17 +443,9 @@ class Dispatcher extends Object {
 				else {
 					$this->_action = $this->actionFunctionTranslation($this->_action);
 				}
-				if ( $this->options->restful && isset($_SERVER['REQUEST_METHOD']) ) {
-					$pa = $this->_action;
-					$this->_action = $_SERVER['REQUEST_METHOD'].'_'.$this->_action;
-				}
 
 				// 7. 
 				if ( $this->isCallableActionFunction($application, $this->_action) ) {
-					return $application;
-				}
-				else if ( isset($pa) && $this->isCallableActionFunction($application, $pa) ) {
-					$this->_action = $pa;
 					return $application;
 				}
 			}

@@ -38,6 +38,7 @@ abstract class Controller extends Object {
 		$this->_dispatcher = $dispatcher;
 		$this->_uri = $this->_dispatcher->requestPath;
 
+		$this->AJAX = $this->_ajax();
 		$this->POST = $this->_post();
 		$this->GET = $this->_get();
 		$this->HEAD = $this->_head();
@@ -136,9 +137,10 @@ abstract class Controller extends Object {
 
 	// environment
 	public function _ajax() {
-		return	!empty($_SERVER['HTTP_AJAX']) OR
-				!empty($_SERVER['HTTP_X_AJAX']) OR
-				( isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' == strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) );
+		return
+			!empty($_SERVER['HTTP_AJAX']) OR
+			!empty($_SERVER['HTTP_X_AJAX']) OR
+			( isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' == strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) );
 	}
 
 	public function _post() {
