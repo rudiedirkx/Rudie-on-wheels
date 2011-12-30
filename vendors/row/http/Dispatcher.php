@@ -77,8 +77,6 @@ abstract class Dispatcher extends Object {
 			// With these three, you can name your Controller classes anything like. You might like "mod_blog_controller" instead of "blogController".
 			'module_class_prefix' => '',
 			'module_class_postfix' => 'Controller',
-			// This can be a callback. If a valid callback is found, it's executed **instead of** using the prefix & postfix.
-			'module_to_class_translation' => false,
 
 			// The following three options will do the same as the previous three but for the Action method name.
 			'action_name_prefix' => '',
@@ -364,10 +362,6 @@ abstract class Dispatcher extends Object {
 	}
 
 	protected function moduleClassTranslation( $moduleClass ) {
-		// Custom translation
-		if ( is_callable($translation = $this->options->module_to_class_translation) ) {
-			return call_user_func($translation, $moduleClass);
-		}
 		// Default (simple) translation
 		return $this->options->module_class_prefix . $moduleClass . $this->options->module_class_postfix;
 	}
