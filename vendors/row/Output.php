@@ -327,18 +327,15 @@ class Output extends Object {
 	}
 
 	static public function urlencode( $in ) {
-		$replace = array(
-			'%' => '%25',
-			'?' => '%3F',
-//			'=' => '%3D', // any reason to encode = characters?
-			'&' => '%26',
-			'#' => '%23',
-			'+' => '%2B',
+		$revert = array(
+			'%5B' => '[',
+			'%5D' => ']',
+			'%2F' => '/',
+			'%20' => '+',
 		);
 
-		$out = $in;
-		$out = preg_replace('/\s+/', '+', $out); // encode whitespaces so they're not encoded to %20 by browser
-		$out = strtr($out, $replace);
+		$out = urlencode($in);
+		$out = strtr($out, $revert);
 
 		return $out;
 	}
