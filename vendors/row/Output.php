@@ -2,6 +2,7 @@
 
 namespace row;
 
+use row\core\Object;
 use row\core\Options;
 use row\core\RowException;
 use row\utils\markdown\Parser as MarkdownParser;
@@ -21,11 +22,12 @@ class OutputBufferException extends OutputException {}
  * some from Smarty.)
  */
 
-class Output extends \row\Component {
+class Output extends Object {
 
 	static public $class = __CLASS__;
 
 	static public $application;
+	public $options; // typeof Options
 
 	public $_exceptionClass = 'row\OutputException';
 
@@ -42,10 +44,14 @@ class Output extends \row\Component {
 	public $sections = array('javascript' => array(), 'css' => array());
 	public $viewFile = '';
 
-	protected function _init() {
-		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
-		$this::$application = $this->application;
+	final public function __construct( \row\Controller $application, $options = array() ) {
+		$this::$application = $application;
+		$this->options = Options::make($options);
 
+		$this->_fire('init');
+	}
+
+	protected function _init() {
 		// The most sensible views location
 		$this->viewsFolder = ROW_APP_PATH.'/views';
 
