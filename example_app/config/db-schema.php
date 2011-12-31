@@ -1,6 +1,6 @@
 <?php
 
-$schema = array(
+return array(
 	'tables' => array(
 		'test' => array(
 			'columns' => array(
@@ -272,3 +272,5 @@ $schema = array(
 		),
 	),
 );
+
+

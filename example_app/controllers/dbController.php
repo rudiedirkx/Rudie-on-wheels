@@ -31,7 +31,7 @@ class dbController extends Controller {
 
 
 	protected function difference() {
-		include(ROW_APP_PATH.'/config/db-schema.php');
+		$schema = include(ROW_APP_PATH.'/config/db-schema.php');
 
 		$dbTables = $this->db->_getTables();
 		$schemaTables = array_keys($schema['tables']);
@@ -72,7 +72,7 @@ class dbController extends Controller {
 
 
 	public function build() {
-		include(ROW_APP_PATH.'/config/db-schema.php');
+		$schema = include(ROW_APP_PATH.'/config/db-schema.php');
 
 		foreach ( $schema['tables'] AS $tableName => $table ) {
 			$table = options($table);
