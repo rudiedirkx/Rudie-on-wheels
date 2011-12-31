@@ -39,7 +39,7 @@ class userController extends Controller {
 
 				Session::success('User saved. Probably. Didn\'t check for ->update feedback.');
 
-				return $this->_redirect('blog-user/edit/' . $user->user_id);
+				return $this->_redirect('blog/user/edit/' . $user->user_id);
 			}
 		}
 

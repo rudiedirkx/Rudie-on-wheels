@@ -31,7 +31,7 @@ class RequestAccount extends \app\specs\SimpleForm {
 			),
 /*			'username_disclaimer' => array(
 				'type' => 'markup',
-				'text' => Output::translate('Have you read our %1?', array(Output::link(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog-user/guidelines/username')))
+				'text' => Output::translate('Have you read our %1?', array(Output::link(Output::translate('username guidelines', null, array('ucfirst' => false)), 'blog/user/guidelines/username')))
 			),*/
 			'password' => array(
 				'type' => 'password',

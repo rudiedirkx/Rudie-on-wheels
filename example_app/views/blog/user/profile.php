@@ -11,7 +11,7 @@ table.userdetails tr > * {
 <table class=userdetails border=1>
 	<tr>
 		<th>Name</th>
-		<td><?=$user->full_name?> (<?=$this::link('edit', 'blog-user/edit/'.$user->user_id)?>)</td>
+		<td><?=$user->full_name?> (<?=$this::link('edit', 'blog/user/edit/'.$user->user_id)?>)</td>
 	</tr>
 	<tr>
 		<th>Bio</th>
@@ -27,6 +27,4 @@ table.userdetails tr > * {
 	</tr>
 </table>
 
-<?if( $this->application->_ajax() ):?>
-	<?include('close-overlay.php')?>
-<?endif?>
+<?include('close-overlay.php')?>

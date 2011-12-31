@@ -79,7 +79,7 @@ class User extends AbstractUser implements VisitableRecord {
 	}
 
 	public function url( $more = '' ) {
-		return 'blog-user/'.$this->user_id.'/'.Inflector::slugify((string)$this) . $more;
+		return 'blog/user/'.$this->user_id.'/'.Inflector::slugify((string)$this) . $more;
 	}
 
 	public function hasAccess( $zone ) {
