@@ -94,12 +94,7 @@ class Output extends Object {
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$tpl = $this::$application->dispatcher->_controller . '::' . $this::$application->dispatcher->_action;
-			/*$folder = $this::$application->dispatcher->_modulePath;
-			$folder = preg_replace('/\-(\d+)/', '_N', $folder);
-			$folder = str_replace('-', '/', $folder);
-			$file = $this::$application->dispatcher->_action;
-			$tpl = $folder.'/'.$file;*/
+			$tpl = get_class($this::$application) . '::' . $this::$application->dispatcher->actionInfo['action'];
 		}
 		else if ( false === $tpl ) {
 			// Use no view: just the $content var

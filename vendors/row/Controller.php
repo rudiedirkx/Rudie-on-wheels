@@ -36,6 +36,7 @@ abstract class Controller extends Object {
 	protected $config = array();
 
 	public function __construct( $dispatcher ) {
+//echo "TRYING ".get_class($this)."\n\n";
 		$this->dispatcher = $dispatcher;
 		$this->uri = $this->dispatcher->requestPath;
 
@@ -104,7 +105,8 @@ abstract class Controller extends Object {
 	public function _run() {
 		$this->_fire('pre_action');
 
-		$this->_response = call_user_func_array(array($this, $this->dispatcher->_action), $this->dispatcher->_actionArguments);
+		$actionInfo = $this->dispatcher->actionInfo;
+		$this->_response = call_user_func_array(array($this, $actionInfo['action']), $actionInfo['arguments']);
 
 		$this->_fire('post_action');
 
@@ -191,7 +193,7 @@ abstract class Controller extends Object {
 	}
 
 	public function aclCheck( $action = '' ) {
-		$action or $action = $this->dispatcher->_action;
+		$action or $action = $this->dispatcher->actionInfo['action'];
 		if ( isset($this->acl[$action]) ) {
 			foreach ( $this->acl[$action] AS $zone => $x ) {
 				if ( !$this->aclCheckAccess($zone) ) {

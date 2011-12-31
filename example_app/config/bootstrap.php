@@ -21,6 +21,9 @@ require(__DIR__.'/database.php');
 // include configured routes
 require(__DIR__.'/routes.php');
 
+// include configured controllers
+require(__DIR__.'/controllers.php');
+
 // global functions
 require(ROW_VENDOR_ROW_PATH.'/core/_functions.php');
 

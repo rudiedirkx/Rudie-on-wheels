@@ -9,7 +9,7 @@ use \Exception;
 require(dirname(__DIR__).'/config/bootstrap.php');
 
 // All custom Dispatcher config is in app\specs\Dispatcher
-$dispatcher = new Dispatcher();
+$dispatcher = new Dispatcher($controllers);
 
 // Enable routes (available through config/routes.php through config/bootstrap.php)
 $dispatcher->setRouter($router);

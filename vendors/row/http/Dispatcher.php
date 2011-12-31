@@ -25,27 +25,33 @@ abstract class Dispatcher extends Object {
 	public $entryScript = '';
 
 	// The path that defines the module of this request (e.g. "blog" or "blogs-12-admin")
-	public $_modulePath = '';
+#	public $_modulePath = '';
 	// The Controller (class!) to be loaded (e.g. "app\controllers\blogController" or "app\controllers\blogs\adminController")
-	public $_controller = '';
+#	public $_controller = '';
 	// Arguments filtered from the $_modulePath (e.g. array(12))
-	public $_moduleArguments = array();
+#	public $_moduleArguments = array();
 
 	// The request path after the $_modulePath (e.g. "categories" or "users/jim")
-	public $_actionPath = '';
+#	public $_actionPath = '';
 	// The Action (method!) to be executed (e.g. "categories" or "users")
-	public $_action = '';
+#	public $_action = '';
 	// Arguments to be passed to the Action method (e.g. array() or array("jim"))
-	public $_actionArguments = array();
+#	public $_actionArguments = array();
+
+	// Action info
+	public $actionInfo;
 
 	// Params passed through _internal
 	public $params; // typeof Options
 
 	// Whether this dispatch comes from cache
-	protected $fromCache = false;
+	//protected $fromCache = false;
 
 	// The optional Router object that contains pre-dispatch routes
 	public $router; // typeof row\http\Router
+
+	// The mandatory controllers map
+	public $controllers; // typeof Array
 
 	// The options object for this Dispatcher instance
 	public $options; // typeof row\core\Options
@@ -99,12 +105,13 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	public function __construct( $options = array() ) {
+	public function __construct( $controllers ) {
+		$this->controllers = $controllers;
 		$this->options = $this->getOptions();
 
 		$this->_id = rand(1000, 9999);
 
-		$this->cacheLoad();
+		//$this->cacheLoad();
 
 		$this->getRequestPath();
 
@@ -118,7 +125,7 @@ abstract class Dispatcher extends Object {
 	}
 
 	protected function _post_dispatch() {
-		$this->cacheCurrentDispatch();
+		//$this->cacheCurrentDispatch();
 	}
 
 
@@ -160,19 +167,17 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	public function getApplication( $f_path ) {
-		if ( false === $this->requestPath ) {
-			$this->requestPath = $f_path;
-		}
+	public function getApplication( $f_path = null ) {
+		$path = $f_path ? $f_path : $this->requestPath;
 
 		$controller = $this->getController($f_path);
 		$this->application = $controller;
 
 		$GLOBALS['Application'] = $this;
 
-		if ( !$this->fromCache ) {
+		//if ( !$this->fromCache ) {
 			$this->_fire('post_dispatch');
-		}
+		//}
 
 		return $controller;
 	}
@@ -195,30 +200,50 @@ abstract class Dispatcher extends Object {
 			$actionPath = strtolower($actionPath);
 		}
 
-		// is there a better way for this?
-		$wildcards = $this->options->action_path_wildcards;
-
 		foreach ( $actions AS $hookPath => $actionFunction ) {
 			if ( '/' != $hookPath ) {
 				$hookPath = rtrim($hookPath, '/');
 			}
 
-			$hookPath = strtr($hookPath, $wildcards);
+			$regex = $this->uriToRegex($hookPath);
+			$regex = '#^'.$regex.'$#';
 
-			if ( !$this->options->case_sensitive_paths ) {
-				$hookPath = strtolower($hookPath);
+			if ( $this->options->case_sensitive_paths ) {
+				$regex .= 'i';
 			}
-			if ( 0 < preg_match('#^'.$hookPath.'$#', $actionPath, $matches) ) {
-				array_shift($matches);
-				$this->_actionArguments = $matches;
-				$this->_action = $actionFunction;
-				return true;
+
+			if ( 0 < preg_match($regex, $actionPath, $match) ) {
+				$args = array_slice($match, 1);
+				return array(
+					'action' => $actionFunction,
+					'arguments' => $args,
+				);
 			}
 		}
 	}
 
+	protected function evalActionPath( $actionPath ) {
+		$parts = explode('/', $actionPath);
 
-	/* experimental */
+		$action = array_shift($parts) ?: $this->options->default_action;
+		$action = $this->actionFunctionTranslation($action);
+
+		return array(
+			'action' => $action,
+			'arguments' => $parts,
+		);
+	}
+
+	protected function uriToRegex( $uri ) {
+		$wildcards = $this->options->action_path_wildcards;
+
+		$regex = strtr($uri, $wildcards);
+
+		return $regex;
+	}
+
+
+	/* experimental *
 	public $cache = array();
 	public $cacheChanged = false;
 
@@ -269,11 +294,58 @@ abstract class Dispatcher extends Object {
 	/* experimental */
 
 
-	public function getController( $path, $routes = true ) {
+	public function getController( $uri, $routes = true ) {
 
-		$this->params = options($this->params);
+		// 1. Find Router match
+		// 2. Find controller match
+		// 3. Find action match
 
-		/* experimental */
+		// 1. Find Router match
+		if ( $routes && is_a($this->router, 'row\\http\\Router') ) {
+			if ( $to = $this->router->resolve($uri) ) {
+				if ( is_string($to) ) {
+					$uri = $to;
+				}
+			}
+		}
+
+		// 2. Find controller match
+		$controllers = $this->getControllersMap();
+		foreach ( $controllers AS $curi => $class ) {
+			$regex = $this->uriToRegex($curi);
+			$regex = '#^('.$regex.'(?:/|$))#';
+
+			if ( preg_match($regex, $uri, $match) ) {
+				// 3. Find action match
+				$actionPath = ltrim((string)substr($uri, strlen($match[1])), '/');
+
+				$controller = $this->getControllerObject($class);
+				if ( is_array($actions = $controller->_getActionPaths()) ) {
+					$actionInfo = $this->evaluateActionHooks($actions, $actionPath);
+				}
+				else {
+					$actionInfo = $this->evalActionPath($actionPath);
+				}
+
+				if ( $actionInfo ) {
+					if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
+						$controller->_fire('init');
+						$this->actionInfo = $actionInfo;
+						return $controller;
+					}
+				}
+			}
+		}
+
+
+
+
+
+
+
+		/*$this->params = options($this->params);
+
+		/* experimental *
 		if ( null !== ($target = $this->cacheGet($path)) ) {
 			foreach ( $target AS $k => $v ) {
 				$this->$k = $v;
@@ -283,7 +355,7 @@ abstract class Dispatcher extends Object {
 				return $application;
 			}
 		}
-		/* experimental */
+		/* experimental *
 
 
 		$path = ltrim($path, '/');
@@ -338,12 +410,31 @@ abstract class Dispatcher extends Object {
 			return $this->tryFallback();
 		}
 
-		return $application;
+		return $application;*/
+	}
+
+	protected function getControllersMap() {
+		$controllers = array();
+
+		foreach ( $this->controllers AS $uri => $class ) {
+			if ( is_int($uri) ) {
+				$uri = $class = (string)substr($class, 1);
+			}
+			else {
+				$uri = (string)substr($uri, 1);
+			}
+
+			
+
+			$controllers[$uri] = $class;
+		}
+
+		return array_reverse($controllers);
 	}
 
 	protected function moduleClassTranslation( $moduleClass ) {
 		// Default (simple) translation
-		return $this->options->module_class_prefix . $moduleClass . $this->options->module_class_postfix;
+		return 'app\\controllers\\' . $this->options->module_class_prefix . str_replace('/', '\\', $moduleClass) . $this->options->module_class_postfix;
 	}
 
 	protected function actionFunctionTranslation( $actionFunction ) {
@@ -383,22 +474,23 @@ abstract class Dispatcher extends Object {
 		return $namespacedModuleClass;
 	}
 
-	protected function getControllerObject( $module ) {
-		$namespacedModuleClass = $this->getControllerClassName($module);
-		if ( Vendors::class_exists($namespacedModuleClass) ) {
-			$application = new $namespacedModuleClass($this);
-			$application->_fire('init');
-			return $application;
+	protected function getControllerObject( $class ) {
+		if ( !is_int(strpos($class, '\\')) ) {
+			$class = $this->moduleClassTranslation($class);
 		}
+
+		$controller = new $class($this);
+
+		return $controller;
 	}
 
-	protected function isCallableActionFunction( \row\Controller $application, $actionFunction ) {
+	protected function isCallableActionFunction( \row\Controller $application, $action, $arguments ) {
 		$actions = $application->_getActionFunctions();
-		if ( in_array(strtolower($actionFunction), $actions) ) {
+		if ( in_array(strtolower($action), $actions) ) {
 			$refl = new \ReflectionClass($application);
-			$method = $refl->getMethod($actionFunction);
+			$method = $refl->getMethod($action);
 			$required = $method->getNumberOfRequiredParameters();
-			return $required <= count($this->_actionArguments);
+			return $required <= count($arguments);
 		}
 	}
 
