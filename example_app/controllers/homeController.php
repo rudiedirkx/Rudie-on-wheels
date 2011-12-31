@@ -11,8 +11,22 @@ use app\specs\Output;
 class homeController extends Controller {
 
 	protected $_actions = array(
-		'/js/all.js' => 'allJS',
+		'/js/all.js'	=> 'allJS',
+		'/oele/#'		=> 'oele',
+		'/code'			=> 'code',
+		'/form/%'		=> 'form',
+		'/blog/*'		=> 'blog',
+		'/more'			=> 'more',
+		'/more/%'		=> 'more',
 	);
+
+
+	public function oele( $no ) {
+		echo '<pre>';
+		echo "oele:\n";
+		var_dump($no);
+	}
+
 
 	public function error( $type = '' ) {
 		var_dump($type);

@@ -2,7 +2,7 @@
 
 namespace app\controllers\blog;
 
-use app\controllers\blogController;
+use app\specs\Controller;
 use row\core\Options;
 use row\auth\Session;
 use app\models;
@@ -10,7 +10,7 @@ use app\forms\BlogUser;
 use app\forms\RequestAccount;
 use row\http\NotFoundException;
 
-class userController extends blogController {
+class userController extends Controller {
 
 
 	public function create() {

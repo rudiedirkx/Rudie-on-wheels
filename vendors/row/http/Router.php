@@ -24,7 +24,7 @@ class Router extends Object {
 	}
 
 	public function routeToRegex( $from ) {
-		return preg_replace('/%/', '([^/]+)', $from);
+		return $this->dispatcher->routeToRegex($from);
 	}
 
 	public function resolve( $path ) {
@@ -87,18 +87,15 @@ class Router extends Object {
 				return $goto;
 			}
 			else if ( is_array($to) ) {
-				if ( isset($to['arguments']) ) {
-					$to['actionArguments'] = (array)$to['arguments'];
-					unset($to['arguments']);
+				// any implicit arguments?
+				if ( !isset($to['arguments']) ) {
+					// arguments from regex
+					if ( 1 < count($match) ) {
+						$to['arguments'] = array_slice($match, 1);
+					}
 				}
-				else if ( 1 < count($match) ) {
-					$args = $match;
-					unset($args[0]);
-					$args = row_array_filter($args, function($v, $k) {
-						return is_int($k);
-					});
-					$to['actionArguments'] = $args;
-				}
+
+				// return Location Array
 				return $to;
 			}
 		}

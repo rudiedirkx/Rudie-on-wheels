@@ -4,94 +4,68 @@ use app\specs\Router;
 
 $router = new Router;
 
-
 /**
- * Make as few routes as possible! It's much faster to make
- * internal routes with a specific Controller.
- * The more routes you add here, the work will be done EVERY
- * request no matter the Controller.
- * 
- * Advised routes are:
-	- Crazy URLs (e.g. with reversed arguments)
-	- Home: / (the only URI with no Controller)
+ * Default route wildcards:
+ *
+	%	=>	[^/]+
+	#	=>	\d+
+	*	=>	.+
+ *
+ * These are extendable in option "action_path_wildcards" in app\specs\Dispatcher.
+ *
+ * Arguments of Router->add:
+ *
+	1) route		String					Matchable route with wildcards or actual regex
+	2) destination	String/Array/Closure	Destination. Must output Location Array or URI
+	3) options		Array					Eg. destination => 301
+ *
+ * A Location Array is an array with two mandatory elements:
+	1) controller	String		Unfixed Controller name or full class name
+	2) action		String		Unfixed Action name for that Controller
+ * and one optional element:
+	3) arguments	Array		List of arguments to pass to the Action
+ *
+ * The simplest routes are URI => URI, but the most efficient are URI => Location Array.
+ *
+ * The less Routes, the better! You can do almost anything with Controller
+ * mapping (controllers.php) and Action mapping (in the Controller class).
  */
 
-
-// With special sauce (ONLY POSSIBLE BECAUSE OF app\specs\Router)
-/*$router->add('/do/%action/of/%controller/with/', function($match, $uri) {
-	$parts = explode('/', $uri);
-	$args = array_slice($parts, 5);
-	return array(
-		'controller' => $match['controller'],
-		'action' => $match['action'],
-		'arguments' => $args,
-	);
-});*/
-// would match: /do/more/of/admin/with/sauce
-// but so would:
 $router->add('/do/%/of/%/with/(.+)$', '%2/%1/%3');
-// and that's much simpler
-// and for 0 arguments (no /with/):
+
 $router->add('/do/%/of/%$', '%2/%1');
 
-// To an applet
-// $router->add('/scaffolding', array('controller' => 'row\\applets\\scaffolding\\Controller'));
-// To an applet but with 'access control'
-$router->add('/scaffolding', function() {
-	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) && hash('sha256', @$_GET['password']) !== 'cac74babf308c40b7f531013043631dff4f56434f3aab026f73feafe34564340' ) {
-		exit('Access denied!');
-	}
-	return array('controller' => 'row\\applets\\scaffolding\\Controller');
-});
-
-// Blog post by slugged title
 $router->add('/news/([a-z0-9\-]+)$', array(
-	'controller' => 'app\\controllers\\blogController',
+	'controller' => 'app\controllers\blogController',
 	'action' => 'viewByTitle'
 ));
 
-// A module alias
-$router->add('/posts', array(
-	'controller' => 'app\\controllers\\blogController'
-));
+$router->add('/posts(.*)$', 'blog%1');
 
-// JS cache
-$router->add('/js/all.js$', array(
-	'controller' => 'app\\controllers\\fallbax',
-	'action' => 'allJS'
-));
-
-// Blog user profile
-$router->add('/blog-user/(\d+)/?', array(
-	'controller' => 'app\\controllers\\blog\\userController',
+$router->add('/blog/user/(\d+)', array(
+	'controller' => 'app\controllers\blog\userController',
 	'action' => 'profile'
 ));
 
-// (1) This is how simple it **can** be
 $router->add('/$', 'todo', array('redirect' => 301));
 
-// (2) Or somewhat more advanced. Notice the reverse arguments: %2 .. %1
-// $router->add('/record-id/(\d+)/of-table/([^/]+)$', '/dbsecrets/table-data/%2/pk/%1');
+$router->add('/blog/view/best$', array(
+	'controller' => 'blog',
+	'action' => 'best',
+	'arguments' => array(6)
+));
 
-// (3) This should be possible (and do the exact same as (2)) because it's (much?) more efficient:
-$router->add('/record-id/(\d+)/of-table/([^/]+)$', function($match) {
-	// You can even do some access control in here:
-	if ( !in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1')) ) {
-		exit('Access denied!');
-	}
-	// If you pass the 'access control', it's an easy route to the right Controller Action:
+$router->add('/blog/(\d+)$', array(
+	'controller' => 'blog',
+	'action' => 'view'
+));
+
+$router->add('/%/#', function($match) {
 	return array(
-		'controller' => 'row\\applets\\scaffolding\\Controller',
-		'action' => 'table_record',
-		'arguments' => array($match[2], $match[1]),
+		'controller' => $match[1],
+		'action' => 'view',
+		'arguments' => $match[2],
 	);
 });
-
-// (4) Also should-be possible because just too easy: (blogController is of type "generic")
-$router->add('/blog/view/best$', array('controller' => 'blog', 'action' => 'best', 'arguments' => array(6)));
-// With a Controller of type "specific" this is obviously easier without Route
-
-// (5) Almost as easy, but with 1 (auto-)argument
-$router->add('/blog/(\d+)$', array('controller' => 'blog', 'action' => 'view'));
 
 

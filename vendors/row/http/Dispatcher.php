@@ -8,6 +8,7 @@ use row\core\Options;
 use row\core\APC;
 use row\core\RowException;
 use row\Output;
+use row\Controller AS ROWController;
 
 class NotFoundException extends RowException {}
 
@@ -43,14 +44,6 @@ abstract class Dispatcher extends Object {
 	public function getOptions() {
 		return Options::make(array(
 
-			// In $requestPath "/blogs-12-admin/users/jim", the module delim is "-".
-			// If you don't want to evaluate a multi level controller app, make this false or "".
-			// The advantage of a multi level controller app: smaller controllers, more sensible Action names, $_moduleArguments
-			'module_delim' => '-',
-
-			// This module (not class!) will be used if none is specified in the URL (only for $requestPath "/")
-			'default_module' => 'index',
-
 			// The Action if none specified in the URI (e.g. $requestPath "/blog" equals "/blog/index")
 			'default_action' => 'index',
 
@@ -65,9 +58,9 @@ abstract class Dispatcher extends Object {
 			'action_name_prefix' => '',
 			'action_name_postfix' => 'Action',
 
-			// Wildcards to be used in the hooks of "specific" Controllers.
+			// Wildcards to be used in Routes, Controller mapping and Action mapping.
 			// See row\applets\scaffolding\Controller for examples.
-			// These wildcards are easily extended with expressions you often use (like VERSION for \d+\.\d\.\d) or USERNAME for [a-z][a-z0-9]{3,13})
+			// Extend these with expressions you often use (like VERSION for \d+\.\d\.\d) or USERNAME for [a-z][a-z0-9]{3,13})
 			'action_path_wildcards' => array(
 				'#'			=> '(\d+)',
 				'%'			=> '([^/]+)',
@@ -159,8 +152,7 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	public function evaluateActionHooks( $actions, $actionPath ) {
-		$this->_action = '';
+	public function evalActionHooks( $actions, $actionPath ) {
 		$actionPath = '/'.$actionPath;
 		if ( !$this->options->case_sensitive_paths ) {
 			$actionPath = strtolower($actionPath);
@@ -171,7 +163,7 @@ abstract class Dispatcher extends Object {
 				$hookPath = rtrim($hookPath, '/');
 			}
 
-			$regex = $this->uriToRegex($hookPath);
+			$regex = $this->routeToRegex($hookPath);
 			$regex = '#^'.$regex.'$#';
 
 			if ( $this->options->case_sensitive_paths ) {
@@ -202,7 +194,16 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	protected function uriToRegex( $uri ) {
+	protected function getActionInfo( ROWController $controller, $actionPath ) {
+		if ( is_array($actions = $controller->_getActionPaths()) ) {
+			return $this->evalActionHooks($actions, $actionPath);
+		}
+
+		return $this->evalActionPath($actionPath);
+	}
+
+
+	public function routeToRegex( $uri ) {
 		$wildcards = $this->options->action_path_wildcards;
 
 		$regex = strtr($uri, $wildcards);
@@ -226,11 +227,28 @@ abstract class Dispatcher extends Object {
 			}
 		}
 
+		if ( is_array($to) ) {
+			if ( isset($to['controller'], $to['action']) ) {
+				$controller = $this->getControllerObject($to['controller']);
+
+				if ( $controller ) {
+					// 3. Find action match
+					$actionInfo = array(
+						'action' => $to['action'],
+						'arguments' => isset($to['arguments']) ? $to['arguments'] : array(),
+					);
+					if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
+						return $this->initController($controller, $actionInfo);
+					}
+				}
+			}
+		}
+
 		// 2. Find controller match
 		$controllers = $this->getControllersMap();
 		$fallback = $controllers[''];
-		foreach ( $controllers AS $curi => $module ) {
-			$regex = $this->uriToRegex($curi);
+		foreach ( $controllers AS $route => $module ) {
+			$regex = $this->routeToRegex($route);
 			$regex = '#^('.$regex.'(?:/|$))#';
 
 			if ( preg_match($regex, $uri, $match) ) {
@@ -240,22 +258,20 @@ abstract class Dispatcher extends Object {
 				$controller = $this->getControllerObject($module);
 				$actionInfo = $this->getActionInfo($controller, $actionPath);
 
-				if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
-					$controller->_fire('init');
-					$this->actionInfo = $actionInfo;
-					return $controller;
+				if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
+					return $this->initController($controller, $actionInfo);
 				}
 			}
 		}
 
 		// Mandatory fallback
+
+		// 3. Find action match
 		$actionPath = $uri;
 		$controller = $this->getControllerObject($fallback);
 		$actionInfo = $this->getActionInfo($controller, $actionPath);
-		if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
-			$controller->_fire('init');
-			$this->actionInfo = $actionInfo;
-			return $controller;
+		if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
+			return $this->initController($controller, $actionInfo);
 		}
 
 		// 404 Not found
@@ -263,15 +279,10 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	protected function getActionInfo( $controller, $actionPath ) {
-		if ( is_array($actions = $controller->_getActionPaths()) ) {
-			$actionInfo = $this->evaluateActionHooks($actions, $actionPath);
-		}
-		else {
-			$actionInfo = $this->evalActionPath($actionPath);
-		}
-
-		return $actionInfo;
+	protected function initController( ROWController $controller, Array $actionInfo ) {
+		$controller->_fire('init');
+		$this->actionInfo = $actionInfo;
+		return $controller;
 	}
 
 
@@ -285,8 +296,6 @@ abstract class Dispatcher extends Object {
 			else {
 				$uri = (string)substr($uri, 1);
 			}
-
-			
 
 			$controllers[$uri] = $class;
 		}
@@ -312,19 +321,26 @@ abstract class Dispatcher extends Object {
 			$class = $this->moduleClassTranslation($class);
 		}
 
-		$controller = new $class($this);
+		if ( Vendors::class_exists($class) ) {
+			$controller = new $class($this);
 
-		return $controller;
+			return $controller;
+		}
 	}
 
 
-	protected function isCallableActionFunction( \row\Controller $application, $action, $arguments ) {
-		$actions = $application->_getActionFunctions();
-		if ( in_array(strtolower($action), $actions) ) {
-			$refl = new \ReflectionClass($application);
-			$method = $refl->getMethod($action);
-			$required = $method->getNumberOfRequiredParameters();
-			return $required <= count($arguments);
+	protected function isCallableActionFunction( ROWController $application, $actionInfo ) {
+		if ( $actionInfo ) {
+			$action = $actionInfo['action'];
+			$arguments = $actionInfo['arguments'];
+
+			$actions = $application->_getActionFunctions();
+			if ( in_array(strtolower($action), $actions) ) {
+				$refl = new \ReflectionClass($application);
+				$method = $refl->getMethod($action);
+				$required = $method->getNumberOfRequiredParameters();
+				return $required <= count($arguments);
+			}
 		}
 	}
 
