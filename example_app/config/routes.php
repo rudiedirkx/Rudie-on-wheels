@@ -55,16 +55,11 @@ $router->add('/blog/view/best$', array(
 	'arguments' => array(6)
 ));
 
-$router->add('/blog/(\d+)$', array(
-	'controller' => 'blog',
-	'action' => 'view'
-));
-
 $router->add('/%/#', function($match) {
 	return array(
 		'controller' => $match[1],
 		'action' => 'view',
-		'arguments' => $match[2],
+		'arguments' => array($match[2]),
 	);
 });
 

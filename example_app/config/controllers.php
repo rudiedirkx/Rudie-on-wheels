@@ -4,7 +4,7 @@ $controllers = array(
 	'/' => 'home',
 	'/blog',
 	'/blog/user',
-	'/blog/user/#' => 'blog/userN',
+//	'/blog/user/#' => 'blog/userN',
 	'/admin',
 	'/auth',
 	'/dbalias',
