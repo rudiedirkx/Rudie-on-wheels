@@ -19,7 +19,7 @@ abstract class Controller extends Object {
 
 	public $dispatcher;
 	public $uri;
-	public $_response;
+	public $response;
 
 	public $AJAX = false;
 	public $POST = false;
@@ -67,13 +67,20 @@ abstract class Controller extends Object {
 	}
 
 	protected function _post_action() {
-		// display view?
-		if ( is_string($this->_response) ) {
-			exit($this->_response);
+		// print response directly
+		if ( is_string($this->response) ) {
+			exit($this->response);
 		}
-		else if ( is_array($this->_response) ) {
+		// display view
+		else if ( is_array($this->response) ) {
 			if ( $this->_exists('tpl') && is_a($this->tpl, 'row\Output') ) {
-				return $this->tpl->display($this->_response, !$this->_ajax());
+				// $response is an arguments list for Output->display
+				if ( isset($this->response[0]) ) {
+					return call_user_func_array(array($this->tpl, 'display'), $this->response);
+				}
+
+				// $response is a context/variables array for Output->display
+				return $this->tpl->display($this->response, !$this->_ajax());
 			}
 		}
 	}
@@ -85,7 +92,8 @@ abstract class Controller extends Object {
 
 	public function _getActionFunctions() {
 		if ( $actions = $this->_getActionPaths() ) {
-			$actions = array_values(array_unique($actions));
+//			$actions = array_values(array_unique($actions));
+			$actions = array_map('strtolower', $actions);
 		}
 		else {
 			$refl = new \ReflectionClass($this);
@@ -106,11 +114,15 @@ abstract class Controller extends Object {
 		$this->_fire('pre_action');
 
 		$actionInfo = $this->dispatcher->actionInfo;
-		$this->_response = call_user_func_array(array($this, $actionInfo['action']), $actionInfo['arguments']);
+		$response = call_user_func_array(array($this, $actionInfo['action']), $actionInfo['arguments']);
+
+		if ( null === $this->response ) {
+			$this->response = $response;
+		}
 
 		$this->_fire('post_action');
 
-		return $this->_response;
+		return $this->response;
 	}
 
 

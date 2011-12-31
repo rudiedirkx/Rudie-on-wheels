@@ -2,13 +2,17 @@
 
 namespace app\controllers;
 
+use app\specs\Controller;
 use Zend_Component_Session;
 use row\utils\Image;
 use app\models;
 use app\specs\Output;
 
-class fallbax extends \app\specs\Controller {
+class homeController extends Controller {
 
+	protected $_actions = array(
+		'/js/all.js' => 'allJS',
+	);
 
 	public function error( $type = '' ) {
 		var_dump($type);
@@ -53,7 +57,7 @@ var_dump($path);
 			$js .= trim(file_get_contents($file)).";\n\n";
 		}
 //		file_put_contents(ROW_APP_WEB.'/js/all.js', $js);
-		header('Content-type: text/javascript');
+		header('Content-type: application/x-javascript');
 		echo "/* PHP generated JS */\n\n".$js;
 	}
 

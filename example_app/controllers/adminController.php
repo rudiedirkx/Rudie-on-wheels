@@ -11,7 +11,12 @@ class adminController extends Controller {
 		print_r($this->_arguments);
 	}
 
-	public function more( $arg1 = 0 ) {
+	public function more() {
+		echo '<pre>@ '.__METHOD__."\n";
+		print_r(func_get_args());
+	}
+
+	public function less() {
 		echo '<pre>@ '.__METHOD__."\n";
 		print_r(func_get_args());
 	}

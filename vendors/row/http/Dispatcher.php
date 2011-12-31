@@ -24,28 +24,11 @@ abstract class Dispatcher extends Object {
 	// The filename of the entryscript (all URI's are routed there, preferably with a URL rewrite) (e.g.: "index.php" or "backend_dev.php")
 	public $entryScript = '';
 
-	// The path that defines the module of this request (e.g. "blog" or "blogs-12-admin")
-#	public $_modulePath = '';
-	// The Controller (class!) to be loaded (e.g. "app\controllers\blogController" or "app\controllers\blogs\adminController")
-#	public $_controller = '';
-	// Arguments filtered from the $_modulePath (e.g. array(12))
-#	public $_moduleArguments = array();
-
-	// The request path after the $_modulePath (e.g. "categories" or "users/jim")
-#	public $_actionPath = '';
-	// The Action (method!) to be executed (e.g. "categories" or "users")
-#	public $_action = '';
-	// Arguments to be passed to the Action method (e.g. array() or array("jim"))
-#	public $_actionArguments = array();
-
 	// Action info
 	public $actionInfo;
 
 	// Params passed through _internal
 	public $params; // typeof Options
-
-	// Whether this dispatch comes from cache
-	//protected $fromCache = false;
 
 	// The optional Router object that contains pre-dispatch routes
 	public $router; // typeof row\http\Router
@@ -67,12 +50,6 @@ abstract class Dispatcher extends Object {
 
 			// This module (not class!) will be used if none is specified in the URL (only for $requestPath "/")
 			'default_module' => 'index',
-
-			// If the URI doesn't evaluate to a Controller or existing Action method, the fallback Controller will be used
-			// For example, you might want to make the URI "/flush-apc-cache" available, but not make 2 folders and a Controller for it.
-			// All you have to do is make 1 fallback Controller (can be located anywhere) and create Action flush_apc_cache
-			// You could also handle $requestPath "/" in the fallback Controller.
-			'fallback_controller' => false,
 
 			// The Action if none specified in the URI (e.g. $requestPath "/blog" equals "/blog/index")
 			'default_action' => 'index',
@@ -123,6 +100,7 @@ abstract class Dispatcher extends Object {
 	protected function _init() {
 		
 	}
+
 
 	protected function _post_dispatch() {
 		//$this->cacheCurrentDispatch();
@@ -175,23 +153,11 @@ abstract class Dispatcher extends Object {
 
 		$GLOBALS['Application'] = $this;
 
-		//if ( !$this->fromCache ) {
-			$this->_fire('post_dispatch');
-		//}
+		$this->_fire('post_dispatch');
 
 		return $controller;
 	}
 
-
-	public function evaluatePath($path) {
-		$p = explode('/', $path);
-		$this->_modulePath = array_shift($p) ?: $this->options->default_module;
-		$this->_controller = '';
-		$this->_moduleArguments = array();
-		$this->_actionPath = implode('/', $p);
-		$this->_action = array_shift($p) ?: $this->options->default_action;
-		$this->_actionArguments = $p;
-	}
 
 	public function evaluateActionHooks( $actions, $actionPath ) {
 		$this->_action = '';
@@ -222,6 +188,7 @@ abstract class Dispatcher extends Object {
 		}
 	}
 
+
 	protected function evalActionPath( $actionPath ) {
 		$parts = explode('/', $actionPath);
 
@@ -234,6 +201,7 @@ abstract class Dispatcher extends Object {
 		);
 	}
 
+
 	protected function uriToRegex( $uri ) {
 		$wildcards = $this->options->action_path_wildcards;
 
@@ -241,57 +209,6 @@ abstract class Dispatcher extends Object {
 
 		return $regex;
 	}
-
-
-	/* experimental *
-	public $cache = array();
-	public $cacheChanged = false;
-
-	public function cacheLoad() {
-		if ( array() === $this->cache ) {
-			$this->cache = APC::get('dispatches', array());
-			$self = $this;
-			register_shutdown_function(function() use ($self) {
-				if ( $self->cacheChanged ) {
-					APC::put('dispatches', $self->cache);
-				}
-			});
-		}
-	}
-
-	public function cachePut( $path, $target ) {
-		if ( false !== $this->cache ) {
-			$this->cache[$path] = $target;
-			$this->cacheChanged = true;
-		}
-	}
-
-	public function cacheGet( $path ) {
-		if ( false !== $this->cache ) {
-			if ( isset($this->cache[$path]) ) {
-				return $this->cache[$path];
-			}
-		}
-	}
-
-	public function cacheClear() {
-		$this->cache = array();
-		$this->cacheChanged = false;
-		return APC::clear('dispatches');
-	}
-
-	protected function cacheCurrentDispatch() {
-		$dispatch = array(
-			'_modulePath' => $this->_modulePath,
-			'_controller' => get_class($this->application),
-			'_moduleArguments' => $this->_moduleArguments,
-			'_actionPath' => $this->_actionPath,
-			'_action' => $this->_action,
-			'_actionArguments' => $this->_actionArguments,
-		);
-		$this->cachePut($this->requestPath, $dispatch);
-	}
-	/* experimental */
 
 
 	public function getController( $uri, $routes = true ) {
@@ -311,107 +228,52 @@ abstract class Dispatcher extends Object {
 
 		// 2. Find controller match
 		$controllers = $this->getControllersMap();
-		foreach ( $controllers AS $curi => $class ) {
+		$fallback = $controllers[''];
+		foreach ( $controllers AS $curi => $module ) {
 			$regex = $this->uriToRegex($curi);
 			$regex = '#^('.$regex.'(?:/|$))#';
 
 			if ( preg_match($regex, $uri, $match) ) {
-				// 3. Find action match
 				$actionPath = ltrim((string)substr($uri, strlen($match[1])), '/');
 
-				$controller = $this->getControllerObject($class);
-				if ( is_array($actions = $controller->_getActionPaths()) ) {
-					$actionInfo = $this->evaluateActionHooks($actions, $actionPath);
-				}
-				else {
-					$actionInfo = $this->evalActionPath($actionPath);
-				}
+				// 3. Find action match
+				$controller = $this->getControllerObject($module);
+				$actionInfo = $this->getActionInfo($controller, $actionPath);
 
-				if ( $actionInfo ) {
-					if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
-						$controller->_fire('init');
-						$this->actionInfo = $actionInfo;
-						return $controller;
-					}
+				if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
+					$controller->_fire('init');
+					$this->actionInfo = $actionInfo;
+					return $controller;
 				}
 			}
 		}
 
-
-
-
-
-
-
-		/*$this->params = options($this->params);
-
-		/* experimental *
-		if ( null !== ($target = $this->cacheGet($path)) ) {
-			foreach ( $target AS $k => $v ) {
-				$this->$k = $v;
-			}
-			if ( $application = $this->getControllerObject($this->_controller) ) {
-				$this->fromCache = true;
-				return $application;
-			}
-		}
-		/* experimental *
-
-
-		$path = ltrim($path, '/');
-
-		// 1. Evaluate path into pieces
-		$this->evaluatePath($path);
-//print_r($this->_debug());
-
-		$dontEvalActionHooks = false;
-		if ( $routes && is_a($this->router, 'row\\http\\Router') ) {
-			if ( $to = $this->router->resolve($path) ) {
-				// 3. 
-				if ( is_array($to) ) {
-//print_r($to);
-					foreach ( $to AS $k => $v ) {
-						$this->{'_'.$k} = $v;
-					}
-//print_r($this);
-					$dontEvalActionHooks = isset($to['action']);
-				}
-				else if ( is_string($to) ) {
-					$this->evaluatePath(ltrim($to, '/'));
-				}
-			}
+		// Mandatory fallback
+		$actionPath = $uri;
+		$controller = $this->getControllerObject($fallback);
+		$actionInfo = $this->getActionInfo($controller, $actionPath);
+		if ( $this->isCallableActionFunction($controller, $actionInfo['action'], $actionInfo['arguments']) ) {
+			$controller->_fire('init');
+			$this->actionInfo = $actionInfo;
+			return $controller;
 		}
 
-		// 4. 
-		if ( !$this->_controller ) {
-			$this->_controller = $this->getControllerClassName($this->_modulePath);
-		}
-		else if ( !is_int(strpos($this->_controller, '\\')) ) {
-			$this->_controller = $this->getControllerClassName($this->_controller);
-		}
-
-		// 5. 
-		if ( !($application = $this->getControllerObject($this->_controller)) ) {
-			return $this->tryFallback();
-		}
-
-		if ( empty($dontEvalActionHooks) ) {
-			// 6. 
-			if ( is_array($_actions = $application->_getActionPaths()) ) {
-				$this->evaluateActionHooks($_actions, $this->_actionPath);
-			}
-			else {
-				$this->_action = $this->actionFunctionTranslation($this->_action);
-			}
-		}
-
-		// 7. 
-		if ( !$this->isCallableActionFunction($application, $this->_action) ) {
-			return $this->tryFallback();
-		}
-
-		return $application;*/
+		// 404 Not found
+		$this->throwNotFound();
 	}
+
+
+	protected function getActionInfo( $controller, $actionPath ) {
+		if ( is_array($actions = $controller->_getActionPaths()) ) {
+			$actionInfo = $this->evaluateActionHooks($actions, $actionPath);
+		}
+		else {
+			$actionInfo = $this->evalActionPath($actionPath);
+		}
+
+		return $actionInfo;
+	}
+
 
 	protected function getControllersMap() {
 		$controllers = array();
@@ -432,47 +294,18 @@ abstract class Dispatcher extends Object {
 		return array_reverse($controllers);
 	}
 
+
 	protected function moduleClassTranslation( $moduleClass ) {
 		// Default (simple) translation
 		return 'app\\controllers\\' . $this->options->module_class_prefix . str_replace('/', '\\', $moduleClass) . $this->options->module_class_postfix;
 	}
+
 
 	protected function actionFunctionTranslation( $actionFunction ) {
 		// Default (simple) translation
 		return $this->options->action_name_prefix.str_replace('-', '_', $actionFunction).$this->options->action_name_postfix;
 	}
 
-	protected function getControllerClassName( $module ) {
-		if ( is_int(strpos($module, '\\')) ) {
-			return $module;
-		}
-		$delim = $this->options->module_delim;
-		if ( $delim && 1 < ($mi=count($moduleParts = explode($delim, $module))) ) {
-			$args = array();
-			$li = 0;
-			for ( $i=1; $i<$mi; $i++ ) {
-				$submodule = $moduleParts[$i];
-				if ( (string)(int)$submodule === $submodule ) {
-					unset($moduleParts[$i]);
-					$moduleParts[$li] .= '_N';
-					$args[] = $submodule;
-				}
-				else {
-					$li = $i;
-				}
-			}
-			$moduleParts = array_values($moduleParts);
-			$this->_moduleArguments = $args;
-			$n = count($moduleParts)-1;
-			$moduleParts[$n] = $this->moduleClassTranslation($moduleParts[$n]);
-			$moduleClass = implode('\\', $moduleParts);
-		}
-		else {
-			$moduleClass = $this->moduleClassTranslation($module);
-		}
-		$namespacedModuleClass = 'app\\controllers\\'.$moduleClass;
-		return $namespacedModuleClass;
-	}
 
 	protected function getControllerObject( $class ) {
 		if ( !is_int(strpos($class, '\\')) ) {
@@ -484,6 +317,7 @@ abstract class Dispatcher extends Object {
 		return $controller;
 	}
 
+
 	protected function isCallableActionFunction( \row\Controller $application, $action, $arguments ) {
 		$actions = $application->_getActionFunctions();
 		if ( in_array(strtolower($action), $actions) ) {
@@ -494,34 +328,12 @@ abstract class Dispatcher extends Object {
 		}
 	}
 
+
 	public function throwNotFound() {
 		$exceptionClass = $this->options->not_found_exception;
 		throw new $exceptionClass('/'.$this->requestPath);
 	}
 
-	protected function tryFallback() {
-		if ( $this->options->fallback_controller ) {
-			// 5. 
-			if ( $application = $this->getControllerObject($this->options->fallback_controller) ) {
-				// reevaluate params for Action
-				$this->evaluatePath('fallback/'.$this->requestPath);
-
-				// 6. 
-				if ( is_array($_actions = $application->_getActionPaths()) ) {
-					$this->evaluateActionHooks($_actions, $this->_actionPath);
-				}
-				else {
-					$this->_action = $this->actionFunctionTranslation($this->_action);
-				}
-
-				// 7. 
-				if ( $this->isCallableActionFunction($application, $this->_action) ) {
-					return $application;
-				}
-			}
-		}
-		$this->throwNotFound();
-	}
 
 	public function caught( $exception ) {
 //		ob_end_clean();
@@ -537,6 +349,7 @@ abstract class Dispatcher extends Object {
 			exit;
 		}
 	}
+
 
 	public function _internal( $location, $params = array() ) {
 		if ( is_string($location) ) {
