@@ -125,7 +125,51 @@ abstract class Adapter extends \row\core\Object {
 		$query = options($query);
 
 		$fields = implode(', ', (array)$query->get('fields', '*'));
-		$tables = implode(', ', (array)$query->tables);
+
+		$fn_join = function($details) use(&$fn_join) {
+			$join = strtoupper(array_shift($details)) . ' ';
+
+			if ( is_int(key($details)) ) {
+				// a table: exit join
+				$join .= array_shift($details);
+
+				// conditions
+				if ( $details ) {
+					$join .= ' ON (' . implode(' AND ', (array)array_shift($details)) . ')';
+				}
+			}
+			else {
+				// another join!
+				$join .= key($details);
+
+				// next join details
+				$join2 = array_shift($details);
+
+				// conditions
+				if ( $details ) {
+					$join .= ' ON (' . implode(' AND ', (array)array_shift($details)) . ')';
+				}
+
+				$join .= ' ' . $fn_join($join2);
+			}
+
+			return $join;
+		};
+
+		$tables = array();
+		foreach ( (array)$query->tables AS $i => $table ) {
+			if ( is_scalar($table) ) {
+				$tables[] = $table;
+			}
+			else {
+				$join = $i;
+
+				$join .= ' ' . $fn_join($table);
+
+				$tables[] = $join;
+			}
+		}
+		$tables = implode(', ', $tables);
 
 		$sql = 'SELECT ' . $fields . ' FROM ' . $tables;
 
