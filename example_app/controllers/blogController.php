@@ -303,6 +303,8 @@ class blogController extends \app\specs\Controller {
 		$canCreatePosts = $this->user->hasAccess('blog create posts');
 
 		return get_defined_vars(); // view will be rendered by row\Controller->_post_action
+		return $this->_display(__METHOD__, get_defined_vars(), !$this->AJAX); // view will be rendered by Output->display
+		return $this->_display(get_defined_vars()); // view will be rendered by Output->display
 	}
 
 	/**

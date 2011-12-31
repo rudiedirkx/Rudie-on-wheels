@@ -112,6 +112,11 @@ abstract class Controller extends Object {
 
 
 	// helpers
+	public function _display() {
+		$args = func_get_args();
+		return call_user_func_array(array($this->tpl, 'display'), $args);
+	}
+
 	public function _redirect( $location, $exit = true ) {
 		return $this->_dispatcher->_redirect($location, $exit);
 	}

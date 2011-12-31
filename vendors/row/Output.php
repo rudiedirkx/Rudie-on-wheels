@@ -88,18 +88,20 @@ class Output extends \row\Component {
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$folder = $this::$_application->_dispatcher->_modulePath;
+			$tpl = $this::$_application->_dispatcher->_controller . '::' . $this::$_application->_dispatcher->_action;
+			/*$folder = $this::$_application->_dispatcher->_modulePath;
 			$folder = preg_replace('/\-(\d+)/', '_N', $folder);
 			$folder = str_replace('-', '/', $folder);
 			$file = $this::$_application->_dispatcher->_action;
-			$tpl = $folder.'/'.$file;
+			$tpl = $folder.'/'.$file;*/
 		}
 		else if ( false === $tpl ) {
 			// Use no view: just the $content var
 			$tpl = $viewLayout;
 			$viewLayout = false;
 		}
-		else if ( 2 == count($view = explode('::', $tpl)) ) {
+
+		if ( 2 == count($view = explode('::', $tpl)) ) {
 			// Use given view (probably passed __METHOD__)
 			$file = $view[1];
 			$file = $this->templateFileTranslation($file);
@@ -109,9 +111,7 @@ class Output extends \row\Component {
 			$folder = $this->templateFolderTranslation($folder);
 			$tpl = $folder.'/'.$file;
 		}
-		else {
-			// Use $tpl literally
-		}
+
 		return $tpl;
 	}
 
