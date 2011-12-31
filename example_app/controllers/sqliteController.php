@@ -22,7 +22,7 @@ class sqliteController extends Controller {
 
 	public function index() {
 		foreach ( array('v2', 'v2-data', '', 'v3', 'v3-data', '', 'pdo', 'pdo-data', '', 'first-match-structure', 'first-match-data') AS $m ) {
-			echo '<li><a href="/'.$this->_dispatcher->_module.'/'.$m.'">'.$m.'</a></li>';
+			echo '<li><a href="/'.$this->dispatcher->_module.'/'.$m.'">'.$m.'</a></li>';
 		}
 	}
 

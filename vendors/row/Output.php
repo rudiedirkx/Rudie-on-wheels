@@ -25,7 +25,7 @@ class Output extends \row\Component {
 
 	static public $class = __CLASS__;
 
-	static public $_application;
+	static public $application;
 
 	public $_exceptionClass = 'row\OutputException';
 
@@ -44,7 +44,7 @@ class Output extends \row\Component {
 
 	protected function _init() {
 		// This is the only way to make the static Output methods aware of the Application & Dispatcher?
-		$this::$_application = $this->application;
+		$this::$application = $this->application;
 
 		// The most sensible views location
 		$this->viewsFolder = ROW_APP_PATH.'/views';
@@ -66,20 +66,20 @@ class Output extends \row\Component {
 	}
 
 	public function templateFolderTranslation( $folder ) {
-		if ( $mcp = $this::$_application->_dispatcher->options->module_class_prefix ) {
+		if ( $mcp = $this::$application->dispatcher->options->module_class_prefix ) {
 			$folder = substr($folder, strlen($mcp));
 		}
-		if ( $mcp = $this::$_application->_dispatcher->options->module_class_postfix ) {
+		if ( $mcp = $this::$application->dispatcher->options->module_class_postfix ) {
 			$folder = substr($folder, 0, -1*strlen($mcp));
 		}
 		return $folder;
 	}
 
 	public function templateFileTranslation( $file ) {
-		if ( $anp = $this::$_application->_dispatcher->options->action_name_prefix ) {
+		if ( $anp = $this::$application->dispatcher->options->action_name_prefix ) {
 			$file = substr($file, strlen($anp));
 		}
-		if ( $anp = $this::$_application->_dispatcher->options->action_name_postfix ) {
+		if ( $anp = $this::$application->dispatcher->options->action_name_postfix ) {
 			$file = substr($file, 0, -1*strlen($anp));
 		}
 		return $file;
@@ -88,11 +88,11 @@ class Output extends \row\Component {
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$tpl = $this::$_application->_dispatcher->_controller . '::' . $this::$_application->_dispatcher->_action;
-			/*$folder = $this::$_application->_dispatcher->_modulePath;
+			$tpl = $this::$application->dispatcher->_controller . '::' . $this::$application->dispatcher->_action;
+			/*$folder = $this::$application->dispatcher->_modulePath;
 			$folder = preg_replace('/\-(\d+)/', '_N', $folder);
 			$folder = str_replace('-', '/', $folder);
-			$file = $this::$_application->_dispatcher->_action;
+			$file = $this::$application->dispatcher->_action;
 			$tpl = $folder.'/'.$file;*/
 		}
 		else if ( false === $tpl ) {
@@ -288,7 +288,7 @@ class Output extends \row\Component {
 			$prefix = $scheme . '://' . $_SERVER['HTTP_HOST'] . $port;
 		}
 
-		true !== $path or !static::$_application or $path = static::$_application->_uri;
+		true !== $path or !static::$application or $path = static::$application->uri;
 
 		$query = '';
 		if ( $options->get ) {
@@ -381,7 +381,7 @@ class Output extends \row\Component {
 			return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
 		}
 
-		$base = static::$_application ? static::$_application->_dispatcher->requestBasePath.'/' : '/';
+		$base = static::$application ? static::$application->dispatcher->requestBasePath.'/' : '/';
 
 		$domain = Options::one($options, 'domain', null);
 		$path = $options->path ?: $base;

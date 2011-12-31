@@ -626,7 +626,7 @@ abstract class SimpleForm extends \row\Component {
 
 		if ( $withForm ) {
 			$method = $options->get('method', 'post');
-			$action = $o::url($this->application->_uri);
+			$action = $o::url($this->application->uri);
 			$html =
 				'<form method="'.$method.'" action="'.$action.'"'.$o::attributes($options, array('method')).'>' .
 					$this->elementSeparator() .

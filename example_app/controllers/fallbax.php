@@ -142,7 +142,7 @@ var_dump($path);
 		print_r(func_get_args());
 		echo '</pre>';
 
-		var_dump($this->_dispatcher->cacheClear());
+		var_dump($this->dispatcher->cacheClear());
 		var_dump(\Vendors::cacheClear());
 		echo '<p>Also, I flushed the Vendors cache and Dispatch cache! You\'re welcome!</p>';
 	}
@@ -153,8 +153,8 @@ var_dump($path);
 		\Vendors::cacheLoad();
 		print_r(\Vendors::$cache);
 
-		$this->_dispatcher->cacheLoad();
-		print_r($this->_dispatcher->cache);
+		$this->dispatcher->cacheLoad();
+		print_r($this->dispatcher->cache);
 		echo '</pre>';
 	}
 

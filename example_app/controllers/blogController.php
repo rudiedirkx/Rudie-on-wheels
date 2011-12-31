@@ -21,7 +21,7 @@ class blogController extends \app\specs\Controller {
 		parent::_init();
 
 		// log page into user history (why? because we can!)
-		$this->user->history($this->_uri);
+		$this->user->history($this->uri);
 
 		$this->aclAdd('true'); // adds required zone "true" to all Actions of this Controller, just to trigger Controller ACL
 		$this->aclAdd('logged in', array('add_post', 'edit_post', 'edit_comment', 'publish_post', 'unpublish_post', 'follow_post'));

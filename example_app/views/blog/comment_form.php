@@ -7,7 +7,7 @@ use app\specs\Output;
 <pre>comment:
 <? var_export($comment) ?></pre>
 
-<form method=post action=<?=Output::url($app->_uri)?>>
+<form method=post action=<?=Output::url($app->uri)?>>
 <fieldset>
 	<legend><?if(!$comment):?>Add comment<?else:?>Edit comment # <?=$comment->comment_id?><?endif?></legend>
 

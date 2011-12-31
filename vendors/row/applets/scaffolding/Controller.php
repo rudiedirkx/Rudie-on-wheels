@@ -21,7 +21,7 @@ class Controller extends \row\Controller {
 	protected function _init() {
 		parent::_init();
 
-		$this->_dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
+		$this->dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
 
 		$this->view = new Output($this);
 		$this->view->viewsFolder = __DIR__.'/views';
@@ -120,7 +120,7 @@ class Controller extends \row\Controller {
 	}
 
 	public function _url( $action = '', $more = '' ) {
-		$x = explode('/', ltrim($this->_dispatcher->requestPath, '/'));
+		$x = explode('/', ltrim($this->dispatcher->requestPath, '/'));
 
 		$uri = Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ));
 		if ( $_GET ) {

@@ -17,10 +17,11 @@ use row\Output;
 
 abstract class Controller extends Object {
 
-	public $_dispatcher;
-	public $_uri;
+	public $dispatcher;
+	public $uri;
 	public $_response;
 
+	public $AJAX = false;
 	public $POST = false;
 	public $GET = false;
 	public $HEAD = false;
@@ -35,8 +36,8 @@ abstract class Controller extends Object {
 	protected $config = array();
 
 	public function __construct( $dispatcher ) {
-		$this->_dispatcher = $dispatcher;
-		$this->_uri = $this->_dispatcher->requestPath;
+		$this->dispatcher = $dispatcher;
+		$this->uri = $this->dispatcher->requestPath;
 
 		$this->AJAX = $this->_ajax();
 		$this->POST = $this->_post();
@@ -103,7 +104,7 @@ abstract class Controller extends Object {
 	public function _run() {
 		$this->_fire('pre_action');
 
-		$this->_response = call_user_func_array(array($this, $this->_dispatcher->_action), $this->_dispatcher->_actionArguments);
+		$this->_response = call_user_func_array(array($this, $this->dispatcher->_action), $this->dispatcher->_actionArguments);
 
 		$this->_fire('post_action');
 
@@ -118,11 +119,11 @@ abstract class Controller extends Object {
 	}
 
 	public function _redirect( $location, $exit = true ) {
-		return $this->_dispatcher->_redirect($location, $exit);
+		return $this->dispatcher->_redirect($location, $exit);
 	}
 
 	public function _internal( $location ) {
-		return $this->_dispatcher->_internal($location);
+		return $this->dispatcher->_internal($location);
 	}
 
 	public function _download( $filename, $contentType = 'text/plain' ) {
@@ -190,7 +191,7 @@ abstract class Controller extends Object {
 	}
 
 	public function aclCheck( $action = '' ) {
-		$action or $action = $this->_dispatcher->_action;
+		$action or $action = $this->dispatcher->_action;
 		if ( isset($this->acl[$action]) ) {
 			foreach ( $this->acl[$action] AS $zone => $x ) {
 				if ( !$this->aclCheckAccess($zone) ) {
