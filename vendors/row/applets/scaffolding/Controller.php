@@ -10,18 +10,18 @@ class Controller extends \row\Controller {
 	protected $_actions = array(
 		'/'								=> 'tables',
 		'/table-structure/*'			=> 'table_structure',
-		'/table-data/*'					=> 'table_data',
-		'/table-data/*/add'				=> 'add_data',
-		'/table-data/*/add/save'		=> 'insert_data',
-		'/table-data/*/pk/delete/CSV'	=> 'delete_record',
-		'/table-data/*/pk/CSV'			=> 'table_record', // See _init for the newly created action wildcard CSV
-		'/table-data/*/pk/CSV/save'		=> 'save_table_record',
+		'/table-data/%'					=> 'table_data',
+		'/table-data/%/add'				=> 'add_data',
+		'/table-data/%/add/save'		=> 'insert_data',
+		'/table-data/%/pk/delete/CSV'	=> 'delete_record',
+		'/table-data/%/pk/CSV'			=> 'table_record', // CSV is a new wildcard -- see _init()
+		'/table-data/%/pk/CSV/save'		=> 'save_table_record',
 	);
 
 	protected function _init() {
 		parent::_init();
 
-		$this->dispatcher->options->action_path_wildcards->{'CSV'} = '(\d+(?:,\d+)*)'; // Is this very nasty?
+		$this->dispatcher->options->action_path_wildcards['CSV'] = '(\d+(?:,\d+)*)';
 
 		$this->view = new Output($this);
 		$this->view->viewsFolder = __DIR__.'/views';

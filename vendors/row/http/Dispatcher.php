@@ -85,20 +85,15 @@ abstract class Dispatcher extends Object {
 			// Wildcards to be used in the hooks of "specific" Controllers.
 			// See row\applets\scaffolding\Controller for examples.
 			// These wildcards are easily extended with expressions you often use (like VERSION for \d+\.\d\.\d) or USERNAME for [a-z][a-z0-9]{3,13})
-			'action_path_wildcards' => Options::make(array(
-				'INT'		=> '(\d+)',
-				'STRING'	=> '([^/]+)',
-				'DATE'		=> '(\d\d\d\d\-\d\d?\-\d\d?)',
-			)),
-			// Wildcard aliases so your hook paths are shorter and more readable
-			'action_path_wildcard_aliases' => Options::make(array(
-				'#' => 'INT',
-				'*' => 'STRING',
-			)),
+			'action_path_wildcards' => array(
+				'#'			=> '(\d+)',
+				'%'			=> '([^/]+)',
+				'*'			=> '(.+)',
+				'DATE'		=> '(\d{4}-\d\d?\-\d\d?)',
+			),
 
-			// Only for Routes and "specific" Controllers:
-			// It's very much reccomended that you keep this false!
-			// If true, all paths (module & action) will be evaluated case-sensitive which will make a match less likely.
+			// It's very much reccomended that you keep this FALSE!
+			// If true, all paths (module & action) will be evaluated case-sensitive, which will make a match less likely.
 			'case_sensitive_paths' => false,
 		));
 	}
@@ -160,7 +155,7 @@ abstract class Dispatcher extends Object {
 
 
 	public function setRouter( \row\http\Router $router ) {
-		$router->setDispatcher($this); // Now the Router knows Dispatcher config like action_path_wildcards
+		$router->setDispatcher($this);
 		$this->router = $router;
 	}
 
@@ -201,12 +196,7 @@ abstract class Dispatcher extends Object {
 		}
 
 		// is there a better way for this?
-		$wildcards = (array)$this->options->action_path_wildcards;
-		foreach ( (array)$this->options->action_path_wildcard_aliases AS $from => $to ) {
-			if ( isset($wildcards[$to]) ) {
-				$wildcards[$from] = $wildcards[$to];
-			}
-		}
+		$wildcards = $this->options->action_path_wildcards;
 
 		foreach ( $actions AS $hookPath => $actionFunction ) {
 			if ( '/' != $hookPath ) {
