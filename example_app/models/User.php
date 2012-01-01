@@ -7,7 +7,9 @@ use row\auth\AbstractUser;
 use row\utils\Inflector;
 use \Exception;
 
-class User extends AbstractUser implements VisitableRecord {
+class User extends Model implements VisitableRecord {
+
+	use AbstractUser;
 
 	static public $chain;
 

@@ -2,9 +2,7 @@
 
 namespace row\auth;
 
-use row\database\Model;
-
-class AbstractUser extends Model {
+trait AbstractUser {
 
 	static public function withCredentials( Array $credentials ) {
 		$db = static::dbObject();
