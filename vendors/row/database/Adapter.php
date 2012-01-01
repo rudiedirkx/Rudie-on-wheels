@@ -5,6 +5,8 @@ namespace row\database;
 use row\core\Vendors;
 use row\core\Options;
 use row\core\RowException;
+use row\database\query\QueryAND;
+use row\database\query\QueryOR;
 
 class DatabaseException extends RowException {}
 
@@ -23,7 +25,9 @@ abstract class Adapter extends \row\core\Object {
 	abstract public function _getTableColumns( $table );
 	abstract public function _getPKColumns( $table );
 
-	abstract static public function initializable();
+	static public function initializable() {
+		return false;
+	}
 	abstract public function connect();
 	public function connected() {
 		return is_object($this->query('SELECT 1'));
@@ -135,7 +139,8 @@ abstract class Adapter extends \row\core\Object {
 
 				// conditions
 				if ( $details ) {
-					$join .= ' ON (' . implode(' AND ', (array)array_shift($details)) . ')';
+					$conditions = QueryAND::create(array_shift($details));
+					$join .= ' ON (' . $conditions . ')';
 				}
 			}
 			else {
@@ -147,7 +152,8 @@ abstract class Adapter extends \row\core\Object {
 
 				// conditions
 				if ( $details ) {
-					$join .= ' ON (' . implode(' AND ', (array)array_shift($details)) . ')';
+					$conditions = QueryAND::create(array_shift($details));
+					$join .= ' ON (' . $conditions . ')';
 				}
 
 				$join .= ' ' . $fn_join($join2);
@@ -175,14 +181,18 @@ abstract class Adapter extends \row\core\Object {
 
 		if ( $query->conditions ) {
 			$db = $this;
-			$conditions = array_map(function( $condition ) use ( $db ) {
+
+			$conditions = QueryAND::create($query->conditions);
+
+			/*$conditions = array_map(function( $condition ) use ( $db ) {
 				if ( is_string($condition) ) {
 					return $condition;
 				}
 				return $db->replaceholders($condition[0], $condition[1]);
 			}, $query->conditions);
-			$conditions = implode(' AND ', $conditions);
-			$sql .= ' WHERE ' . $conditions;
+			$conditions = implode(' AND ', $conditions);*/
+
+			$sql .= ' WHERE ' . $conditions->render($this, false);
 		}
 
 		if ( $query->limit ) {
@@ -435,6 +445,18 @@ abstract class Adapter extends \row\core\Object {
 			$conditions = implode(' '.$delim.' ', $sql);
 		}
 		return $conditions;
+	}
+
+	public function condition( $value, $name ) {
+		if ( is_string($value) ) {
+			return $value;
+		}
+
+		if ( is_array($value) ) {
+			if ( isset($value[0]) ) {
+				return $this->replaceholders($value[0], $value[1]);
+			}
+		}
 	}
 
 	public function addLimit( $query, $limit, $offset = 0 ) {

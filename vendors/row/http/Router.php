@@ -23,7 +23,7 @@ class Router extends Object {
 		);
 	}
 
-	public function routeToRegex( $from ) {
+	public function routeToRegex( $from, $route ) {
 		return $this->dispatcher->routeToRegex($from);
 	}
 
