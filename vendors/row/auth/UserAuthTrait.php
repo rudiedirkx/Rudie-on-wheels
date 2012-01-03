@@ -2,7 +2,7 @@
 
 namespace row\auth;
 
-trait AbstractUser {
+trait UserAuthTrait {
 
 	static public function withCredentials( Array $credentials ) {
 		$db = static::dbObject();
@@ -11,23 +11,22 @@ trait AbstractUser {
 		$pkColumn = $db->escapeAndQuoteColumn($pkColumn);
 
 		$credentials['password'] = array(
-			"SHA1(CONCAT(".$pkColumn.", ':', ?, ':', ?))",
-			$credentials['password'],
+			"SHA1(CONCAT(".$pkColumn.", ':', ?, ':', ?))", // the SQL
+			$credentials['password'], // the arguments
 			ROW_APP_SECRET,
 		);
-//print_r($credentials);
 
 		return static::one($credentials);
 	}
 
 	public function setPassword( $password ) {
 		$pk = $this->_pkValue();
-		$id = reset($pk);
+		$id = implode(',', $pk);
 
 		$update = array(
 			'password' => sha1($id . ':' . $password . ':' . ROW_APP_SECRET),
 		);
-		// don't `this->update`, because that might trigger ->setPassword etc etc etc
+		// don't `this->update`, because that might've been overridden by the app
 		return self::_update($update, $pk);
 	}
 
