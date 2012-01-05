@@ -10,26 +10,34 @@
 <body>
 <div class="body">
 
-<?if( $messages ):?>
-	<ul id="messages">
-		<?foreach( $messages AS $message ):?>
-			<li class="<?=$message[1]?>"><?=$message[0]?></li>
-		<?endforeach?>
-	</ul>
-<?endif?>
-
-<header id="login">
-	<?=$this::link($this::translate('Home'), 'blog')?> |
-	<?=$this::link($this::translate('About'), 'blog/page/about')?> |
-	<?=$this::link($this::translate('Help / FAQ'), 'blog/page/faq')?> |
-	<?if( $app->user->isLoggedIn() ):?>
-		Signed in as: <?=$this::ajaxLink($app->user, $app->user->user->url())?> (<?=$this::link($this::translate('sign out'), 'blog/logout')?>)
-	<?else:?>
-		You're not signed in... (<?=$this::link($this::translate('sign in', null, array('ucfirst' => false)), 'blog/user/login')?> or <?=$this::link($this::translate('request account', null, array('ucfirst' => false)), 'blog/user/request-account')?>)
+	<?if( $messages ):?>
+		<ul id="messages">
+			<?foreach( $messages AS $message ):?>
+				<li class="<?=$message[1]?>"><?=$message[0]?></li>
+			<?endforeach?>
+		</ul>
 	<?endif?>
-</header>
 
-<?=$content?>
+	<header id="login">
+		<?=$this::link($this::translate('Home'), 'blog')?> |
+		<?=$this::link($this::translate('About'), 'blog/page/about')?> |
+		<?=$this::link($this::translate('Help / FAQ'), 'blog/page/faq')?> |
+		<?if( $User->isLoggedIn() ):?>
+			Signed in as: <?=$this::ajaxLink($User, $User->user->url())?> (<?=$this::link($this::translate('sign out'), 'blog/logout')?>)
+		<?else:?>
+			You're not signed in... (<?=$this::link($this::translate('sign in', null, array('ucfirst' => false)), 'blog/user/login')?> or <?=$this::link($this::translate('request account', null, array('ucfirst' => false)), 'blog/user/request-account')?>)
+		<?endif?>
+	</header>
+
+	<?=$content?>
+
+	<pre>
+		<?print_r(\row\database\Model::dbObject()->queries)?>
+	</pre>
+
+</div>
+
+<div id="overlays"></div>
 
 <script src="<?=$this::asset('js/all.js')?>"></script>
 <script>
@@ -45,15 +53,6 @@ document.bind('keyup', function(e) {
 	}
 });
 </script>
-
-<pre>
-	<?print_r(\row\database\Model::dbObject()->queries)?>
-</pre>
-
-</div>
-
-<div id="overlays"></div>
 </body>
 
 </html>
-<? // exit // this page is now valid XML =) Well... if you remove the doctype... ?>
