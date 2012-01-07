@@ -238,7 +238,7 @@ abstract class Dispatcher extends Object {
 						'arguments' => isset($to['arguments']) ? $to['arguments'] : array(),
 					);
 					if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
-						return $this->initController($controller, $actionInfo);
+						return $this->prepController($controller, $actionInfo);
 					}
 				}
 			}
@@ -259,7 +259,7 @@ abstract class Dispatcher extends Object {
 				$actionInfo = $this->getActionInfo($controller, $actionPath);
 
 				if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
-					return $this->initController($controller, $actionInfo);
+					return $this->prepController($controller, $actionInfo);
 				}
 			}
 		}
@@ -271,7 +271,7 @@ abstract class Dispatcher extends Object {
 		$controller = $this->getControllerObject($fallback);
 		$actionInfo = $this->getActionInfo($controller, $actionPath);
 		if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
-			return $this->initController($controller, $actionInfo);
+			return $this->prepController($controller, $actionInfo);
 		}
 
 		// 404 Not found
@@ -279,8 +279,7 @@ abstract class Dispatcher extends Object {
 	}
 
 
-	protected function initController( ROWController $controller, Array $actionInfo ) {
-		$controller->_fire('init');
+	protected function prepController( ROWController $controller, Array $actionInfo ) {
 		$this->actionInfo = $actionInfo;
 		return $controller;
 	}

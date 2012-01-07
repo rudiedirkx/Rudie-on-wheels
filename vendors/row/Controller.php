@@ -46,6 +46,8 @@ abstract class Controller extends Object {
 		$this->HEAD = $this->_head();
 		$this->DELETE = $this->_delete();
 		$this->PUT = $this->_put();
+
+		$this->_fire('init');
 	}
 
 
