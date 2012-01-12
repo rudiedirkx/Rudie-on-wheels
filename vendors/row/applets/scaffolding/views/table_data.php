@@ -17,25 +17,25 @@
 	<table>
 	<thead>
 		<tr>
-	<? $k0 = key($data) ?>
-	<?foreach( $data[$k0] AS $k => $v ):?>
-			<th><?=row\utils\Inflector::spacify($k)?></th>
-	<?endforeach?>
+			<? $k0 = key($data) ?>
+			<?foreach( $data[$k0] AS $k => $v ):?>
+				<th><?=$this::html(row\utils\Inflector::spacify($k))?></th>
+			<?endforeach?>
 			<td colspan=2></td>
 		</tr>
 	</thead>
 	<tbody>
-	<?foreach( $data AS $row ):?>
-		<tr>
-		<? $pkValues = array() ?>
-		<?foreach( $row AS $k => $v ):?>
-			<td><?=$v?></td>
-			<?if( in_array($k, $pkColumns) ) $pkValues[] = $v;?>
+		<?foreach( $data AS $row ):?>
+			<tr>
+				<? $pkValues = array() ?>
+				<?foreach( $row AS $k => $v ):?>
+					<td><?=$this::html($v)?></td>
+					<?if( in_array($k, $pkColumns) ) $pkValues[] = $v;?>
+				<?endforeach?>
+				<td><a href="<?=$app->_url('table-data', $table.'/pk/'.implode(',', $pkValues))?>">edit</a></td>
+				<td><a onclick="return confirm('This can not be undone! Are you sure you want to DELETE this record?');" href="<?=$app->_url('table-data', $table.'/pk/delete/'.implode(',', $pkValues))?>">delete</a></td>
+			</tr>
 		<?endforeach?>
-			<td><a href="<?=$app->_url('table-data', $table.'/pk/'.implode(',', $pkValues))?>">edit</a></td>
-			<td><a onclick="return confirm('This can not be undone! Are you sure you want to DELETE this record?');" href="<?=$app->_url('table-data', $table.'/pk/delete/'.implode(',', $pkValues))?>">delete</a></td>
-		</tr>
-	<?endforeach?>
 	</tbody>
 	</table>
 

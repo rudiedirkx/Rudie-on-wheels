@@ -9,14 +9,14 @@ echo '<table><thead><tr>';
 echo '<th>Name</th>';
 $k0 = key($columns);
 foreach ( $columns[$k0] AS $k => $v ) {
-	echo '<th>' . $k . '</th>';
+	echo '<th>' . $this::html($k) . '</th>';
 }
 echo '</tr></thead><tbody>';
 foreach ( $columns AS $name => $row ) {
 	echo '<tr>';
-	echo '<td>' . row\utils\Inflector::spacify($name) . '</td>';
+	echo '<td>' . $this::html(row\utils\Inflector::spacify($name)) . '</td>';
 	foreach ( $row AS $k => $v ) {
-		echo '<td>' . $v . '</td>';
+		echo '<td>' . $this::html($v) . '</td>';
 	}
 	echo '</tr>';
 }

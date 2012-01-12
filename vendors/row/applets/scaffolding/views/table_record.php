@@ -14,10 +14,10 @@ foreach ( $data AS $k => $v ) {
 	echo '<tr>';
 	echo '<th>'.$k.'</th>';
 	if ( in_array($k, $pkColumns) ) {
-		echo '<td colspan="2">'.htmlspecialchars($v).'</td>';
+		echo '<td colspan="2">'.$this::html($v).'</td>';
 	}
 	else {
-		echo '<td><textarea name="data['.$k.']">'.htmlspecialchars($v).'</textarea></td>';
+		echo '<td><textarea name="data['.$k.']">'.$this::html($v).'</textarea></td>';
 		echo '<td align="center"><input type="checkbox" name="null['.$k.']"'.( null === $v ? ' checked' : '' ).( !$columns[$k]['null'] ? ' disabled' : '' ).' /></td>';
 	}
 	echo '</tr>';
