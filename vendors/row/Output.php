@@ -57,6 +57,9 @@ class Output extends Object {
 
 		// Make sure the content and title vars exist
 		$this->vars[$this::$_var_content] = $this->vars[$this::$_var_title] = '';
+
+		$this->assign('Application', $this::$application);
+		$this->assign('User', $this::$application->user);
 	}
 
 	public function assign( $key, $val = null ) {
@@ -75,26 +78,35 @@ class Output extends Object {
 		if ( $mcp = $this::$application->dispatcher->options->module_class_prefix ) {
 			$folder = substr($folder, strlen($mcp));
 		}
+
 		if ( $mcp = $this::$application->dispatcher->options->module_class_postfix ) {
 			$folder = substr($folder, 0, -1*strlen($mcp));
 		}
+
 		return $folder;
 	}
 
 	public function templateFileTranslation( $file ) {
-		if ( $anp = $this::$application->dispatcher->options->action_name_prefix ) {
-			$file = substr($file, strlen($anp));
+		// don't transliterate controllers with action paths
+		if ( !$this::$application->_getActionPaths() ) {
+			if ( $anp = $this::$application->dispatcher->options->action_name_prefix ) {
+				$file = substr($file, strlen($anp));
+			}
+
+			if ( $anp = $this::$application->dispatcher->options->action_name_postfix ) {
+				$file = substr($file, 0, -1*strlen($anp));
+			}
 		}
-		if ( $anp = $this::$application->dispatcher->options->action_name_postfix ) {
-			$file = substr($file, 0, -1*strlen($anp));
-		}
+
 		return $file;
 	}
 
 	public function viewFile( $tpl, &$viewLayout ) {
 		if ( true === $tpl ) {
 			// Use view of Controller+Action
-			$tpl = get_class($this::$application) . '::' . $this::$application->dispatcher->actionInfo['action'];
+			$controller = get_class($this::$application);
+			$action = $this::$application->dispatcher->actionInfo['action'] ?: $this::$application->dispatcher->options->default_action;
+			$tpl = $controller . '::' . $action;
 		}
 		else if ( false === $tpl ) {
 			// Use no view: just the $content var
@@ -174,9 +186,10 @@ class Output extends Object {
 	}
 
 	public function title( $title = null ) {
-		if ( is_string($title) ) {
-			$this->assign('title', $title);
+		if ( $title ) {
+			$this->assign('title', (string)$title);
 		}
+
 		return $this->vars['title'];
 	}
 

@@ -57,10 +57,11 @@ abstract class Controller extends Object {
 		$this->post = Options::make($_POST);
 		$this->get = Options::make($_GET);
 
-		// overridable Output / View / Template engine
-		$this->tpl = new Output($this);
-
 		$this->user = SessionUser::user();
+
+		// overridable Output / View / Template engine
+		$O = Output::$class;
+		$this->tpl = new $O($this);
 	}
 
 	protected function _pre_action() {
