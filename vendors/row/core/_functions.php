@@ -3,6 +3,18 @@
 use row\core\Options;
 use row\Output;
 
+function l($label, $uri, $options = array()) {
+	$O = Output::$class;
+
+	return $O::link($label, $uri, $options);
+}
+
+function t($str, $replace = array(), $options = array()) {
+	$O = Output::$class;
+
+	return $O::translate($str, $replace, $options);
+}
+
 function row_array_map($from, $cb) {
 	$to = array();
 	foreach ( $from AS $k => $v ) {
@@ -39,11 +51,6 @@ function rpad( $val, $len = 2, $pad = '0' ) {
 
 function options( $options ) {
 	return Options::make($options);
-}
-
-function translate( $text, $replace = array(), $options = array() ) {
-	$class = Output::$class;
-	return $class::translate($text, $replace = array(), $options);
 }
 
 
