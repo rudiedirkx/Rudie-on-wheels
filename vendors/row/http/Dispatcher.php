@@ -269,6 +269,11 @@ abstract class Dispatcher extends Object {
 		// 3. Find action match
 		$actionPath = $uri;
 		$controller = $this->getControllerObject($fallback);
+		if ( !$controller ) {
+			// 404 Not found
+			$this->throwNotFound();
+		}
+
 		$actionInfo = $this->getActionInfo($controller, $actionPath);
 		if ( $this->isCallableActionFunction($controller, $actionInfo) ) {
 			return $this->prepController($controller, $actionInfo);

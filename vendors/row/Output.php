@@ -306,7 +306,7 @@ class Output extends Object {
 
 		$query = '';
 		if ( $options->get ) {
-			$query = '?' . ( is_scalar($options->get) ? $options->get : http_build_query((array)$options->get, '') );
+			$query = '?' . ( is_scalar($options->get) ? $options->get : static::urlrevert(http_build_query((array)$options->get, '')) );
 		}
 
 		return $prefix . $base . $path . $query;
@@ -334,7 +334,7 @@ class Output extends Object {
 		return '<a href="'.$href.'"'.$attributes.'>'.static::html($text).'</a>';
 	}
 
-	static public function urlencode( $in ) {
+	static public function urlrevert( $in ) {
 		$revert = array(
 			'%5B' => '[',
 			'%5D' => ']',
@@ -342,8 +342,12 @@ class Output extends Object {
 			'%20' => '+',
 		);
 
+		return strtr($in, $revert);
+	}
+
+	static public function urlencode( $in ) {
 		$out = urlencode($in);
-		$out = strtr($out, $revert);
+		$out = static::urlrevert($out);
 
 		return $out;
 	}

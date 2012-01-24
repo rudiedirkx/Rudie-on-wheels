@@ -13,15 +13,13 @@ class Controller extends \row\Controller {
 		'/table-data/%'					=> 'table_data',
 		'/table-data/%/add'				=> 'add_data',
 		'/table-data/%/add/save'		=> 'insert_data',
-		'/table-data/%/pk/delete/CSV'	=> 'delete_record',
-		'/table-data/%/pk/CSV'			=> 'table_record', // CSV is a new wildcard -- see _init()
-		'/table-data/%/pk/CSV/save'		=> 'save_table_record',
+		'/table-data/%/delete'			=> 'delete_record',
+		'/table-data/%/view'			=> 'table_record',
+		'/table-data/%/save'			=> 'save_table_record',
 	);
 
 	protected function _init() {
 		parent::_init();
-
-		$this->dispatcher->options->action_path_wildcards['CSV'] = '(\d+(?:,\d+)*)';
 
 		$this->view = new Output($this);
 		$this->view->viewsFolder = __DIR__.'/views';
@@ -29,12 +27,13 @@ class Controller extends \row\Controller {
 		$this->view->assign('app', $this);
 	}
 
-	public function delete_record( $table, $pkValues ) {
+	public function delete_record( $table ) {
+		$pkValues = $_GET['pk'];
 		$pkColumns = Model::dbObject()->_getPKColumns($table);
-		$pkValues = explode(',', $pkValues);
 		if ( count($pkColumns) !== count($pkValues) ) {
 			exit('Invalid PK');
 		}
+
 		$pkValues = array_combine($pkColumns, $pkValues);
 
 		$db = Model::dbObject();
@@ -88,12 +87,13 @@ class Controller extends \row\Controller {
 		return $this->view->display('add_data', get_defined_vars());
 	}
 
-	public function table_record( $table, $pkValues ) {
+	public function table_record( $table ) {
+		$pkValues = $_GET['pk'];
 		$pkColumns = Model::dbObject()->_getPKColumns($table);
-		$pkValues = explode(',', $pkValues);
 		if ( count($pkColumns) !== count($pkValues) ) {
 			exit('Invalid PK');
 		}
+
 		$pkValues = array_combine($pkColumns, $pkValues);
 		$data = Model::dbObject()->select($table, $pkValues, array(), true);
 		$columns = Model::dbObject()->_getTableColumns($table);
@@ -119,15 +119,11 @@ class Controller extends \row\Controller {
 		return $this->view->display('tables', get_defined_vars());
 	}
 
-	public function _url( $action = '', $more = '' ) {
+	public function _url( $action = '', $more = '', $query = array() ) {
 		$x = explode('/', ltrim($this->dispatcher->requestPath, '/'));
 
-		$uri = Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ));
-		if ( $_GET ) {
-			$qs = http_build_query($_GET);
-			$delim = is_int(strpos($uri, '?')) ? '&' : '?';
-			$uri .= $delim . $qs;
-		}
+		$query = $query + $_GET;
+		$uri = Output::url($x[0].( $action ? '/'.$action.( $more ? '/'.$more : '' ) : '' ), array('get' => $query));
 
 		return $uri;
 	}

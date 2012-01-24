@@ -32,8 +32,8 @@
 					<td><?=$this::html($v)?></td>
 					<?if( in_array($k, $pkColumns) ) $pkValues[] = $v;?>
 				<?endforeach?>
-				<td><a href="<?=$app->_url('table-data', $table.'/pk/'.implode(',', $pkValues))?>">edit</a></td>
-				<td><a onclick="return confirm('This can not be undone! Are you sure you want to DELETE this record?');" href="<?=$app->_url('table-data', $table.'/pk/delete/'.implode(',', $pkValues))?>">delete</a></td>
+				<td><a href="<?=$app->_url('table-data', $table.'/view', array('pk' => $pkValues))?>">edit</a></td>
+				<td><a onclick="return confirm('This can not be undone! Are you sure you want to DELETE this record?');" href="<?=$app->_url('table-data', $table.'/delete', array('pk' => $pkValues))?>">delete</a></td>
 			</tr>
 		<?endforeach?>
 	</tbody>

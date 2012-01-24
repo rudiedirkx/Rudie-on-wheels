@@ -39,12 +39,15 @@ class SessionUser extends Object {
 	public $ip = '';
 	public $ua = '';
 
+	public $session = array();
+
 	public function __construct() {
 		$this->ip = $this::IP();
 		$this->ua = $this::UA();
 
 		// Step 0: create Anonymous (once per HTTP request, preferably (?) in the HTTP bootstrap)
 		$this->validate();
+		$this->session = &Session::$session;
 
 		$GLOBALS['User'] = $this;
 
@@ -56,7 +59,8 @@ class SessionUser extends Object {
 	// Step 1: login (once per session)
 	public function login( \row\database\Model $user ) {
 		$s = Session::$class;
-		$s::required();
+		$s::regenerate();
+		$this->session = &$s::$session;
 
 		// Alter _SESSION
 		$login = array(
@@ -117,7 +121,6 @@ class SessionUser extends Object {
 
 	// Step 3: check login status (many times per HTTP request)
 	public function isLoggedIn() {
-//		$this->validate(); // Done in __construct
 		return !!$this->user; // That easy??
 	}
 
@@ -154,7 +157,14 @@ class SessionUser extends Object {
 		$s = Session::$class;
 
 		// remove login layer from SESSION
-		array_pop($s::$session['logins']);
+		$loggedOut = (bool)array_pop($s::$session['logins']);
+
+		// regenerate for next login layer
+		if ( $s::$session['logins'] ) {
+			$s::regenerate();
+		}
+
+		return $loggedOut;
 	}
 
 

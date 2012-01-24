@@ -9,7 +9,7 @@ class Session extends Object {
 
 	static public $class = __CLASS__;
 
-	static public $name = 'row_4_0';
+	static public $name = 'row1';
 
 	static public $id; // PHP's session id
 	static public $session;
@@ -27,6 +27,8 @@ class Session extends Object {
 	}
 
 	static public function validateEnvironment() {
+		static::preInit();
+
 		if ( static::exists() ) {
 			$su = SessionUser::$class;
 			// Check IP
@@ -40,17 +42,35 @@ class Session extends Object {
 	}
 
 	static public function preInit() {
-		$sname = ini_get('session.name');
-		if ( isset($_POST[$sname]) ) {
-			session_id($_POST[$sname]);
-		}
+		static $inited = false;
 
-		$su = SessionUser::$class;
-		session_set_cookie_params(0, $GLOBALS['Dispatcher']->requestBasePath, $su::Domain(), false, true);
+		if ( !$inited ) {
+			$inited = true;
+
+			$sname = static::$name;
+			session_name($sname);
+
+#			$su = SessionUser::$class;
+#			session_set_cookie_params(0, $GLOBALS['Dispatcher']->requestBasePath, $su::Domain(), false, false);
+		}
+	}
+
+	static public function destroy() {
+		if ( static::exists() ) {
+			session_destroy();
+		}
+	}
+
+	static public function regenerate() {
+		static::required();
+
+		session_regenerate_id(true);
 	}
 
 	static public function exists() {
-		$sname = ini_get('session.name');
+		static::preInit();
+
+		$sname = static::$name;
 		$exists = !empty($_SESSION) || isset($_COOKIE[$sname]) || isset($_POST[$sname]);
 		if ( $exists ) {
 			static::required();
@@ -59,18 +79,17 @@ class Session extends Object {
 	}
 
 	static public function required() {
+		static::preInit();
+
 		$sid = session_id();
 		if ( !$sid ) {
 
-			// Session not started for this request
-
-			static::preInit();
-
 			session_start();
+			$sid = session_id();
 
-			if ( !isset($_SESSION[static::$name], $_SESSION[static::$name]['ip'], $_SESSION[static::$name]['ua']) ) {
+			if ( !isset($_SESSION['ip'], $_SESSION['logins']) ) {
 				// Session not started for this session
-				$_SESSION[static::$name] = array(
+				$_SESSION = array(
 					'ip' => sha1($_SERVER['REMOTE_ADDR']),
 					'ua' => sha1($_SERVER['HTTP_USER_AGENT']),
 					'start' => time(),
@@ -84,7 +103,7 @@ class Session extends Object {
 				
 			}
 
-			static::$session =& $_SESSION[static::$name];
+			static::$session =& $_SESSION;
 			static::$id = session_id();
 
 		}
