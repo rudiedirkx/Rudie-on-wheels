@@ -3,6 +3,11 @@
 use row\core\Options;
 use row\Output;
 
+function redirect($location, $exit = true) {
+	global $Application;
+	return $Application->_redirect($location);
+}
+
 function l($label, $uri, $options = array()) {
 	$O = Output::$class;
 
