@@ -40,6 +40,8 @@ abstract class Controller extends Object {
 		$this->dispatcher = $dispatcher;
 		$this->uri = $this->dispatcher->requestPath;
 
+		$GLOBALS['Application'] = $this;
+
 		$this->AJAX = $this->_ajax();
 		$this->POST = $this->_post();
 		$this->GET = $this->_get();

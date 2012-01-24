@@ -144,8 +144,6 @@ abstract class Dispatcher extends Object {
 		$controller = $this->getController($f_path);
 		$this->application = $controller;
 
-		$GLOBALS['Application'] = $this;
-
 		$this->_fire('post_dispatch');
 
 		return $controller;
