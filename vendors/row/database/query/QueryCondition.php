@@ -2,8 +2,11 @@
 
 namespace row\database\query;
 
-abstract class QueryCondition implements \ArrayAccess {
+use ArrayAccess;
+
+abstract class QueryCondition implements ArrayAccess {
 	static public function create( $conditions ) {
+		// ( cond, cond, ... )
 		if ( 1 < func_num_args() ) {
 			return new static(func_get_args());
 		}
@@ -16,6 +19,7 @@ abstract class QueryCondition implements \ArrayAccess {
 			return new static(array($conditions));
 		}
 
+		// ( [ cond, cond, ... ] )
 		return new static($conditions);
 	}
 
@@ -39,8 +43,9 @@ abstract class QueryCondition implements \ArrayAccess {
 			if ( is_a($condition, 'row\database\query\QueryCondition') ) {
 				$conditions[] = $condition->render($db);
 			}
-
-			$conditions[] = $db->condition($condition, $k);
+			else {
+				$conditions[] = $db->condition($condition, $k);
+			}
 		}
 
 		$ldelim = '(';
