@@ -3,35 +3,60 @@
 use row\core\Options;
 use row\Output;
 
-function redirect($location, $exit = true) {
-	global $Application;
-	return $Application->_redirect($location);
+function &_cache( $key = null, callable $callback = null, callable $postProcess = null ) {
+	static $cache;
+
+	if ( null !== $key ) {
+		if ( !isset($cache[$key]) ) {
+			$cacheItem = null;
+
+			if ( $callback ) {
+				$cacheItem = $callback();
+
+				if ( $postProcess ) {
+					$cacheItem = $postProcess($cacheItem, $key);
+				}
+
+			}
+
+			$cache[$key] = $cacheItem;
+		}
+
+		return $cache[$key];
+	}
+
+	return $cache;
 }
 
-function l($label, $uri, $options = array()) {
+function redirect( $location, $exit = true ) {
+	global $Application;
+	return $Application->_redirect($location, $exit);
+}
+
+function l( $label, $uri, $options = array() ) {
 	$O = Output::$class;
 
 	return $O::link($label, $uri, $options);
 }
 
-function t($str, $replace = array(), $options = array()) {
+function t( $str, $replace = array(), $options = array() ) {
 	$O = Output::$class;
 
 	return $O::translate($str, $replace, $options);
 }
 
-function row_array_map($from, $cb) {
+function row_array_map( $from, callable $callback ) {
 	$to = array();
 	foreach ( $from AS $k => $v ) {
-		$to[$k] = $cb($v, $k, $from);
+		$to[$k] = $callback($v, $k, $from);
 	}
 	return $to;
 }
 
-function row_array_filter($from, $cb) {
+function row_array_filter( $from, callable $callback ) {
 	$to = array();
 	foreach ( $from AS $k => $v ) {
-		if ( $cb($v, $k, $from) ) {
+		if ( $callback($v, $k, $from) ) {
 			$to[$k] = $v;
 		}
 	}
