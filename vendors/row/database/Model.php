@@ -141,6 +141,7 @@ abstract class Model extends ModelParent {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
+var_dump($conditions);
 		$query = static::_query();
 		$query['conditions'][] = array($conditions, $params);
 		$query['limit'] = array(0, 2);
@@ -188,23 +189,24 @@ abstract class Model extends ModelParent {
 	/**
 	 * 
 	 */
-	static public function _get( $pkValues, $moreConditions = '', $params = array() ) {
+	static public function _get( $pkValues ) {
 		$pkValues = (array)$pkValues;
+		$model = get_called_class();
 
-		$pkColumns = (array)static::$_pk;
-		if ( count($pkValues) !== count($pkColumns) ) {
-			throw new NotEnoughFoundException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
-		}
-		$pkValues = array_combine($pkColumns, $pkValues);
+		$key = $model . ':' . implode(':', $pkValues);
+		return _cache($key, function() use ($model, $pkValues) {
 
-		$conditions = static::dbObject()->stringifyConditions($pkValues, 'AND', static::$_table);
-		if ( $moreConditions ) {
-			$conditions .= ' AND '.static::dbObject()->replaceholders($moreConditions, $params);
-		}
+			$pkColumns = (array)$model::$_pk;
+			if ( count($pkValues) !== count($pkColumns) ) {
+				throw new NotEnoughFoundException('Invalid number of PK arguments ('.count($pkValues).' instead of '.count($pkColumns).').');
+			}
+			$pkValues = array_combine($pkColumns, $pkValues);
 
-		$r = static::_one($conditions);
+			$conditions = $model::dbObject()->stringifyConditions($pkValues, 'AND', $model::$_table);
 
-		return $r;
+			return $model::_one($conditions);
+
+		});
 	}
 
 	/**
