@@ -141,7 +141,7 @@ abstract class Model extends ModelParent {
 	 * Returns exactly one object with the matching conditions OR throws a model exception
 	 */
 	static public function _one( $conditions, $params = array() ) {
-var_dump($conditions);
+//var_dump($conditions);
 		$query = static::_query();
 		$query['conditions'][] = array($conditions, $params);
 		$query['limit'] = array(0, 2);
